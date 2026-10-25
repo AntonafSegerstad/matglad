@@ -2,6 +2,8 @@
 
 En öppen gemensam inköpslista. Lägg till och bocka av med tryck eller röst via ditt OpenAI API-konto. Alla enheter mot samma server delar listan; ändringar hämtas var femte sekund. Inga konton, recept, lager eller hushållssysslor ännu.
 
+Planerade funktioner, inklusive kvittoskanning, finns i [kravdokumentet](KRAV.md).
+
 ## Kör lokalt
 
 Kräver Node.js 24 eller senare. Kör `npm ci` för att installera databasdrivrutinen.
