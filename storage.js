@@ -1,6 +1,6 @@
 import { readFile, writeFile, mkdir, rename } from 'node:fs/promises';
 import path from 'node:path';
-import { applyActions } from './list.js';
+import { applyActions, normalizeItems } from './list.js';
 
 export async function createStore() {
   if (process.env.DATABASE_URL) {
@@ -15,7 +15,7 @@ export async function createStore() {
     await load();
     return {
       kind: 'postgres',
-      read: async () => (await load()).items,
+      read: async () => normalizeItems((await load()).items),
       async commit(actions) {
         // Compare-and-swap avoids losing updates during overlapping requests/deploys.
         for (let attempt = 0; attempt < 5; attempt++) {
@@ -38,7 +38,7 @@ export async function createStore() {
   let queue = Promise.resolve();
   return {
     kind: 'file',
-    read: async () => structuredClone(items),
+    read: async () => normalizeItems(structuredClone(items)),
     commit(actions) {
       const task = queue.then(async () => {
         const result = applyActions(items, actions);

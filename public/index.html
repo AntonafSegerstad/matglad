@@ -6,7 +6,7 @@
 <section class="voice"><button id="mic" class="mic" type="button">● Börja prata</button><p id="voice-hint">”Lägg till mjölk och ägg” · ”Jag har köpt mjölken”</p><p class="privacy">Ljud skickas till OpenAI när du stoppar inspelningen.</p></section>
 <p id="status" role="status" aria-live="polite"></p><p id="transcript" hidden></p>
 <section class="list-card"><div class="list-heading"><h2>Att handla</h2><span id="count">0 kvar</span></div>
-<form id="add-form"><label class="sr-only" for="item">Lägg till en vara</label><input id="item" maxlength="120" placeholder="Skriv en vara…" autocomplete="off" required><button type="submit" aria-label="Lägg till vara">+</button></form>
+<form id="add-form"><label class="sr-only" for="item">Lägg till en vara</label><input id="item" maxlength="120" placeholder="Skriv en vara…" autocomplete="off" required><label class="sr-only" for="add-quantity">Antal</label><input id="add-quantity" type="number" min="1" max="999" step="1" value="1" inputmode="numeric" aria-label="Antal nya varor" required><button type="submit" aria-label="Lägg till vara">+</button></form>
 <div id="items"></div><p id="empty">Listan är tom. Säg eller skriv det ni behöver.</p>
 </section>
 <details><summary>Vill du skriva ett röstkommando?</summary><form id="command-form"><label for="command">Till exempel ”Bocka av äggen”</label><div class="command-row"><input id="command" maxlength="2000" required placeholder="Vad vill du ändra?"><button type="submit">Skicka</button></div></form></details>

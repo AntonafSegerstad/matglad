@@ -11,5 +11,8 @@
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.2.0"
+  },
+  "devDependencies": {
+    "linkedom": "^0.18.14"
   }
 }

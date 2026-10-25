@@ -21,7 +21,18 @@ Listan fungerar utan nyckel. AI och röst kräver en nyckel och nätanslutning. 
 - Lägg till med textfältet och ändra bockar manuellt.
 - Prova samma kommandon i text under ”Vill du skriva ett röstkommando?”.
 
-Appen visar transkript och resultat. Bocka tillbaka manuellt vid feltolkning. Befintliga produkter matchas utan hänsyn till stora/små bokstäver. Detta är ingen fullständig produktkatalog: namn som ”sex ägg” och ”ägg” kan ännu bli separata poster.
+Appen visar transkript och resultat. Bocka tillbaka manuellt vid feltolkning. Befintliga produkter matchas utan hänsyn till stora/små bokstäver.
+
+## Kategorier och artikelkontroller
+
+- Kategorierna i `public/categories.js` följer Elins butiksordning. Endast kategorier med artiklar visas. Även avbockade artiklar behåller platsen inom sin kategori.
+- AI kategoriserar både röstinmatade och manuellt tillagda nya varor. Nuvarande varor utan kategori kategoriseras i bakgrunden vid serverstart.
+- Varje artikel har en kategoriväljare, antal 1–999 med minus/plus och direkt inmatning, samt en knapp för borttagning.
+- Kategoribyten och antal sparas direkt. Manuellt valda kategorier bevaras vid senare AI-kategorisering och när samma vara läggs till igen.
+- Exempel: ”Lägg till två paket mjölk”, ”Ändra antalet mjölk till tre” och ”Ta bort mjölken”. ”Jag har köpt mjölken” bockar av varan och tar inte bort den.
+- Antal avser artiklar/förpackningar. Vikt eller volym kan finnas i namnet och räknas inte om till antal.
+- Om AI-kategorisering inte är tillgänglig sparas varan ändå under ”Välj kategori”, där kategori kan väljas manuellt. Kontroller för antal, avbockning, kategoribyte och borttagning kräver inga AI-anrop.
+- Äldre varor får antal ett. Utökningen använder befintlig JSON-lagring och kräver ingen SQL-migrering.
 
 ## Data och drift
 
@@ -43,10 +54,10 @@ Det nya Neon-projektet HomeHelper är `orange-mode-28651805`, databas `homehelpe
 
 GitHub Actions kör tester och syntaxkontroller vid push. Appen är live på https://homehelper-i7to.onrender.com. Deployment, databas och OpenAI är verifierade. Rösttillägg och avbockning är testade med syntetiska ljudklipp; svenskt tal från mobilmikrofon återstår att verifiera. Render-verktyget saknar stöd för att skapa projektmappar och kopiera befintliga serverhemligheter; dessa moment behöver Render-panelen eller en separat API-anslutning.
 
-Appen är avsiktligt öppen: alla som når servern kan läsa och ändra listan samt använda AI-kopplingen. Det finns ett enkelt globalt tak på 60 AI-kommandon/timme per process och endast ett samtidigt AI-kommando. Taket återställs vid omstart; sätt även en budget i OpenAI-projektet. Nyckeln exponeras aldrig till klienten.
+Appen är avsiktligt öppen: alla som når servern kan läsa och ändra listan samt använda AI-kopplingen. Det finns ett enkelt globalt tak på 60 AI-anrop/timme per process och endast ett samtidigt AI-anrop, inklusive kategorisering. Taket återställs vid omstart; sätt även en budget i OpenAI-projektet. Nyckeln exponeras aldrig till klienten.
 
 Manifest och ikon finns för hemskärmsläge. Offlinefunktion, service worker och push ingår inte i första steget.
 
 ## Kontroll
 
-`npm test` testar liständringar, felhantering och AI-kontrakt med simulerade svar. Ett riktigt rösttest kräver mikrofon och konfigurerad API-nyckel.
+`npm test` kör 21 tester för liständringar, AI-kontrakt, kategoriernas ordning, DOM-kontroller och HTTP-API inklusive sparande efter serveromstart. AI-svaren i testsviten är simulerade. Ett riktigt rösttest kräver mikrofon och konfigurerad API-nyckel. `.npmrc` inkluderar testberoenden även när byggmiljön har NODE_ENV=production.

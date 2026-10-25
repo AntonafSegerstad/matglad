@@ -2,7 +2,8 @@ import http from 'node:http';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { interpret } from './list.js';
+import { interpret, applyActions, classifyProducts, categorizeNewActions } from './list.js';
+import { isCategory } from './public/categories.js';
 import { createStore } from './storage.js';
 
 const root = path.dirname(fileURLToPath(import.meta.url));
@@ -20,6 +21,29 @@ async function body(req, max) {
 const json = (res, code, value) => { res.writeHead(code, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' }); res.end(JSON.stringify(value)); };
 let aiBusy = false;
 const aiCalls = [];
+async function runAI(task) {
+  const now = Date.now();
+  while (aiCalls.length && aiCalls[0] < now - 3600000) aiCalls.shift();
+  if (aiBusy || aiCalls.length >= 60) {
+    const error = new Error('Vänta lite innan nästa AI-kommando.');
+    error.status = 429;
+    throw error;
+  }
+  aiBusy = true;
+  aiCalls.push(now);
+  try { return await task(); } finally { aiBusy = false; }
+}
+
+async function categorizeExisting() {
+  if (!process.env.OPENAI_API_KEY) return;
+  const uncategorized = (await store.read()).filter(item => !isCategory(item.category));
+  for (let offset = 0; offset < uncategorized.length; offset += 50) {
+    const batch = uncategorized.slice(offset, offset + 50);
+    const categories = await runAI(() => classifyProducts(batch.map(item => item.name), process.env.OPENAI_API_KEY));
+    const actions = batch.flatMap((item, index) => isCategory(categories[index]) ? [{ type: 'categorize', id: item.id, name: item.name, category: categories[index] }] : []);
+    if (actions.length) await commit(actions);
+  }
+}
 const server = http.createServer(async (req, res) => {
   const url = new URL(req.url, 'http://localhost');
   try {
@@ -30,17 +54,24 @@ const server = http.createServer(async (req, res) => {
       const origin = req.headers.origin;
       if (origin && new URL(origin).host !== req.headers.host) return json(res, 403, { error: 'Otillåtet ursprung.' });
       if (url.pathname === '/api/actions') {
-        const { actions } = JSON.parse((await body(req, 20000)).toString());
-        return json(res, 200, await commit(actions));
+        let { actions } = JSON.parse((await body(req, 20000)).toString());
+        const current = await store.read();
+        applyActions(current, actions);
+        let warning;
+        if (process.env.OPENAI_API_KEY) {
+          try {
+            actions = await categorizeNewActions(actions, current, names => runAI(() => classifyProducts(names, process.env.OPENAI_API_KEY)));
+          } catch {
+            // A failed classification must not lose the user's shopping items.
+            warning = 'Varan är sparad. Välj kategori på raden om den saknas.';
+          }
+        }
+        return json(res, 200, { ...await commit(actions), ...(warning ? { warning } : {}) });
       }
       if (url.pathname === '/api/voice' || url.pathname === '/api/command') {
         const key = process.env.OPENAI_API_KEY;
         if (!key) return json(res, 503, { error: 'Lägg till OPENAI_API_KEY i serverns .env för att aktivera AI och röst.' });
-        const now = Date.now();
-        while (aiCalls.length && aiCalls[0] < now - 3600000) aiCalls.shift();
-        if (aiBusy || aiCalls.length >= 60) return json(res, 429, { error: 'Vänta lite innan nästa AI-kommando.' });
-        aiBusy = true; aiCalls.push(now);
-        try {
+        return await runAI(async () => {
           let text;
           if (url.pathname === '/api/voice') {
             const mime = (req.headers['content-type'] || '').split(';')[0];
@@ -58,19 +89,23 @@ const server = http.createServer(async (req, res) => {
           if (typeof text !== 'string' || !text.trim() || text.length > 4000) throw new Error('Kommandot är tomt eller för långt.');
           const actions = await interpret(text, await store.read(), key);
           return json(res, 200, { ...await commit(actions), transcript: text });
-        } finally { aiBusy = false; }
+        });
       }
     }
-    const files = { '/': ['index.html', 'text/html'], '/app.js': ['app.js', 'text/javascript'], '/style.css': ['style.css', 'text/css'], '/manifest.webmanifest': ['manifest.webmanifest', 'application/manifest+json'], '/icon.svg': ['icon.svg', 'image/svg+xml'] };
+    const files = { '/': ['index.html', 'text/html'], '/app.js': ['app.js', 'text/javascript'], '/categories.js': ['categories.js', 'text/javascript'], '/list-view.js': ['list-view.js', 'text/javascript'], '/style.css': ['style.css', 'text/css'], '/manifest.webmanifest': ['manifest.webmanifest', 'application/manifest+json'], '/icon.svg': ['icon.svg', 'image/svg+xml'] };
     const file = files[url.pathname];
     if (req.method !== 'GET' || !file) return json(res, 404, { error: 'Sidan finns inte.' });
     res.writeHead(200, { 'Content-Type': `${file[1]}; charset=utf-8` });
     res.end(await readFile(path.join(root, 'public', file[0])));
   } catch (error) {
     if (error.name === 'NeonDbError' || error.sourceError) return json(res, 503, { error: 'Databasen kunde inte nås. Försök igen.' });
-    json(res, 400, { error: error.name === 'TimeoutError' ? 'Anropet tog för lång tid. Försök igen.' : error instanceof SyntaxError ? 'Kunde inte läsa kommandot.' : error.message });
+    json(res, error.status || 400, { error: error.name === 'TimeoutError' ? 'Anropet tog för lång tid. Försök igen.' : error instanceof SyntaxError ? 'Kunde inte läsa kommandot.' : error.message });
   }
 });
-server.listen(Number(process.env.PORT || 3000), '0.0.0.0', () => console.log(`HomeHelper körs på port ${process.env.PORT || 3000}`));
+server.listen(Number(process.env.PORT || 3000), '0.0.0.0', () => {
+  console.log(`HomeHelper körs på port ${server.address().port}`);
+  // Upgrade older lists asynchronously, keeping the app available if AI is down.
+  categorizeExisting().catch(() => console.warn('Automatisk kategorisering kunde inte slutföras. Varorna finns kvar och kan kategoriseras manuellt.'));
+});
 
 process.on('SIGTERM', () => { server.close(() => process.exit(0)); setTimeout(() => process.exit(0), 10000).unref(); });

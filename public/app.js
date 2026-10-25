@@ -1,3 +1,4 @@
+import { renderList } from './list-view.js';
 const $ = id => document.getElementById(id);
 let items = [], busy = false, recorder, stream, timer, chunks = [], starting = false;
 function status(message, error = false) { $('status').textContent = message; $('status').className = error ? 'error' : ''; }
@@ -8,35 +9,36 @@ async function request(url, body, raw = false) {
   return result;
 }
 function render() {
-  $('items').replaceChildren();
-  for (const item of items) {
-    const label = document.createElement('label'); label.className = `item${item.checked ? ' done' : ''}`;
-    const check = document.createElement('input'); check.type = 'checkbox'; check.checked = item.checked; check.disabled = busy;
-    const text = document.createElement('span'); text.textContent = item.name;
-    check.addEventListener('change', () => mutate('/api/actions', { actions: [{ type: check.checked ? 'check' : 'uncheck', id: item.id, name: item.name }] }));
-    label.append(check, text); $('items').append(label);
-  }
+  renderList($('items'), items, action => mutate('/api/actions', { actions: [action] }), busy);
   $('count').textContent = `${items.filter(i => !i.checked).length} kvar`;
   $('empty').hidden = items.length > 0;
 }
 function lock(value) {
   busy = value;
-  document.querySelectorAll('button,input').forEach(el => { el.disabled = value; });
-  render();
+  document.querySelectorAll('button,input,select').forEach(el => { el.disabled = value; });
+  if (!value) render();
 }
 async function mutate(url, body, raw = false) {
   if (busy) return;
+  const focusKey = document.activeElement?.dataset.focusKey;
   lock(true);
   try {
-    const result = await request(url, body, raw); items = result.items; status(result.message);
+    const result = await request(url, body, raw); items = result.items; status(result.warning ? `${result.message} ${result.warning}` : result.message);
     if (result.transcript) { $('transcript').textContent = `Du sa: ”${result.transcript}”`; $('transcript').hidden = false; }
     return true;
   } catch (error) { status(error.message, true); return false; }
-  finally { lock(false); }
+  finally {
+    lock(false);
+    if (focusKey) [...$('items').querySelectorAll('[data-focus-key]')].find(control => control.dataset.focusKey === focusKey)?.focus();
+  }
 }
 $('add-form').addEventListener('submit', async event => {
   event.preventDefault(); const name = $('item').value.trim(); if (!name) return;
-  if (await mutate('/api/actions', { actions: [{ type: 'add', name }] })) $('item').value = '';
+  const quantity = Number($('add-quantity').value);
+  if (!Number.isInteger(quantity) || quantity < 1 || quantity > 999) return;
+  if (await mutate('/api/actions', { actions: [{ type: 'add', name, quantity }] })) {
+    $('item').value = ''; $('add-quantity').value = '1';
+  }
 });
 $('command-form').addEventListener('submit', async event => {
   event.preventDefault(); const text = $('command').value.trim(); if (!text) return;
@@ -70,12 +72,16 @@ $('mic').addEventListener('click', async () => {
     status(error.name === 'NotAllowedError' ? 'Tillåt mikrofonen i webbläsaren eller skriv istället.' : error.message, true);
   } finally { starting = false; $('mic').disabled = false; }
 });
+function editingItem() {
+  const active = document.activeElement;
+  return $('items').contains(active) && (active?.tagName === 'SELECT' || (active?.tagName === 'INPUT' && active.type === 'number'));
+}
 async function refresh() {
-  if (busy || starting || recorder?.state === 'recording') return;
+  if (busy || starting || recorder?.state === 'recording' || editingItem()) return;
   try {
     const result = await request('/api/list');
-    if (busy || starting || recorder?.state === 'recording') return;
-    items = result.items; render();
+    if (busy || starting || recorder?.state === 'recording' || editingItem()) return;
+    if (JSON.stringify(items) !== JSON.stringify(result.items)) { items = result.items; render(); }
     if (!result.voiceEnabled && !$('status').textContent) status('Listan fungerar. Röst aktiveras när servern har en OpenAI API-nyckel.');
   } catch { status('Kan inte nå servern. Kontrollera anslutningen.', true); }
 }
