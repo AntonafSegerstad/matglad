@@ -23,7 +23,6 @@ export function renderList(container, items, onAction, busy = false) {
       row.dataset.itemId = item.id;
       const action = patch => onAction({ name: item.name, id: item.id, ...patch });
       const track = (control, suffix) => { control.dataset.focusKey = `${item.id}:${suffix}`; return control; };
-      const top = doc.createElement('div'); top.className = 'item-top';
       const label = doc.createElement('label'); label.className = 'item-check';
       const check = track(doc.createElement('input'), 'check');
       check.type = 'checkbox'; check.checked = Boolean(item.checked); check.disabled = busy;
@@ -35,8 +34,6 @@ export function renderList(container, items, onAction, busy = false) {
       remove.setAttribute('aria-label', `Ta bort ${item.name}`); remove.title = `Ta bort ${item.name}`;
       remove.innerHTML = trashIcon;
       remove.addEventListener('click', () => action({ type: 'remove' }));
-      top.append(label, remove);
-      const controls = doc.createElement('div'); controls.className = 'item-controls';
       const amount = doc.createElement('div'); amount.className = 'quantity-control';
       amount.setAttribute('role', 'group'); amount.setAttribute('aria-label', `Antal ${item.name}`);
       const quantity = item.quantity ?? 1;
@@ -70,8 +67,7 @@ export function renderList(container, items, onAction, busy = false) {
         option.selected = optionCategory.id === item.category; category.append(option);
       }
       category.addEventListener('change', () => action({ type: 'update', category: category.value }));
-      controls.append(amount, category);
-      row.append(top, controls);
+      row.append(label, amount, category, remove);
       section.append(row);
     }
     fragment.append(section);

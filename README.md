@@ -29,7 +29,8 @@ Appen visar transkript och resultat. Bocka tillbaka manuellt vid feltolkning. Be
 
 - Kategorierna i `public/categories.js` följer Elins butiksordning. Endast kategorier med artiklar visas. Även avbockade artiklar behåller platsen inom sin kategori.
 - AI kategoriserar både röstinmatade och manuellt tillagda nya varor. Nuvarande varor utan kategori kategoriseras i bakgrunden vid serverstart.
-- Varje artikel har en kategoriväljare, antal 1–999 med minus/plus och direkt inmatning, samt en knapp för borttagning.
+- Varje artikel visas på en kompakt rad med namn, kategoriväljare, antal 1–999 och borttagning. Antal kan ändras direkt eller med minus/plus; på de smalaste skärmarna används direkt inmatning. Kategorirubrikerna är större och tydligare.
+- Inmatningsfältet för nya varor har ingen separat antalväljare. Nya varor får antal ett, som kan ändras på artikelraden eller via röst.
 - Kategoribyten och antal sparas direkt. Manuellt valda kategorier bevaras vid senare AI-kategorisering och när samma vara läggs till igen.
 - Exempel: ”Lägg till två paket mjölk”, ”Ändra antalet mjölk till tre” och ”Ta bort mjölken”. ”Jag har köpt mjölken” bockar av varan och tar inte bort den.
 - Antal avser artiklar/förpackningar. Vikt eller volym kan finnas i namnet och räknas inte om till antal.

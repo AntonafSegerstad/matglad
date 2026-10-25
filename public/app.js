@@ -34,11 +34,7 @@ async function mutate(url, body, raw = false) {
 }
 $('add-form').addEventListener('submit', async event => {
   event.preventDefault(); const name = $('item').value.trim(); if (!name) return;
-  const quantity = Number($('add-quantity').value);
-  if (!Number.isInteger(quantity) || quantity < 1 || quantity > 999) return;
-  if (await mutate('/api/actions', { actions: [{ type: 'add', name, quantity }] })) {
-    $('item').value = ''; $('add-quantity').value = '1';
-  }
+  if (await mutate('/api/actions', { actions: [{ type: 'add', name }] })) $('item').value = '';
 });
 $('command-form').addEventListener('submit', async event => {
   event.preventDefault(); const text = $('command').value.trim(); if (!text) return;
