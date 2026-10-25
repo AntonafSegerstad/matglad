@@ -8,9 +8,9 @@ Verifierad 2026-10-25.
 - Render: https://dashboard.render.com/web/srv-dbf4etoae00c73eo92d0
 - Bekräftad workspace My Workspace: tea-dajv1feq1p3s739let4g.
 - Ny tjänst srv-dbf4etoae00c73eo92d0, Free, Node 24.19.0, Frankfurt.
-- Kodcommit 1a8ef4d259ac44a3132314b3c8cd67f699ca7d1b.
-- Deploy dep-dbf4tidg1s2s739vjjv0: live.
-- GitHub CI: https://github.com/AntonafSegerstad/Home-Helper/actions/runs/40222929835 (success, 21 tester).
+- Kodcommit e4ae38eb011d4dd789aaf906d4765e97d0934567.
+- Deploy dep-dbf53f6k1f9s73ftm67g: live.
+- GitHub CI: https://github.com/AntonafSegerstad/Home-Helper/actions/runs/40223916093 (success, 21 tester).
 - Auto-deploy är aktiv vid commit. Byggkommandot kör npm ci och npm test före start.
 
 ## Databas
@@ -42,6 +42,13 @@ Verifierad 2026-10-25.
 - Riktig AI i produktion verifierade broccoli → Grönsaker, fryst broccoli → Fryst, ägg → Chark och ägg och diskmaskinssalt → Städ, tvätt och papper.
 - Riktigt svenskt AI-kommando ändrade antal och kategori på en tillfällig testartikel. Manuell ändring, stabil avbockningsordning och borttagning verifierades med nya läsanrop.
 - Alla tillfälliga testartiklar från denna kontroll togs bort genom appens API. Tidigare artiklar bevarades.
+
+## Kompakt artikellayout
+- Varunamn, antal, kategoriväljare och borttagning ligger på samma rad. Långa namn kan radbrytas.
+- Kategorirubrikerna är större (18 px), mörkare och fetare.
+- Antalväljaren vid fältet för nya varor är borttagen. Antal ändras per vara eller via röst.
+- På de smalaste skärmarna visas direkt antalfält utan minus/plus för att behålla plats för varunamnet.
+- Alla 21 tester passerar. Publika HTML-, JS- och CSS-filer samt hälsokontrollen är verifierade efter deployment. Inga produktionsartiklar ändrades vid denna layoutkontroll.
 
 ## Kvar
 1. Verifiera riktigt svenskt tal via mobilens mikrofon.
