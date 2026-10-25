@@ -41,7 +41,7 @@ Render-konfiguration för direkt skapad tjänst:
 
 Det nya Neon-projektet HomeHelper är `orange-mode-28651805`, databas `homehelper`. Godnatt och dess databas används inte av appen.
 
-GitHub Actions kör tester och syntaxkontroller vid push. Ingen deployment är utförd ännu. Render-verktyget saknar stöd för att skapa projektmappar och kopiera befintliga serverhemligheter; dessa moment behöver Render-panelen eller en separat API-anslutning.
+GitHub Actions kör tester och syntaxkontroller vid push. Appen är live på https://homehelper-i7to.onrender.com. Deployment och databas är verifierade; OpenAI-nyckeln återstår att konfigurera. Render-verktyget saknar stöd för att skapa projektmappar och kopiera befintliga serverhemligheter; dessa moment behöver Render-panelen eller en separat API-anslutning.
 
 Appen är avsiktligt öppen: alla som når servern kan läsa och ändra listan samt använda AI-kopplingen. Det finns ett enkelt globalt tak på 60 AI-kommandon/timme per process och endast ett samtidigt AI-kommando. Taket återställs vid omstart; sätt även en budget i OpenAI-projektet. Nyckeln exponeras aldrig till klienten.
 

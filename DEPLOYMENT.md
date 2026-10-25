@@ -1,23 +1,36 @@
-# Deploymentstatus
+# Deploymentstatus – HomeHelper
 
-## Förberett
-- Appnamn HomeHelper, önskat repo AntonafSegerstad/Home-Helper.
-- Bekräftad Render-workspace My Workspace: tea-dajv1feq1p3s739let4g.
-- Ny separat Neon-databas HomeHelper i Frankfurt: orange-mode-28651805, databas homehelper.
-- Databasschema versionshanteras i schema.sql.
-- Hälsokontroll /healthz, CI och beständig lagring klara i koden.
+Verifierad 2026-10-25.
 
-## Blockerat
-- GitHubs anslutna integration nekar repo-skapande med HTTP 403 Resource not accessible by integration. Både gh repo create och REST POST /user/repos har prövats. Användaren har godkänt skapandet; hindret är integrationens behörighet.
-- Ingen ansluten webbläsarstyrning är tillgänglig.
-- Render MCP kan skapa tjänst men inte projekt eller läsa/kopiera Godnatts OPENAI_API_KEY. Ändra inte Godnatt för att lösa detta.
+## Publicerat
+- Privat repo: https://github.com/AntonafSegerstad/Home-Helper
+- App: https://homehelper-i7to.onrender.com
+- Render: https://dashboard.render.com/web/srv-dbf4etoae00c73eo92d0
+- Bekräftad workspace My Workspace: tea-dajv1feq1p3s739let4g.
+- Ny tjänst srv-dbf4etoae00c73eo92d0, Free, Node 24.19.0, Frankfurt.
+- Kodcommit 7eaa9e6b65c78a09d9bcbd22a49d6506656e0111.
+- Deploy dep-dbf4eu8ae00c73eo9580: live.
+- GitHub CI: https://github.com/AntonafSegerstad/Home-Helper/actions/runs/40220436120 (success, fem tester).
+- Auto-deploy är aktiv vid commit. Byggkommandot kör npm ci och npm test före start.
 
-## Fortsätt
-1. Skapa tomt Home-Helper-repo eller tillgängliggör GitHub-behörighet för skapande.
-2. Pusha main från detta lokala repo.
-3. Skapa ny Node-tjänst i den bekräftade workspacen enligt README. Hämta HomeHelpers DATABASE_URL via Neon och överför direkt till just den nya tjänsten utan att skriva ut den.
-4. Sätt OPENAI_API_KEY i den nya tjänstens servermiljö; nyckeln får inte hamna i chatten eller repot.
-5. Skapa separat Render-projekt HomeHelper och placera endast den nya tjänsten där via Dashboard/API.
-6. Övervaka deployment till live, verifiera API, liständringar och beständighet efter redeploy. Testa riktigt ljud med mikrofon.
+## Databas
+- Nytt separat Neon-projekt HomeHelper: orange-mode-28651805, Frankfurt.
+- Databas homehelper, roll homehelper_owner, PostgreSQL 17.
+- Schema versionshanteras i schema.sql; shopping_list är initierad.
+- DATABASE_URL har överförts direkt från Neon till endast den nya Render-tjänsten utan att skrivas till repo eller arbetsfiler.
+- /healthz svarar 200 med ok=true, storage=postgres.
 
-Inga befintliga GitHub-repon eller Render-tjänster har ändrats.
+## Verifierat
+- Startsida och samtliga frontendfiler svarar över HTTPS.
+- Tillägg och avbockning verifierade via publikt API med separat återläsning.
+- En avbockad ”Testvara – HomeHelper” ligger kvar som tydligt märkt testdata.
+- OpenAI saknas: voiceEnabled=false. Inga riktiga AI-anrop har utförts.
+
+## Kvar
+1. Användaren sätter samma OpenAI API-nyckel som Godnatt som OPENAI_API_KEY i just HomeHelpers servermiljö: https://dashboard.render.com/web/srv-dbf4etoae00c73eo92d0/env. Skicka inte nyckeln i chatten eller repot. Välj Save, rebuild, and deploy.
+2. Övervaka den nya deploymenten till live och verifiera att testvaran finns kvar efter redeploy. Testa sedan textkommando och riktigt ljud med mikrofon.
+3. Skapa separat Render-projekt HomeHelper och flytta endast den nya tjänsten dit via Dashboard/API. Render MCP saknar stöd för detta. Tjänsten finns tills vidare fristående i workspacen.
+4. /healthz finns i appen. Render-skapandeverktyget kan inte konfigurera healthCheckPath, så plattformen använder sin normala TCP-kontroll tills HTTP-sökvägen sätts i panelen.
+
+## Skyddade resurser
+Inga befintliga GitHub-repon, Render-tjänster eller Neon-databaser har ändrats. Godnatt, invoice-simulator och VASS-todo-list är orörda.
