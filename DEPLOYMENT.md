@@ -8,9 +8,9 @@ Verifierad 2026-10-25.
 - Render: https://dashboard.render.com/web/srv-dbf4etoae00c73eo92d0
 - Bekräftad workspace My Workspace: tea-dajv1feq1p3s739let4g.
 - Ny tjänst srv-dbf4etoae00c73eo92d0, Free, Node 24.19.0, Frankfurt.
-- Kodcommit 7eaa9e6b65c78a09d9bcbd22a49d6506656e0111.
-- Deploy dep-dbf4eu8ae00c73eo9580: live.
-- GitHub CI: https://github.com/AntonafSegerstad/Home-Helper/actions/runs/40220436120 (success, fem tester).
+- Kodcommit 1a8ef4d259ac44a3132314b3c8cd67f699ca7d1b.
+- Deploy dep-dbf4tidg1s2s739vjjv0: live.
+- GitHub CI: https://github.com/AntonafSegerstad/Home-Helper/actions/runs/40222929835 (success, 21 tester).
 - Auto-deploy är aktiv vid commit. Byggkommandot kör npm ci och npm test före start.
 
 ## Databas
@@ -31,6 +31,17 @@ Verifierad 2026-10-25.
 - Syntetiskt engelskt tal via /api/voice transkriberades av OpenAI och lade till mjölk och ägg. Ett andra ljudklipp bockade av båda.
 - Test med engelsk uppläsning av svenska ord gav felaktigt transkript och ingen ändring. Svenskt tal från mobilmikrofon återstår att verifiera.
 - Testvaran, mjölk och ägg finns kvar avbockade efter kontrollerna. Inga nycklar har sparats i koden eller dokumentationen.
+
+## Kategorier, antal och borttagning
+- Alla 30 kategorier i Elins överenskomna butiksordning är inbyggda. Endast kategorier som innehåller varor visas.
+- Avbockade varor behåller sin plats inom kategorin. Byte av kategori flyttar varan till rätt avdelning.
+- AI kategoriserar nya manuella varor och röstkommandon; befintliga varor utan kategori kompletteras i bakgrunden. Manuella kategorival skrivs inte över.
+- Varje artikel har kategoriväljare, antal 1–999 med direkt inmatning och minus/plus samt borttagning.
+- Äldre artiklar får antal ett och behåller id, namn och avbockning. Ingen SQL-migrering behövdes.
+- 21 tester omfattar listlogik, AI-kontrakt, butiksordning, DOM-kontroller och HTTP inklusive omstart.
+- Riktig AI i produktion verifierade broccoli → Grönsaker, fryst broccoli → Fryst, ägg → Chark och ägg och diskmaskinssalt → Städ, tvätt och papper.
+- Riktigt svenskt AI-kommando ändrade antal och kategori på en tillfällig testartikel. Manuell ändring, stabil avbockningsordning och borttagning verifierades med nya läsanrop.
+- Alla tillfälliga testartiklar från denna kontroll togs bort genom appens API. Tidigare artiklar bevarades.
 
 ## Kvar
 1. Verifiera riktigt svenskt tal via mobilens mikrofon.
