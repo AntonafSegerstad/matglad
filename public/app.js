@@ -9,7 +9,7 @@ async function request(url, body, raw = false) {
 }
 function render() {
   $('items').replaceChildren();
-  for (const item of [...items].sort((a,b) => Number(a.checked) - Number(b.checked))) {
+  for (const item of items) {
     const label = document.createElement('label'); label.className = `item${item.checked ? ' done' : ''}`;
     const check = document.createElement('input'); check.type = 'checkbox'; check.checked = item.checked; check.disabled = busy;
     const text = document.createElement('span'); text.textContent = item.name;
