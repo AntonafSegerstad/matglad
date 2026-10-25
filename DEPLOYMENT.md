@@ -24,11 +24,17 @@ Verifierad 2026-10-25.
 - Startsida och samtliga frontendfiler svarar över HTTPS.
 - Tillägg och avbockning verifierade via publikt API med separat återläsning.
 - En avbockad ”Testvara – HomeHelper” ligger kvar som tydligt märkt testdata.
-- OpenAI saknas: voiceEnabled=false. Inga riktiga AI-anrop har utförts.
+- OPENAI_API_KEY är konfigurerad endast i HomeHelpers servermiljö efter användarens uttryckliga instruktion.
+- Deploy dep-dbf4fr59fdbs738pui70 är live med voiceEnabled=true.
+- Den tidigare testvaran fanns kvar efter redeploy.
+- Svenska riktiga AI-textkommandon återställde och bockade av testvaran.
+- Syntetiskt engelskt tal via /api/voice transkriberades av OpenAI och lade till mjölk och ägg. Ett andra ljudklipp bockade av båda.
+- Test med engelsk uppläsning av svenska ord gav felaktigt transkript och ingen ändring. Svenskt tal från mobilmikrofon återstår att verifiera.
+- Testvaran, mjölk och ägg finns kvar avbockade efter kontrollerna. Inga nycklar har sparats i koden eller dokumentationen.
 
 ## Kvar
-1. Användaren sätter samma OpenAI API-nyckel som Godnatt som OPENAI_API_KEY i just HomeHelpers servermiljö: https://dashboard.render.com/web/srv-dbf4etoae00c73eo92d0/env. Skicka inte nyckeln i chatten eller repot. Välj Save, rebuild, and deploy.
-2. Övervaka den nya deploymenten till live och verifiera att testvaran finns kvar efter redeploy. Testa sedan textkommando och riktigt ljud med mikrofon.
+1. Verifiera riktigt svenskt tal via mobilens mikrofon.
+2. Nyckeln är konfigurerad och AI-kopplingen verifierad; ingen ytterligare nyckelinmatning behövs.
 3. Skapa separat Render-projekt HomeHelper och flytta endast den nya tjänsten dit via Dashboard/API. Render MCP saknar stöd för detta. Tjänsten finns tills vidare fristående i workspacen.
 4. /healthz finns i appen. Render-skapandeverktyget kan inte konfigurera healthCheckPath, så plattformen använder sin normala TCP-kontroll tills HTTP-sökvägen sätts i panelen.
 
