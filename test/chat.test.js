@@ -41,8 +41,8 @@ test('chatthistoriken tillåter bara begränsade användar- och assistantsvar', 
 
 function setup(send, onError) {
   const { document, window } = parseHTML(readFileSync(new URL('../public/index.html', import.meta.url), 'utf8'));
-  setupChat({ document, send, onError });
-  return { document, window, input: document.getElementById('chat-text'), form: document.getElementById('chat-form') };
+  const chat = setupChat({ document, send, onError });
+  return { chat, document, window, input: document.getElementById('chat-text'), form: document.getElementById('chat-form') };
 }
 const settle = () => new Promise(resolve => setImmediate(resolve));
 
@@ -112,4 +112,16 @@ test('backend räknar kategorier, varurader och antal separat för AI-svaren', (
   const bought = summarizeList([{ name: 'mjölk', category: 'dairy', quantity: 2, checked: true }]);
   assert.equal(bought.categoryCountWithProducts, 1);
   assert.equal(bought.categoryCountWithRemainingProducts, 0);
+});
+
+test('familjbyte tömmer chatthistorik, textfält och synliga meddelanden', async () => {
+  const sent = [];
+  const { chat, document, window, input, form } = setup(async payload => { sent.push(payload); return 'Svar från den valda familjens lista.'; });
+  input.value = 'Vad finns?'; form.dispatchEvent(new window.Event('submit', { cancelable: true })); await settle();
+  chat.reset();
+  assert.equal(document.getElementById('chat-messages').children.length, 0);
+  assert.equal(document.getElementById('chat-panel').hidden, true);
+  assert.equal(input.value, '');
+  input.value = 'Och nu?'; form.dispatchEvent(new window.Event('submit', { cancelable: true })); await settle();
+  assert.deepEqual(sent[1].history, []);
 });

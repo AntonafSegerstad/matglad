@@ -1,6 +1,6 @@
 # HomeHelper – första prototypen
 
-En öppen gemensam inköpslista. Lägg till och bocka av med tryck eller röst via ditt OpenAI API-konto. Alla enheter mot samma server delar listan; ändringar hämtas var femte sekund. Inga konton, recept, lager eller hushållssysslor ännu.
+En öppen gemensam inköpslista. Lägg till och bocka av med tryck eller röst via ditt OpenAI API-konto. Alla enheter som väljer samma familj delar den familjens lista; ändringar hämtas var femte sekund. Inga konton, recept, lager eller hushållssysslor ännu.
 
 Planerade funktioner, inklusive kvittoskanning, finns i [kravdokumentet](KRAV.md).
 
@@ -25,6 +25,15 @@ Listan fungerar utan nyckel. AI och röst kräver en nyckel och nätanslutning. 
 
 Appen visar transkript och resultat. Bocka tillbaka manuellt vid feltolkning. Befintliga produkter matchas utan hänsyn till stora/små bokstäver.
 
+## Familjer och kategoriöversikt
+
+- Startskärmen visar familjer som runda namngivna knappar och en knapp ”Lägg till familj”.
+- Varje familj får en egen lista. Den ursprungliga listan finns under ”Vår familj”, med alla tidigare artiklar bevarade. Inga konton eller inloggningar krävs.
+- Efter familjval visas bara kategorier med artiklar, som kort med symbol, namn och rött antal. Antalet räknar varurader, inte förpackningar: lamm och köttfärs blir 2 även om mängderna är större. Avbockade varor finns kvar och räknas tills de tas bort.
+- Tryck på ett kategorikort för att öppna varorna. ”Alla kategorier” går tillbaka till översikten och ”Byt familj” går till familjväljaren.
+- Röst, chatt, antal, kategoribyten och borttagning gäller alltid den valda familjen. Chatten töms vid familjbyte.
+- API: `GET/POST /api/families` listar/skapar familjer. List- och AI-anrop använder `?familyId=<id>`. Anrop utan familj-id går till den ursprungliga listan för kompatibilitet med tidigare klienter.
+
 ## Chatta
 
 - Knappen ”Chatta” har samma utseende som ”Börja prata” och öppnar ett fritextfält.
@@ -48,7 +57,7 @@ Appen visar transkript och resultat. Bocka tillbaka manuellt vid feltolkning. Be
 
 ## Data och drift
 
-Lokalt utan `DATABASE_URL` sparas listan atomiskt i `data/list.json`. På Render krävs `DATABASE_URL` till en separat Neon-databas. Databasschemat finns i `schema.sql`. Render behöver ingen beständig disk. Samtidiga ändringar skyddas med versionskontroll i databasen.
+Lokalt utan `DATABASE_URL` sparas listan atomiskt i `data/list.json`. På Render krävs `DATABASE_URL` till en separat Neon-databas. Det kompletta databasschemat finns i `schema.sql`. För en befintlig databas körs den tilläggande migreringen `migrations/002_families.sql` före deployment. Den ursprungliga listan ligger kvar i `shopping_list`; övriga familjer använder `families` och `family_lists`. Render behöver ingen beständig disk. Samtidiga ändringar skyddas med versionskontroll i databasen.
 
 Render-konfiguration för direkt skapad tjänst:
 
@@ -72,4 +81,4 @@ Manifest och ikon finns för hemskärmsläge. Offlinefunktion, service worker oc
 
 ## Kontroll
 
-`npm test` kör 29 tester för liständringar, AI-kontrakt, kategoriernas ordning, chatt och följdfrågor, DOM-kontroller och HTTP-API inklusive sparande efter serveromstart. AI-svaren i testsviten är simulerade. Ett riktigt rösttest kräver mikrofon och konfigurerad API-nyckel. `.npmrc` inkluderar testberoenden även när byggmiljön har NODE_ENV=production.
+`npm test` kör 34 tester för liständringar, AI-kontrakt, kategoriernas ordning, chatt och följdfrågor, familjseparering, kategorikort, DOM-kontroller och HTTP-API inklusive sparande efter serveromstart. AI-svaren i testsviten är simulerade. Ett riktigt rösttest kräver mikrofon och konfigurerad API-nyckel. `.npmrc` inkluderar testberoenden även när byggmiljön har NODE_ENV=production.

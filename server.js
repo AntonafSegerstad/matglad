@@ -5,10 +5,11 @@ import { fileURLToPath } from 'node:url';
 import { interpret, applyActions, classifyProducts, categorizeNewActions, chatWithList, validateChatInput } from './list.js';
 import { isCategory } from './public/categories.js';
 import { createStore } from './storage.js';
+import { DEFAULT_FAMILY_ID, validateFamilyId } from './families.js';
 
 const root = path.dirname(fileURLToPath(import.meta.url));
 const store = await createStore();
-const commit = actions => store.commit(actions);
+const commit = (actions, familyId) => store.commit(actions, familyId);
 async function body(req, max) {
   const chunks = []; let size = 0;
   for await (const chunk of req) {
@@ -36,26 +37,35 @@ async function runAI(task) {
 
 async function categorizeExisting() {
   if (!process.env.OPENAI_API_KEY) return;
-  const uncategorized = (await store.read()).filter(item => !isCategory(item.category));
-  for (let offset = 0; offset < uncategorized.length; offset += 50) {
-    const batch = uncategorized.slice(offset, offset + 50);
-    const categories = await runAI(() => classifyProducts(batch.map(item => item.name), process.env.OPENAI_API_KEY));
-    const actions = batch.flatMap((item, index) => isCategory(categories[index]) ? [{ type: 'categorize', id: item.id, name: item.name, category: categories[index] }] : []);
-    if (actions.length) await commit(actions);
+  for (const family of await store.listFamilies()) {
+    const uncategorized = (await store.read(family.id)).filter(item => !isCategory(item.category));
+    for (let offset = 0; offset < uncategorized.length; offset += 50) {
+      const batch = uncategorized.slice(offset, offset + 50);
+      const categories = await runAI(() => classifyProducts(batch.map(item => item.name), process.env.OPENAI_API_KEY));
+      const actions = batch.flatMap((item, index) => isCategory(categories[index]) ? [{ type: 'categorize', id: item.id, name: item.name, category: categories[index] }] : []);
+      if (actions.length) await commit(actions, family.id);
+    }
   }
 }
 const server = http.createServer(async (req, res) => {
   const url = new URL(req.url, 'http://localhost');
   try {
     if (req.method === 'GET' && url.pathname === '/healthz') { await store.read(); return json(res, 200, { ok: true, storage: store.kind, voiceEnabled: Boolean(process.env.OPENAI_API_KEY) }); }
-    if (req.method === 'GET' && url.pathname === '/api/list') return json(res, 200, { items: await store.read(), voiceEnabled: Boolean(process.env.OPENAI_API_KEY) });
+    if (req.method === 'GET' && url.pathname === '/api/families') return json(res, 200, { families: await store.listFamilies() });
+    const familyId = validateFamilyId(url.searchParams.get('familyId') ?? DEFAULT_FAMILY_ID);
+    if (req.method === 'GET' && url.pathname === '/api/list') return json(res, 200, { items: await store.read(familyId), voiceEnabled: Boolean(process.env.OPENAI_API_KEY) });
     if (req.method === 'POST' && url.pathname.startsWith('/api/')) {
       // Browsers may only change data from this app's own origin.
       const origin = req.headers.origin;
       if (origin && new URL(origin).host !== req.headers.host) return json(res, 403, { error: 'Otillåtet ursprung.' });
+      if (url.pathname === '/api/families') {
+        const { name } = JSON.parse((await body(req, 2000)).toString());
+        const family = await store.addFamily(name);
+        return json(res, 201, { family, families: await store.listFamilies() });
+      }
       if (url.pathname === '/api/actions') {
         let { actions } = JSON.parse((await body(req, 20000)).toString());
-        const current = await store.read();
+        const current = await store.read(familyId);
         applyActions(current, actions);
         let warning;
         if (process.env.OPENAI_API_KEY) {
@@ -66,7 +76,7 @@ const server = http.createServer(async (req, res) => {
             warning = 'Varan är sparad. Välj kategori på raden om den saknas.';
           }
         }
-        return json(res, 200, { ...await commit(actions), ...(warning ? { warning } : {}) });
+        return json(res, 200, { ...await commit(actions, familyId), ...(warning ? { warning } : {}) });
       }
       if (url.pathname === '/api/chat') {
         const key = process.env.OPENAI_API_KEY;
@@ -74,9 +84,9 @@ const server = http.createServer(async (req, res) => {
         const payload = JSON.parse((await body(req, 60000)).toString());
         const input = validateChatInput(payload.text, payload.history);
         return await runAI(async () => {
-          const answer = await chatWithList(input.text, await store.read(), key, input.history);
-          if (!answer.actions.length) return json(res, 200, { items: await store.read(), reply: answer.reply, message: '' });
-          const result = await commit(answer.actions);
+          const answer = await chatWithList(input.text, await store.read(familyId), key, input.history);
+          if (!answer.actions.length) return json(res, 200, { items: await store.read(familyId), reply: answer.reply, message: '' });
+          const result = await commit(answer.actions, familyId);
           // Only the backend receipt describes applied changes, including stale/missing items.
           const reply = [answer.reply, result.message].filter(Boolean).join('\n\n');
           return json(res, 200, { ...result, reply });
@@ -101,12 +111,12 @@ const server = http.createServer(async (req, res) => {
             text = (await response.json()).text;
           } else { text = JSON.parse((await body(req, 10000)).toString()).text; }
           if (typeof text !== 'string' || !text.trim() || text.length > 4000) throw new Error('Kommandot är tomt eller för långt.');
-          const actions = await interpret(text, await store.read(), key);
-          return json(res, 200, { ...await commit(actions), transcript: text });
+          const actions = await interpret(text, await store.read(familyId), key);
+          return json(res, 200, { ...await commit(actions, familyId), transcript: text });
         });
       }
     }
-    const files = { '/': ['index.html', 'text/html'], '/app.js': ['app.js', 'text/javascript'], '/chat.js': ['chat.js', 'text/javascript'], '/categories.js': ['categories.js', 'text/javascript'], '/list-view.js': ['list-view.js', 'text/javascript'], '/style.css': ['style.css', 'text/css'], '/manifest.webmanifest': ['manifest.webmanifest', 'application/manifest+json'], '/icon.svg': ['icon.svg', 'image/svg+xml'] };
+    const files = { '/': ['index.html', 'text/html'], '/app.js': ['app.js', 'text/javascript'], '/chat.js': ['chat.js', 'text/javascript'], '/dashboard.js': ['dashboard.js', 'text/javascript'], '/families-view.js': ['families-view.js', 'text/javascript'], '/categories.js': ['categories.js', 'text/javascript'], '/list-view.js': ['list-view.js', 'text/javascript'], '/style.css': ['style.css', 'text/css'], '/manifest.webmanifest': ['manifest.webmanifest', 'application/manifest+json'], '/icon.svg': ['icon.svg', 'image/svg+xml'] };
     const file = files[url.pathname];
     if (req.method !== 'GET' || !file) return json(res, 404, { error: 'Sidan finns inte.' });
     res.writeHead(200, { 'Content-Type': `${file[1]}; charset=utf-8` });

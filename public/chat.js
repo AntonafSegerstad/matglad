@@ -53,4 +53,10 @@ export function setupChat({ document: doc, send, onError = () => {} }) {
       if (!pending) form.requestSubmit();
     }
   });
+  return {
+    reset() {
+      history = []; messages.replaceChildren(); input.value = '';
+      panel.hidden = true; toggle.setAttribute('aria-expanded', 'false');
+    }
+  };
 }

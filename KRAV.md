@@ -1,5 +1,11 @@
 # HomeHelper – funktionskrav
 
+## Familjer och översikt – implementerat
+
+- Startskärm med runda namngivna familjeknappar och ”Lägg till familj”. Varje familj har en egen lista.
+- Kategoriöversikt med små symboler, kategorinamn och rött antal varusorter. Tomma kategorier döljs.
+- Ett tryck på en kategori öppnar dess artiklar. Avbockade artiklar räknas tills de tas bort.
+
 ## Inköpslistan – implementerat
 
 - Gemensam lista med tillägg och avbockning via röst eller manuell inmatning.

@@ -1,19 +1,83 @@
 import { renderList } from './list-view.js';
 import { setupChat } from './chat.js';
+import { renderFamilyButtons } from './families-view.js';
+import { renderCategoryDashboard } from './dashboard.js';
+import { groupItems } from './categories.js';
 const $ = id => document.getElementById(id);
 let items = [], busy = false, recorder, stream, timer, chunks = [], starting = false;
+let currentFamily = null, selectedCategory = null;
 function status(message, error = false) { $('status').textContent = message; $('status').className = error ? 'error' : ''; }
 async function request(url, body, raw = false) {
-  const response = await fetch(url, body === undefined ? {} : { method: 'POST', headers: { 'Content-Type': raw ? body.type : 'application/json' }, body: raw ? body : JSON.stringify(body) });
+  const scoped = url.startsWith('/api/') && url !== '/api/families';
+  if (scoped && !currentFamily) throw new Error('Välj en familj först.');
+  const target = scoped ? `${url}?familyId=${encodeURIComponent(currentFamily.id)}` : url;
+  const response = await fetch(target, body === undefined ? {} : { method: 'POST', headers: { 'Content-Type': raw ? body.type : 'application/json' }, body: raw ? body : JSON.stringify(body) });
   const result = await response.json();
   if (!response.ok) throw new Error(result.error || 'Något gick fel.');
   return result;
 }
 function render() {
-  renderList($('items'), items, action => mutate('/api/actions', { actions: [action] }), busy);
-  $('count').textContent = `${items.filter(i => !i.checked).length} kvar`;
+  const groups = groupItems(items);
+  let group = groups.find(group => (group.id ?? 'unassigned') === selectedCategory);
+  if (selectedCategory !== null && !group) selectedCategory = null;
+  const detail = selectedCategory !== null;
+  $('category-grid').hidden = detail; $('items').hidden = !detail; $('category-back').hidden = !detail;
+  $('list-card').classList.toggle('dashboard', !detail);
+  renderCategoryDashboard($('category-grid'), items, id => { if (!busy) { selectedCategory = id; render(); } });
+  const visibleItems = detail ? group.items : items;
+  renderList($('items'), detail ? visibleItems : [], action => mutate('/api/actions', { actions: [action] }), busy);
+  $('count').textContent = `${visibleItems.filter(i => !i.checked).length} kvar`;
   $('empty').hidden = items.length > 0;
 }
+$('category-back').addEventListener('click', () => { selectedCategory = null; render(); });
+
+function familyStatus(message, error = false) { $('family-status').textContent = message; $('family-status').className = error ? 'error' : ''; }
+async function loadFamilies() {
+  familyStatus('Hämtar familjer…');
+  try {
+    const result = await request('/api/families');
+    renderFamilyButtons($('family-buttons'), result.families, openFamily);
+    familyStatus('');
+  } catch (error) { familyStatus(error.message, true); }
+}
+async function openFamily(family) {
+  if (busy || starting || recorder?.state === 'recording') return;
+  lock(true); currentFamily = family; selectedCategory = null; items = [];
+  familyStatus('Öppnar listan…');
+  try {
+    const result = await request('/api/list'); items = result.items;
+    $('active-family').textContent = family.name;
+    chat.reset(); status(''); $('transcript').hidden = true; $('item').value = '';
+    $('family-screen').hidden = true; $('shopping-screen').hidden = false;
+    familyStatus('');
+  } catch (error) { currentFamily = null; familyStatus(error.message, true); }
+  finally { lock(false); }
+}
+$('family-back').addEventListener('click', async () => {
+  if (busy || starting || recorder?.state === 'recording') { status('Avsluta inspelningen innan du byter familj.'); return; }
+  currentFamily = null; selectedCategory = null; items = []; chat.reset();
+  $('shopping-screen').hidden = true; $('family-screen').hidden = false;
+  await loadFamilies();
+});
+function showFamilyForm(show) {
+  $('family-form').hidden = !show; $('add-family-toggle').setAttribute('aria-expanded', String(show));
+  if (show) $('family-input').focus();
+}
+$('add-family-toggle').addEventListener('click', () => showFamilyForm($('family-form').hidden));
+$('family-cancel').addEventListener('click', () => showFamilyForm(false));
+$('family-form').addEventListener('submit', async event => {
+  event.preventDefault(); if (busy) return;
+  const name = $('family-input').value.trim(); if (!name) return;
+  let family;
+  lock(true); familyStatus('Lägger till familjen…');
+  try {
+    const result = await request('/api/families', { name }); family = result.family;
+    renderFamilyButtons($('family-buttons'), result.families, openFamily, true);
+    $('family-input').value = ''; showFamilyForm(false); familyStatus('');
+  } catch (error) { familyStatus(error.message, true); }
+  finally { lock(false); }
+  if (family) await openFamily(family);
+});
 function lock(value) {
   busy = value;
   document.querySelectorAll('button,input,select,textarea').forEach(el => { el.disabled = value; });
@@ -37,7 +101,7 @@ $('add-form').addEventListener('submit', async event => {
   event.preventDefault(); const name = $('item').value.trim(); if (!name) return;
   if (await mutate('/api/actions', { actions: [{ type: 'add', name }] })) $('item').value = '';
 });
-setupChat({
+const chat = setupChat({
   document,
   async send(payload) {
     if (starting || recorder?.state === 'recording') throw new Error('Avsluta inspelningen innan du skickar ett meddelande.');
@@ -83,14 +147,15 @@ function editingItem() {
   return $('items').contains(active) && (active?.tagName === 'SELECT' || (active?.tagName === 'INPUT' && active.type === 'number'));
 }
 async function refresh() {
-  if (busy || starting || recorder?.state === 'recording' || editingItem()) return;
+  const familyId = currentFamily?.id;
+  if (!familyId || busy || starting || recorder?.state === 'recording' || editingItem()) return;
   try {
     const result = await request('/api/list');
-    if (busy || starting || recorder?.state === 'recording' || editingItem()) return;
+    if (currentFamily?.id !== familyId || busy || starting || recorder?.state === 'recording' || editingItem()) return;
     if (JSON.stringify(items) !== JSON.stringify(result.items)) { items = result.items; render(); }
     if (!result.voiceEnabled && !$('status').textContent) status('Listan fungerar. Röst aktiveras när servern har en OpenAI API-nyckel.');
   } catch { status('Kan inte nå servern. Kontrollera anslutningen.', true); }
 }
-await refresh();
+await loadFamilies();
 setInterval(refresh, 5000);
 document.addEventListener('visibilitychange', () => { if (document.hidden) stop(); else refresh(); });
