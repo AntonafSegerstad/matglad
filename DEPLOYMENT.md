@@ -8,9 +8,9 @@ Verifierad 2026-10-26.
 - Render: https://dashboard.render.com/web/srv-dbf4etoae00c73eo92d0
 - Bekräftad workspace My Workspace: tea-dajv1feq1p3s739let4g.
 - Ny tjänst srv-dbf4etoae00c73eo92d0, Free, Node 24.19.0, Frankfurt.
-- Kodcommit 1d3147be22da1ba2c6548ead0920ea69392c807c.
-- Deploy dep-dbfmquuq1p3s73ff54eg: live.
-- GitHub CI: https://github.com/AntonafSegerstad/Home-Helper/actions/runs/40346773756 (success, 37 tester).
+- Kodcommit 7c4029eed8c63d3c547fc4b2f6a5ee4cebf5765c.
+- Deploy dep-dbfn3q6k1f9s738hfuq0: live.
+- GitHub CI: https://github.com/AntonafSegerstad/Home-Helper/actions/runs/40349868468 (success, 41 tester).
 - Auto-deploy är aktiv vid commit. Byggkommandot kör npm ci och npm test före start.
 
 ## Databas
@@ -73,6 +73,14 @@ Verifierad 2026-10-26.
 - Varje kategori har en fast kvadratisk plats. Vid öppning döljs cirkeln och små varurader visas i exakt samma plats. Ingen panel spänner över raden. Övriga kategorier behåller sina positioner; endast en är öppen åt gången.
 - Antalväljarna är borttagna. Sparade antal över ett visas som text (×2) och kan ändras via röst/chatt. Kompakta ikoner för kategoribyte och borttagning finns kvar.
 - Alla 37 tester passerar lokalt, i CI och i Render-bygget. Publika frontendfiler och kortväxling kontrollerades med befintliga data i en DOM-kontroll. Ingen fysisk telefongeometri mättes. Inga produktionsvaror ändrades.
+
+## Oplockade antal, utcheckning och växande överlägg
+- Röda siffror räknar endast omarkerade varurader. Avbockade artiklar ligger kvar på samma plats. Kategorien finns kvar med siffran 0 när allt är markerat; den döljs först när artiklarna raderats.
+- ”Checka ut varor” längst ned använder POST /api/checkout med vald familyId och tar bort endast markerade artiklar i serverns aktuella lista. CAS-sparandet gör operationen atomisk och familjseparerad. Ingen AI behövs, och fler än 50 markerade artiklar kan hanteras i ett steg.
+- Öppnad kategori är ett överlägg som växer nedåt för att visa alla rader utan intern scroll. Bredden följer längsta raden, med översiktens bredd som gräns. Högerställda överlägg flyttas inåt. Utcheckningsknappen hålls nedanför ett överlägg som går under rutnätet.
+- Avbockning, varunamn, kategoribytesikon och radering ligger på en och samma rad.
+- 41 tester passerar lokalt, i GitHub CI och Render. HTTP-proven verifierade utcheckning, familjseparering och beständighet efter omstart; DOM-proven verifierade räknarnas nedräkning och utcheckningsknappens tillstånd. Geometriprovet verifierade högerkant och utrymme för utcheckningsknappen.
+- Publika frontendfiler, räknare och knapptillstånd verifierades med befintliga data utan ändringar. Riktiga inköpsvaror checkades inte ut under slutkontrollen. Ingen fysisk telefongeometri mättes. Inga runtime-fel hittades efter deployment.
 
 ## Kvar
 1. Verifiera riktigt svenskt tal via mobilens mikrofon.
