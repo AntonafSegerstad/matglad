@@ -8,9 +8,9 @@ Verifierad 2026-10-26.
 - Render: https://dashboard.render.com/web/srv-dbf4etoae00c73eo92d0
 - Bekräftad workspace My Workspace: tea-dajv1feq1p3s739let4g.
 - Ny tjänst srv-dbf4etoae00c73eo92d0, Free, Node 24.19.0, Frankfurt.
-- Kodcommit 5d0a10ae4c479c4ffcd1ee1590105bfe23cd66e4.
-- Deploy dep-dbfnernavr4c7399o0sg: live.
-- GitHub CI: https://github.com/AntonafSegerstad/Home-Helper/actions/runs/40353734360 (success, 43 tester).
+- Kodcommit da9e2ead125a6ae682d308a9ee419be283bdb437.
+- Deploy dep-dbfo3d4s728c73cr8img: live.
+- GitHub CI: https://github.com/AntonafSegerstad/Home-Helper/actions/runs/40360847327 (success, 43 tester).
 - Auto-deploy är aktiv vid commit. Byggkommandot kör npm ci och npm test före start.
 
 ## Databas
@@ -90,6 +90,11 @@ Verifierad 2026-10-26.
 - 43 tester passerar lokalt, i GitHub CI och i Render-bygget. Isolerade HTTP-prov med simulerad OpenAI verifierar matlagningsrapport via både text och ljud, oförändrad listfil och vanlig avbockning av köpt vara. Dessa är kontraktstester, inte verifiering av den riktiga modellens svar.
 - Render är live, /healthz svarar med ok=true, storage=postgres och voiceEnabled=true. Publicerad app.js matchar repot. Inga runtime-fel hittades. Inga familjers listor hämtades eller ändrades under denna slutkontroll.
 - Tre riktiga AI-prov kördes efter användarens uttryckliga godkännande. AI:n gav ett mjölkfritt, proteinrikt pastasåsförslag; förklarade att matlagningsrapporter ännu inte registrerar lageravdrag och att utcheckning tar bort markerade varor utan lageröverföring; samt angav protein i kokta linser per 100 g som en uppskattning utan påstått databasuppslag. Två prov gick via /api/chat och ett via /api/command, som använder samma svarshantering som transkriberat tal. Separat jämförelse av listan efter varje svar och vid slutet visade inga ändrade artiklar. Inga testvaror skapades. Riktig mikrofon/transkribering ingick inte i dessa tre prov.
+
+## Större öppnade varurutor
+- Den öppnade kategorins varuruta är förstorad med cirka 25 procent: text 12 → 15 px, radkontroller 20 × 24 → 25 × 30 px, samt större kryssrutor, ikoner, stängknapp, mellanrum och ram. Kategoricirklarna behåller sin storlek.
+- Storleken ingår i den vanliga layouten så att befintlig kantplacering och utrymmet ovanför utcheckningsknappen räknar med den större rutan. Maxbredden begränsas fortsatt till kategoriöversiktens bredd, och alla varor visas nedåt utan intern scroll.
+- Alla 43 befintliga tester passerar lokalt, i GitHub CI och i Render-bygget. Publicerad CSS matchar repot och hälsokontrollen är godkänd. Inga familjelistor eller AI-anrop användes vid slutkontrollen. Ingen fysisk telefongeometri har mätts.
 
 ## Kvar
 1. Verifiera riktigt svenskt tal via mobilens mikrofon.
