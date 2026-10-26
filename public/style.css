@@ -10,7 +10,10 @@
 .voice{aspect-ratio:7 / 2;min-height:92px;max-height:124px;overflow:hidden;display:flex;flex-direction:column;justify-content:center;gap:8px;margin:12px 0;background:#e8edde;border-radius:18px;padding:10px 12px;text-align:center}
 .mic{border:0;background:#266347;color:white;border-radius:40px;font-size:16px;font-weight:600;padding:17px 28px;box-shadow:0 4px 10px #193d2020}
 .voice-actions{width:100%;flex-shrink:0;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;max-width:440px;margin:auto}
-.voice-actions .mic{width:100%;min-width:0;padding:14px 12px;white-space:nowrap}
+.voice-actions .mic{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-width:0;padding:14px 12px;white-space:nowrap}
+.voice-icon{display:block;flex:0 0 20px;width:20px;height:20px}
+.voice-icon-stop,.mic.recording .voice-icon-microphone{display:none}
+.mic.recording .voice-icon-stop{display:block}
 .mic.recording{background:#9b3e35;animation:pulse 1.4s infinite}
 button,input,select,textarea{font:inherit}button{cursor:pointer;touch-action:manipulation}button:disabled{opacity:.45;cursor:default}
 button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid #9cb189;outline-offset:3px}

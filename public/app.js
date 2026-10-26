@@ -135,13 +135,13 @@ $('mic').addEventListener('click', async () => {
     recorder.ondataavailable = event => { if (event.data.size) chunks.push(event.data); };
     recorder.onstop = async () => {
       clearTimeout(timer); stream?.getTracks().forEach(track => track.stop());
-      $('mic').classList.remove('recording'); $('mic').textContent = '● Börja prata';
+      $('mic').classList.remove('recording'); $('mic').setAttribute('aria-pressed', 'false'); $('mic-label').textContent = 'Börja prata';
       const audio = new Blob(chunks, { type: mimeType }); chunks = [];
       if (audio.size === 0) { status('Inget ljud spelades in. Försök igen.', true); return; }
       status('AI:n lyssnar och svarar…'); await mutate('/api/voice', audio, true);
     };
     recorder.onerror = () => { stop(); stream?.getTracks().forEach(track => track.stop()); status('Inspelningen avbröts. Försök igen.', true); };
-    recorder.start(); $('mic').classList.add('recording'); $('mic').textContent = '■ Avsluta';
+    recorder.start(); $('mic').classList.add('recording'); $('mic').setAttribute('aria-pressed', 'true'); $('mic-label').textContent = 'Avsluta';
     status('Prata nu. Tryck på knappen när du är klar.'); timer = setTimeout(stop, 30000);
   } catch (error) {
     stream?.getTracks().forEach(track => track.stop());
