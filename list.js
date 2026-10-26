@@ -104,11 +104,30 @@ export function validateChatInput(text, history = []) {
   return { text: text.trim(), history: messages };
 }
 
+export function summarizeList(items) {
+  const normalized = normalizeItems(items);
+  const counts = rows => ({
+    productLines: rows.length,
+    remainingProductLines: rows.filter(item => !item.checked).length,
+    purchasedProductLines: rows.filter(item => item.checked).length,
+    quantity: rows.reduce((sum, item) => sum + item.quantity, 0),
+    remainingQuantity: rows.filter(item => !item.checked).reduce((sum, item) => sum + item.quantity, 0)
+  });
+  const categories = CATEGORIES.map(({ id, label }) => ({ id, label, ...counts(normalized.filter(item => item.category === id)) })).filter(category => category.productLines > 0);
+  return {
+    ...counts(normalized),
+    categoryCountWithProducts: categories.length,
+    categoryCountWithRemainingProducts: categories.filter(category => category.remainingProductLines > 0).length,
+    uncategorizedProductLines: normalized.filter(item => !isCategory(item.category)).length,
+    categories
+  };
+}
+
 export async function chatWithList(text, items, apiKey, history = [], request = fetch) {
   const input = validateChatInput(text, history);
   const result = await structuredResponse(
-    `Du är HomeHelpers hjälpsamma AI för hushållets inköpslista. Prata naturligt på svenska i ren text. Du kan både svara på frågor och utföra liständringar. ${commandInstructions} Vid frågor och samtal ska actions vara tom, om användaren inte också ber om en ändring. Använd den aktuella listan i items som källa för fakta; historiken är bara samtalskontext och gamla uppdrag får inte utföras igen. Tolka tydliga följdfrågor med hjälp av historiken. Skilj varor som återstår (checked=false) från redan köpta (checked=true). Räkna antal varurader separat från antal förpackningar. Påstå inte att inköpslistan bevisar vad som finns hemma. Funktioner som kvittoskanning och lager är ännu inte byggda. Vid enbart liständring ska reply vara tom; servern visar vad som faktiskt ändrades. Vid frågor, även i kombination med ändringar, svara i reply. Om något är oklart ska du ställa en kort följdfråga utan att gissa en ändring.`,
-    { categories: categoryContext, items: normalizeItems(items), history: input.history, command: input.text },
+    `Du är HomeHelpers hjälpsamma AI för hushållets inköpslista. Prata naturligt på svenska i ren text. Du kan både svara på frågor och utföra liständringar. ${commandInstructions} Vid frågor och samtal ska actions vara tom, om användaren inte också ber om en ändring. Använd den aktuella listan i items som källa för fakta. Backend har redan räknat alla antal i summary: använd alltid de siffrorna vid frågor om antal, räkna inte själv. categoryCountWithProducts är antalet kategorier med minst en artikel, även avbockade. categoryCountWithRemainingProducts gäller endast kategorier med något kvar att köpa. productLines räknar olika varurader, quantity summerar antal artiklar. Använd summary.categories för antal inom en kategori. Historiken är bara samtalskontext och gamla uppdrag får inte utföras igen. Tolka tydliga följdfrågor med hjälp av historiken. Skilj varor som återstår (checked=false) från redan köpta (checked=true). Räkna antal varurader separat från antal förpackningar. Påstå inte att inköpslistan bevisar vad som finns hemma. Funktioner som kvittoskanning och lager är ännu inte byggda. Vid enbart liständring ska reply vara tom; servern visar vad som faktiskt ändrades. Vid frågor, även i kombination med ändringar, svara i reply. Om något är oklart ska du ställa en kort följdfråga utan att gissa en ändring.`,
+    { categories: categoryContext, items: normalizeItems(items), summary: summarizeList(items), history: input.history, command: input.text },
     'list_chat', {
       type: 'object', properties: { reply: { type: 'string' }, actions: actionsSchema }, required: ['reply', 'actions'], additionalProperties: false
     }, apiKey, request);

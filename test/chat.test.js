@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { parseHTML } from 'linkedom';
-import { chatWithList, validateChatInput, applyActions } from '../list.js';
+import { chatWithList, validateChatInput, applyActions, summarizeList } from '../list.js';
 import { setupChat } from '../public/chat.js';
 
 const reply = data => ({ ok: true, json: async () => ({ choices: [{ message: { content: JSON.stringify(data) } }] }) });
@@ -16,6 +16,8 @@ test('AI-chatten får aktuell lista och historik och kan svara utan ändringar',
     assert.deepEqual(input.items, items);
     assert.deepEqual(input.history, history);
     assert.equal(input.command, 'Är de köpta?');
+    assert.equal(input.summary.categoryCountWithProducts, 1);
+    assert.equal(input.summary.remainingQuantity, 2);
     assert.equal(body.response_format.json_schema.schema.properties.reply.type, 'string');
     return reply({ reply: 'Nej, mjölken återstår att köpa.', actions: [] });
   });
@@ -89,4 +91,25 @@ test('misslyckat AI-anrop bevarar texten och lägger inte till misslyckad histor
   input.value = 'Lägg till ägg'; form.dispatchEvent(new window.Event('submit', { cancelable: true })); await settle();
   assert.equal(error, 'Försök igen.'); assert.equal(input.value, 'Lägg till ägg'); assert.equal(input.disabled, false);
   form.dispatchEvent(new window.Event('submit', { cancelable: true })); await settle(); assert.equal(input.value, '');
+});
+
+test('backend räknar kategorier, varurader och antal separat för AI-svaren', () => {
+  const summary = summarizeList([
+    { id: 'a', name: 'mjölk', category: 'dairy', quantity: 2, checked: false },
+    { id: 'b', name: 'smör', category: 'dairy', quantity: 3, checked: true },
+    { id: 'c', name: 'gurka', category: 'vegetables', quantity: 1, checked: false },
+    { id: 'd', name: 'okänt', category: null, quantity: 4, checked: false }
+  ]);
+  assert.equal(summary.categoryCountWithProducts, 2);
+  assert.equal(summary.categoryCountWithRemainingProducts, 2);
+  assert.equal(summary.productLines, 4);
+  assert.equal(summary.quantity, 10);
+  assert.equal(summary.remainingQuantity, 7);
+  assert.equal(summary.purchasedProductLines, 1);
+  assert.equal(summary.uncategorizedProductLines, 1);
+  assert.deepEqual(summary.categories.map(category => category.id), ['vegetables', 'dairy']);
+  assert.equal(summary.categories.find(category => category.id === 'dairy').quantity, 5);
+  const bought = summarizeList([{ name: 'mjölk', category: 'dairy', quantity: 2, checked: true }]);
+  assert.equal(bought.categoryCountWithProducts, 1);
+  assert.equal(bought.categoryCountWithRemainingProducts, 0);
 });

@@ -29,7 +29,7 @@ Appen visar transkript och resultat. Bocka tillbaka manuellt vid feltolkning. Be
 
 - Knappen ”Chatta” har samma utseende som ”Börja prata” och öppnar ett fritextfält.
 - Skriv exempelvis ”Lägg till två mjölk”, ”Vad återstår att köpa?” eller en följdfråga.
-- AI:n ser den aktuella listan och kan både svara och utföra liständringar. Frågor ändrar inte listan om ingen ändring begärs.
+- AI:n ser den aktuella listan och kan både svara och utföra liständringar. Backend räknar kategorier, varurader och antal åt AI:n. Frågor ändrar inte listan om ingen ändring begärs.
 - Svar visas i en konversation. Enter skickar och Shift+Enter ger radbrytning.
 - Konversationen bevaras när fältet stängs och öppnas. Den finns bara under det aktuella sidbesöket; den lagras inte som en gemensam chatt. De senaste tio meddelandena används som samtalskontext.
 - AI-kopplingen använder samma servernyckel, modell och anropsgräns som röststyrningen.
@@ -72,4 +72,4 @@ Manifest och ikon finns för hemskärmsläge. Offlinefunktion, service worker oc
 
 ## Kontroll
 
-`npm test` kör 28 tester för liständringar, AI-kontrakt, kategoriernas ordning, chatt och följdfrågor, DOM-kontroller och HTTP-API inklusive sparande efter serveromstart. AI-svaren i testsviten är simulerade. Ett riktigt rösttest kräver mikrofon och konfigurerad API-nyckel. `.npmrc` inkluderar testberoenden även när byggmiljön har NODE_ENV=production.
+`npm test` kör 29 tester för liständringar, AI-kontrakt, kategoriernas ordning, chatt och följdfrågor, DOM-kontroller och HTTP-API inklusive sparande efter serveromstart. AI-svaren i testsviten är simulerade. Ett riktigt rösttest kräver mikrofon och konfigurerad API-nyckel. `.npmrc` inkluderar testberoenden även när byggmiljön har NODE_ENV=production.
