@@ -8,9 +8,9 @@ Verifierad 2026-10-26.
 - Render: https://dashboard.render.com/web/srv-dbf4etoae00c73eo92d0
 - Bekräftad workspace My Workspace: tea-dajv1feq1p3s739let4g.
 - Ny tjänst srv-dbf4etoae00c73eo92d0, Free, Node 24.19.0, Frankfurt.
-- Kodcommit 6221ff09f518bbe7e4e459d9150f645f20158287.
-- Deploy dep-dbfmkjjbc2fs739e1mvg: live.
-- GitHub CI: https://github.com/AntonafSegerstad/Home-Helper/actions/runs/40344524696 (success, 37 tester).
+- Kodcommit 1d3147be22da1ba2c6548ead0920ea69392c807c.
+- Deploy dep-dbfmquuq1p3s73ff54eg: live.
+- GitHub CI: https://github.com/AntonafSegerstad/Home-Helper/actions/runs/40346773756 (success, 37 tester).
 - Auto-deploy är aktiv vid commit. Byggkommandot kör npm ci och npm test före start.
 
 ## Databas
@@ -67,6 +67,12 @@ Verifierad 2026-10-26.
 - Chatta öppnar ett separat fast positionerat fönster med intern rullning, stängknapp, Escape och klick utanför. Huvudskärmens kategorier flyttas inte av samtalet. Fönstret kan stängas även under pågående AI-anrop, och ett senare svar återöppnar det inte.
 - Kategorivaror öppnas lokalt under det valda kortparet. Alla övriga kort ligger kvar; nästa kategori stänger föregående. Varulistan rullas inom kortområdet. Klickad kortposition och fokus bevaras vid byte.
 - 37 tester passerar. Publika frontendfiler jämfördes med repot och familjval, kortväxling och separat chatt provades med befintliga data i en DOM-kontroll. Ingen fysisk skärmgeometri eller telefonmikrofon testades i denna kontroll. Inga produktionsartiklar ändrades. Inga runtime-fel hittades efter deployment.
+
+## Runda kategorier i tre kolumner
+- Kategorierna är mindre runda knappar med symbol, text och rött antal, tre per rad.
+- Varje kategori har en fast kvadratisk plats. Vid öppning döljs cirkeln och små varurader visas i exakt samma plats. Ingen panel spänner över raden. Övriga kategorier behåller sina positioner; endast en är öppen åt gången.
+- Antalväljarna är borttagna. Sparade antal över ett visas som text (×2) och kan ändras via röst/chatt. Kompakta ikoner för kategoribyte och borttagning finns kvar.
+- Alla 37 tester passerar lokalt, i CI och i Render-bygget. Publika frontendfiler och kortväxling kontrollerades med befintliga data i en DOM-kontroll. Ingen fysisk telefongeometri mättes. Inga produktionsvaror ändrades.
 
 ## Kvar
 1. Verifiera riktigt svenskt tal via mobilens mikrofon.
