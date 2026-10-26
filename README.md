@@ -29,8 +29,10 @@ Appen visar transkript och resultat. Bocka tillbaka manuellt vid feltolkning. Be
 
 - Startskärmen visar familjer som runda namngivna knappar och en knapp ”Lägg till familj”.
 - Varje familj får en egen lista. Den ursprungliga listan finns under ”Vår familj”, med alla tidigare artiklar bevarade. Inga konton eller inloggningar krävs.
-- Efter familjval visas bara kategorier med artiklar, som små runda knappar med symbol, text och rött antal, tre per rad. Antalet räknar varurader, inte förpackningar: lamm och köttfärs blir 2 även om mängderna är större. Avbockade varor finns kvar och räknas tills de tas bort.
-- Tryck på en kategori för att ersätta just den cirkeln med en liten varulista i samma ruta. Endast en kategori är öppen åt gången: nästa cirkel stänger den förra. Krysset visar cirkeln igen. Övriga cirklar behåller sina platser. Längre varulistor rullas inom den lilla rutan; ingen bred detaljpanel öppnas.
+- Efter familjval visas bara kategorier med artiklar, som små runda knappar med symbol, text och rött antal, tre per rad. Det röda antalet räknar oplockade varurader, inte förpackningar: lamm och köttfärs blir 2. Vid avbockning minskar siffran, men varan ligger kvar. En kategori med endast avbockade varor visas med 0 tills varorna tas bort.
+- Tryck på en kategori för att ersätta cirkeln med en varulista som växer nedåt ovanpå andra kategorier. Alla rader visas utan intern scroll. Bredden anpassas till den längsta varuraden, med skärmens bredd som gräns. Listor vid högerkanten flyttas åt vänster vid behov. Endast en kategori är öppen åt gången; nästa cirkel stänger den förra och krysset visar cirkeln igen.
+- Varunamn, kategoribytesikon och radering ligger på samma rad. Längre namn kan radbrytas först när skärmens bredd annars skulle överskridas.
+- ”Checka ut varor” längst ned tar bort alla avbockade artiklar i vald familj. Omarkerade varor ligger kvar. Utcheckningen sker på serverns aktuella lista i ett atomiskt steg, utan AI-anrop.
 - Familjenamnet och en ikon för familjbyte ligger på samma rad som HomeHelper-logotypen. Den gröna knappanelen har fast bildförhållande med höjdgräns och kan inte växa av AI-svar.
 - Röst, chatt, antal, kategoribyten och borttagning gäller alltid den valda familjen. Chatten töms vid familjbyte.
 - API: `GET/POST /api/families` listar/skapar familjer. List- och AI-anrop använder `?familyId=<id>`. Anrop utan familj-id går till den ursprungliga listan för kompatibilitet med tidigare klienter.
@@ -82,4 +84,4 @@ Manifest och ikon finns för hemskärmsläge. Offlinefunktion, service worker oc
 
 ## Kontroll
 
-`npm test` kör 37 tester för liständringar, AI-kontrakt, kategoriernas ordning, chatt och följdfrågor, familjseparering, kategorikort, DOM-kontroller och HTTP-API inklusive sparande efter serveromstart. AI-svaren i testsviten är simulerade. Ett riktigt rösttest kräver mikrofon och konfigurerad API-nyckel. `.npmrc` inkluderar testberoenden även när byggmiljön har NODE_ENV=production.
+`npm test` kör 41 tester för liständringar, AI-kontrakt, kategoriernas ordning, chatt och följdfrågor, familjseparering, kategorikort, DOM-kontroller och HTTP-API inklusive sparande efter serveromstart. AI-svaren i testsviten är simulerade. Ett riktigt rösttest kräver mikrofon och konfigurerad API-nyckel. `.npmrc` inkluderar testberoenden även när byggmiljön har NODE_ENV=production.

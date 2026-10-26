@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { parseHTML } from 'linkedom';
-import { renderCategoryDashboard } from '../public/dashboard.js';
+import { renderCategoryDashboard, positionCategoryPanel } from '../public/dashboard.js';
 import { renderFamilyButtons } from '../public/families-view.js';
 import { DEFAULT_FAMILY_ID, validateFamilyId, familyName } from '../families.js';
 
@@ -17,7 +17,7 @@ test('kategorikort visar ikon, namn och antal varusorter, inte förpackningar', 
   renderCategoryDashboard(grid, items, id => selected.push(id));
   assert.deepEqual([...grid.querySelectorAll('button')].map(button => button.dataset.category), ['vegetables', 'meat']);
   const meat = grid.querySelector('.category-tile[data-category=meat]');
-  assert.equal(meat.querySelector('.category-badge').textContent, '2');
+  assert.equal(meat.querySelector('.category-badge').textContent, '1');
   assert.equal(meat.querySelector('.category-tile-label').textContent, 'Kött');
   assert.ok(meat.querySelector('svg'));
   meat.click(); assert.deepEqual(selected, ['meat']);
@@ -77,4 +77,34 @@ test('ett kort öppnas på plats och stängs när nästa kategori väljs', () =>
   assert.equal(grid.lastElementChild.classList.contains('category-slot'), true);
   assert.ok(grid.lastElementChild.querySelector('.category-detail'));
   assert.equal(grid.lastElementChild.querySelector('.category-tile').hidden, true);
+});
+
+test('röda antalet minskar vid avbockning medan artiklar och kategori finns kvar', () => {
+  const { document } = setup(), grid = document.getElementById('grid');
+  const items = [{ id: 'a', name: 'lamm', category: 'meat', checked: false }, { id: 'b', name: 'köttfärs', category: 'meat', checked: false }];
+  renderCategoryDashboard(grid, items, () => {});
+  assert.equal(grid.querySelector('.category-badge').textContent, '2');
+  items[0].checked = true; renderCategoryDashboard(grid, items, () => {}, { selectedCategory: 'meat' });
+  assert.equal(grid.querySelector('.category-badge').textContent, '1');
+  assert.equal(grid.querySelectorAll('.item').length, 2);
+  items[1].checked = true; renderCategoryDashboard(grid, items, () => {});
+  assert.equal(grid.querySelector('.category-badge').textContent, '0');
+  assert.equal(grid.querySelectorAll('.category-tile').length, 1);
+  items[0].checked = false; renderCategoryDashboard(grid, items, () => {});
+  assert.equal(grid.querySelector('.category-badge').textContent, '1');
+});
+test('en bred öppnad lista flyttas åt vänster vid översiktens högra kant', () => {
+  const { document } = setup();
+  const grid = document.getElementById('grid'), slot = document.createElement('div'), panel = document.createElement('section');
+  grid.getBoundingClientRect = () => ({ left: 16, right: 376, width: 360, bottom: 200 });
+  slot.getBoundingClientRect = () => ({ left: 256, top: 100 });
+  Object.defineProperty(panel, 'offsetHeight', { value: 180 });
+  panel.getBoundingClientRect = () => ({ width: 210 });
+  positionCategoryPanel(panel, slot, grid);
+  assert.equal(panel.style.maxWidth, '360px');
+  assert.equal(panel.style.left, '-90px');
+  assert.equal(grid.style.marginBottom, '80px', 'Utcheckningsknappen ska ligga nedanför en lista som når under rutnätet.');
+  slot.getBoundingClientRect = () => ({ left: 16 });
+  positionCategoryPanel(panel, slot, grid);
+  assert.equal(panel.style.left, '0px');
 });

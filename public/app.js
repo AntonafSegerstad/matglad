@@ -1,6 +1,6 @@
 import { setupChat } from './chat.js';
 import { renderFamilyButtons } from './families-view.js';
-import { renderCategoryDashboard } from './dashboard.js';
+import { renderCategoryDashboard, positionCategoryPanel } from './dashboard.js';
 import { groupItems } from './categories.js';
 const $ = id => document.getElementById(id);
 let items = [], busy = false, recorder, stream, timer, chunks = [], starting = false;
@@ -31,6 +31,7 @@ function render() {
     }
   }, { selectedCategory, onAction: action => mutate('/api/actions', { actions: [action] }), busy });
   $('count').textContent = `${items.filter(i => !i.checked).length} kvar`;
+  $('checkout').disabled = busy || !items.some(item => item.checked);
   $('empty').hidden = items.length > 0;
 }
 
@@ -101,6 +102,7 @@ async function mutate(url, body, raw = false) {
     if (focusKey) [...$('category-grid').querySelectorAll('[data-focus-key]')].find(control => control.dataset.focusKey === focusKey)?.focus({ preventScroll: true });
   }
 }
+$('checkout').addEventListener('click', () => { if (!busy) mutate('/api/checkout', {}); });
 $('add-form').addEventListener('submit', async event => {
   event.preventDefault(); const name = $('item').value.trim(); if (!name) return;
   if (await mutate('/api/actions', { actions: [{ type: 'add', name }] })) $('item').value = '';
@@ -163,3 +165,8 @@ async function refresh() {
 await loadFamilies();
 setInterval(refresh, 5000);
 document.addEventListener('visibilitychange', () => { if (document.hidden) stop(); else refresh(); });
+
+document.defaultView?.addEventListener('resize', () => {
+  const slot = $('category-grid').querySelector('.category-slot.is-open');
+  if (slot) positionCategoryPanel(slot.querySelector('.category-detail'), slot, $('category-grid'));
+});

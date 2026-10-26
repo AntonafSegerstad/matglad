@@ -3,8 +3,8 @@
 ## Familjer och översikt – implementerat
 
 - Startskärm med runda namngivna familjeknappar och ”Lägg till familj”. Varje familj har en egen lista.
-- Kategoriöversikt med små runda knappar, tre per rad, med symboler, kategorinamn och rött antal varusorter. Tomma kategorier döljs.
-- Ett tryck döljer kategoricirkeln och visar små artiklar i samma ruta. Nästa kategori stänger automatiskt den föregående; ingen bred ram öppnas. Avbockade artiklar räknas tills de tas bort.
+- Kategoriöversikt med små runda knappar, tre per rad, med symboler, kategorinamn och rött antal oplockade varusorter. Tomma kategorier döljs.
+- Ett tryck döljer kategoricirkeln och visar små artiklar i samma ruta. Öppningen växer nedåt över andra kort utan intern scroll och breddas efter längsta varunamnet, inom skärmens bredd. Nästa kategori stänger den föregående. Avbockade artiklar ligger kvar men räknas inte i den röda siffran.
 - Kompakt huvudskärm med familjenamn och familjbytesikon i logoraden. Den gröna panelens storlek är begränsad och påverkas inte av AI-svar.
 
 ## Inköpslistan – implementerat
@@ -13,7 +13,9 @@
 - ”Chatta” bredvid ”Börja prata” öppnar ett separat chattfönster med fritextfält för samtal med AI:n, frågor om listan och liständringar.
 - AI-kategorisering enligt Elins butiksordning. Kategorier visas endast när de innehåller artiklar.
 - Avbockade artiklar behåller sin plats inom kategorin.
-- Kategoribyte och borttagning per artikel. Antal kan anges via röst/chatt och visas som text; ingen antalväljare visas.
+- Kategoribyte och borttagning på samma rad som varunamnet. Antal kan anges via röst/chatt och visas som text; ingen antalväljare visas.
+
+- ”Checka ut varor” längst ned raderar markerade artiklar i vald familj. Omarkerade artiklar och andra familjers listor bevaras.
 
 ## Kvittoskanning – planerat
 

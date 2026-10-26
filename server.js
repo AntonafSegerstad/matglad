@@ -63,6 +63,10 @@ const server = http.createServer(async (req, res) => {
         const family = await store.addFamily(name);
         return json(res, 201, { family, families: await store.listFamilies() });
       }
+      if (url.pathname === '/api/checkout') {
+        await body(req, 1000);
+        return json(res, 200, await commit([{ type: 'checkout' }], familyId));
+      }
       if (url.pathname === '/api/actions') {
         let { actions } = JSON.parse((await body(req, 20000)).toString());
         const current = await store.read(familyId);

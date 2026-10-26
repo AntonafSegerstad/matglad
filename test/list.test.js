@@ -77,3 +77,18 @@ test('AI får inte skriva över en manuellt vald kategori eller skapa om en bort
   result = applyActions(result.items, [{ type: 'remove', id: 'a', name: 'mjölk' }, { type: 'categorize', id: 'a', name: 'mjölk', category: 'drinks' }]);
   assert.equal(result.items.length, 0);
 });
+
+test('utcheckning tar endast markerade artiklar och bevarar ordningen på resten', () => {
+  const items = [{ id: 'a', name: 'mjölk', checked: true }, { id: 'b', name: 'ägg', checked: false }, { id: 'c', name: 'potatis', checked: true }, { id: 'd', name: 'gurka', checked: false }];
+  const result = applyActions(items, [{ type: 'checkout' }]);
+  assert.equal(result.checkedOut, 2);
+  assert.deepEqual(result.items.map(item => item.id), ['b', 'd']);
+  assert.equal(items.length, 4);
+  assert.equal(applyActions(result.items, [{ type: 'checkout' }]).checkedOut, 0);
+  assert.throws(() => applyActions(items, [{ type: 'checkout' }, { type: 'add', name: 'salt' }]), /separat/);
+});
+test('utcheckning kan hantera fler än femtio markerade artiklar i ett steg', () => {
+  const items = Array.from({ length: 120 }, (_, i) => ({ id: String(i), name: `vara ${i}`, checked: true }));
+  const result = applyActions(items, [{ type: 'checkout' }]);
+  assert.equal(result.checkedOut, 120); assert.deepEqual(result.items, []);
+});

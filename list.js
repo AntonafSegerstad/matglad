@@ -11,9 +11,17 @@ export function normalizeItems(items) {
 
 export function applyActions(items, actions) {
   if (!Array.isArray(actions) || actions.length > 50) throw new Error('Ogiltiga liständringar.');
-  const next = normalizeItems(structuredClone(items));
+  let next = normalizeItems(structuredClone(items));
   const changes = [];
+  let checkedOut = null;
   for (const action of actions) {
+    if (action?.type === 'checkout') {
+      if (actions.length !== 1) throw new Error('Utcheckning ska göras separat.');
+      checkedOut = next.filter(item => item.checked).length;
+      next = next.filter(item => !item.checked);
+      changes.push(checkedOut ? `Checkade ut ${checkedOut} ${checkedOut === 1 ? 'vara' : 'varor'}.` : 'Inga markerade varor att checka ut.');
+      continue;
+    }
     if (!action || !['add', 'check', 'uncheck', 'update', 'remove', 'categorize'].includes(action.type) || typeof action.name !== 'string' || !action.name.trim() || action.name.length > 120) {
       throw new Error('Kunde inte förstå liständringen.');
     }
@@ -53,7 +61,7 @@ export function applyActions(items, actions) {
       changes.push(`${item.checked ? 'Bockade av' : 'Återställde'} ${item.name}.`);
     }
   }
-  return { items: next, message: changes.join(' ') || 'Jag uppfattade ingen ändring.' };
+  return { items: next, message: changes.join(' ') || 'Jag uppfattade ingen ändring.', ...(checkedOut !== null ? { checkedOut } : {}) };
 }
 
 const categoryContext = CATEGORIES.map(({ id, label, examples }) => ({ id, label, examples }));

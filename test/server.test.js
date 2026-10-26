@@ -73,4 +73,18 @@ test('HTTP: äldre lista, antal, kategoribyte, omstart och borttagning', { timeo
   assert.equal((await get(`/api/list?familyId=${family.id}`)).items[1].quantity, 3);
   assert.equal((await fetch(base + '/api/list?familyId=../../list.json')).status, 400);
   assert.equal((await fetch(base + '/api/list?familyId=99999999-9999-4999-8999-999999999999')).status, 404);
+  // Checkout must use fresh stored check marks and remain inside one family.
+  const lamb = (await get(`/api/list?familyId=${family.id}`)).items[0];
+  await fetch(base + `/api/actions?familyId=${family.id}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ actions: [{ type: 'check', id: lamb.id, name: lamb.name }] }) });
+  await act([{ type: 'check', id: otherItem.id, name: otherItem.name }]);
+  const checkout = await fetch(base + `/api/checkout?familyId=${family.id}`, { method: 'POST', headers: { 'Content-Type': 'application/json', Origin: base }, body: '{}' });
+  assert.equal(checkout.status, 200);
+  const checkedOut = await checkout.json();
+  assert.equal(checkedOut.checkedOut, 1);
+  assert.equal(checkedOut.items.length, 1); assert.equal(checkedOut.items[0].name, 'köttfärs');
+  assert.equal((await get('/api/list')).items[0].checked, true);
+  await stop(); await start();
+  assert.equal((await get(`/api/list?familyId=${family.id}`)).items.length, 1);
+  assert.equal((await get('/api/list')).items.length, 1);
+
 });

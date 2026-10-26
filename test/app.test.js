@@ -24,10 +24,15 @@ test('startskärm, familjval, kategorikort och anrop följer vald familj', async
     if (target.pathname === '/api/families') return { ok: true, json: async () => ({ families }) };
     const id = target.searchParams.get('familyId'); assert.ok(id, 'Listan måste alltid begäras med vald familj.');
     assert.ok(lists.has(id));
+    if (target.pathname === '/api/checkout') {
+      const before = lists.get(id); lists.set(id, before.filter(item => !item.checked));
+      return { ok: true, json: async () => ({ items: structuredClone(lists.get(id)), checkedOut: before.length - lists.get(id).length, message: 'Checkade ut varor.' }) };
+    }
     if (target.pathname === '/api/actions') {
       const { actions } = JSON.parse(options.body);
-      assert.equal(actions[0].type, 'add');
-      lists.get(id).push({ id: 'cucumber', name: actions[0].name, category: 'vegetables', quantity: 1, checked: false });
+      if (actions[0].type === 'add') lists.get(id).push({ id: 'cucumber', name: actions[0].name, category: 'vegetables', quantity: 1, checked: false });
+      else if (actions[0].type === 'check') lists.get(id).find(item => item.id === actions[0].id).checked = true;
+      else assert.fail('Oväntad åtgärd');
       return { ok: true, json: async () => ({ items: structuredClone(lists.get(id)), message: 'Lade till gurka.' }) };
     }
     return { ok: true, json: async () => ({ items: structuredClone(lists.get(id)), voiceEnabled: true }) };
@@ -66,4 +71,15 @@ test('startskärm, familjval, kategorikort och anrop följer vald familj', async
   assert.equal(lists.get(other).length, 1);
   assert.equal(requests.find(request => request.target.pathname === '/api/actions').target.searchParams.get('familyId'), other);
   assert.equal(document.getElementById('category-grid').querySelectorAll('button').length, 1);
+  assert.equal(document.getElementById('checkout').disabled, true);
+  document.querySelector('.category-tile').click();
+  const check = document.querySelector('.item-check input'); check.checked = true;
+  check.dispatchEvent(new window.Event('change')); await settle();
+  assert.equal(document.querySelector('.category-badge').textContent, '0');
+  assert.equal(document.querySelectorAll('.item').length, 1);
+  assert.equal(document.getElementById('checkout').disabled, false);
+  document.getElementById('checkout').click(); await settle();
+  assert.equal(lists.get(other).length, 0); assert.equal(lists.get(DEFAULT_FAMILY_ID).length, 3);
+  assert.equal(document.querySelectorAll('.category-slot').length, 0);
+  assert.equal(document.getElementById('checkout').disabled, true);
 });

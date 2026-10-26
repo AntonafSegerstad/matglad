@@ -61,8 +61,9 @@ export function renderCategoryDashboard(container, items, onSelect, { selectedCa
     const opened = id === selectedCategory;
     tile.selectCategory = onSelect; tile.disabled = busy; tile.hidden = opened;
     tile.dataset.focusKey = `category:${id}`;
-    tile.querySelector('.category-badge').textContent = String(group.items.length);
-    tile.setAttribute('aria-label', `${group.label}, ${group.items.length} ${group.items.length === 1 ? 'vara' : 'varor'}`);
+    const remaining = group.items.filter(item => !item.checked).length;
+    tile.querySelector('.category-badge').textContent = String(remaining);
+    tile.setAttribute('aria-label', `${group.label}, ${remaining} ${remaining === 1 ? 'vara' : 'varor'} kvar, ${group.items.length} totalt`);
     tile.setAttribute('aria-expanded', String(opened));
     slot.classList.toggle('is-open', opened);
     let panel = slot.querySelector('.category-detail');
@@ -82,12 +83,29 @@ export function renderCategoryDashboard(container, items, onSelect, { selectedCa
       panel.id = `detail-${id}`; panel.closeCategory = onSelect;
       panel.querySelector('.category-close').disabled = busy;
       const list = panel.querySelector('.category-detail-items');
-      const scrollTop = list.scrollTop;
       renderList(list, group.items, onAction, busy, { headings: false, compact: true });
-      list.scrollTop = scrollTop;
     } else panel?.remove();
     fragment.append(slot);
   }
   container.replaceChildren(fragment);
+  container.style.marginBottom = '';
+  const openSlot = container.querySelector('.category-slot.is-open');
+  if (openSlot) positionCategoryPanel(openSlot.querySelector('.category-detail'), openSlot, container);
   if (focusKey) [...container.querySelectorAll('[data-focus-key]')].find(control => control.dataset.focusKey === focusKey)?.focus({ preventScroll: true });
+}
+
+// Grow to the longest row while keeping the opened overlay inside the overview.
+export function positionCategoryPanel(panel, slot, container) {
+  const bounds = container.getBoundingClientRect?.();
+  const origin = slot.getBoundingClientRect?.();
+  if (!bounds?.width || !origin) return;
+  panel.style.maxWidth = `${bounds.width}px`;
+  panel.style.left = '0px';
+  const width = panel.offsetWidth || panel.getBoundingClientRect?.().width;
+  if (!width) return;
+  const left = Math.max(bounds.left, Math.min(origin.left, bounds.right - width));
+  panel.style.left = `${left - origin.left}px`;
+  if (Number.isFinite(origin.top) && Number.isFinite(bounds.bottom) && panel.offsetHeight > 0) {
+    container.style.marginBottom = `${Math.max(0, origin.top + panel.offsetHeight - bounds.bottom)}px`;
+  }
 }
