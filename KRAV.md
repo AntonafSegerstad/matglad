@@ -3,7 +3,7 @@
 ## Familjer och översikt – implementerat
 
 - Startskärm med runda namngivna familjeknappar och ”Lägg till familj”. Varje familj har en egen lista.
-- Kategoriöversikt med små runda knappar, tre per rad, med symboler, kategorinamn och rött antal oplockade varusorter. Tomma kategorier döljs.
+- Kategoriöversikt med små runda knappar, tre per rad, med symboler, kategorinamn och rött antal oplockade varusorter. Varje kategori har en egen fast varm pastellfärg. Tomma kategorier döljs.
 - Ett tryck döljer kategoricirkeln och visar små artiklar i samma ruta. Öppningen växer nedåt över andra kort utan intern scroll och breddas efter längsta varunamnet, inom skärmens bredd. Nästa kategori stänger den föregående. Avbockade artiklar ligger kvar men räknas inte i den röda siffran.
 - Kompakt huvudskärm med familjenamn och familjbytesikon i logoraden. Den gröna panelens storlek är begränsad och påverkas inte av AI-svar.
 

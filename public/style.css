@@ -62,9 +62,42 @@ footer{text-align:center;font-size:11px;color:#909985;margin-top:20px}
 :root{background:#f8f2e7}.list-card.dashboard{border:0;padding:0;background:transparent;overflow:visible}
 .category-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px 8px;justify-items:center;align-items:start;margin-top:10px}
 .category-slot{position:relative;min-width:0;width:100%;max-width:116px;aspect-ratio:1}
-.category-tile{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-width:0;width:100%;height:100%;text-align:center;background:#fff;border:1px solid #e7e5da;border-radius:50%;padding:9px 8px;color:#302f28}
-.category-tile:hover{border-color:#bccaa0;background:#fffef9}
-.category-symbol{display:grid;place-items:center;position:relative;flex:0 0 24px;width:26px;height:24px;color:#58672d}.category-symbol.warm{color:#9b4e2d}.category-symbol svg{width:22px;height:22px}
+/* Warm pastels: butter, peach, dusty rose, sage and seafoam. Bind each
+   shade to its category so colors stay the same as empty categories disappear. */
+.category-slot[data-category="home"]{--category-color:#F0D392}
+.category-slot[data-category="herbs-berries"]{--category-color:#E8B5BC}
+.category-slot[data-category="vegetables"]{--category-color:#C5D4AD}
+.category-slot[data-category="fruit"]{--category-color:#EBC3A0}
+.category-slot[data-category="bread"]{--category-color:#E9D9B6}
+.category-slot[data-category="meat"]{--category-color:#DDA5A0}
+.category-slot[data-category="poultry"]{--category-color:#EAD59D}
+.category-slot[data-category="fish"]{--category-color:#B3CFC7}
+.category-slot[data-category="fresh-pasta"]{--category-color:#E8DCA9}
+.category-slot[data-category="spreads"]{--category-color:#D1D8B3}
+.category-slot[data-category="cheese"]{--category-color:#F0DFA5}
+.category-slot[data-category="deli-eggs"]{--category-color:#E7C1B2}
+.category-slot[data-category="juice-snacks"]{--category-color:#F0C7AF}
+.category-slot[data-category="dairy"]{--category-color:#D1E0D6}
+.category-slot[data-category="breakfast"]{--category-color:#D8C3A5}
+.category-slot[data-category="baking"]{--category-color:#E4CCB8}
+.category-slot[data-category="wraps-bags"]{--category-color:#D5B3A4}
+.category-slot[data-category="drinks"]{--category-color:#CEB6AA}
+.category-slot[data-category="world-food"]{--category-color:#D8C98D}
+.category-slot[data-category="spices"]{--category-color:#E2BD8E}
+.category-slot[data-category="sauces"]{--category-color:#DAB1A4}
+.category-slot[data-category="canned-vegetables"]{--category-color:#C7CAA4}
+.category-slot[data-category="pasta-rice"]{--category-color:#E1D7BB}
+.category-slot[data-category="cleaning"]{--category-color:#BDD4CB}
+.category-slot[data-category="hygiene"]{--category-color:#E2C4C2}
+.category-slot[data-category="frozen"]{--category-color:#B9D8D4}
+.category-slot[data-category="sweets"]{--category-color:#E6B8C4}
+.category-slot[data-category="checkout"]{--category-color:#D9C6AB}
+.category-slot[data-category="pharmacy"]{--category-color:#C5DACC}
+.category-slot[data-category="alcohol"]{--category-color:#CEAFB4}
+.category-slot[data-category="unassigned"]{--category-color:#E2D6C2}
+.category-tile{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-width:0;width:100%;height:100%;text-align:center;background:var(--category-color,#E2D6C2);border:1px solid #6b594b24;border-radius:50%;padding:9px 8px;color:#302f28}
+.category-tile:hover{border-color:#8e9c7a}
+.category-symbol{display:grid;place-items:center;position:relative;flex:0 0 24px;width:26px;height:24px;color:#4d513a}.category-symbol.warm{color:#79513c}.category-symbol svg{width:22px;height:22px}
 .category-badge{position:absolute;top:-5px;right:-11px;min-width:18px;height:18px;padding:0 4px;display:grid;place-items:center;border-radius:50%;background:#bf4e36;color:white;font-size:11px;font-weight:600;line-height:1}
 .category-tile-label{min-width:0;font-size:12px;font-weight:550;line-height:1.15;overflow-wrap:anywhere}.category-tile.long-label .category-tile-label{font-size:10.5px}
 .category-slot.is-open{z-index:20}
