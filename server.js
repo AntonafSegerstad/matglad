@@ -2,7 +2,7 @@ import http from 'node:http';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { interpret, applyActions, classifyProducts, categorizeNewActions } from './list.js';
+import { interpret, applyActions, classifyProducts, categorizeNewActions, chatWithList, validateChatInput } from './list.js';
 import { isCategory } from './public/categories.js';
 import { createStore } from './storage.js';
 
@@ -68,6 +68,20 @@ const server = http.createServer(async (req, res) => {
         }
         return json(res, 200, { ...await commit(actions), ...(warning ? { warning } : {}) });
       }
+      if (url.pathname === '/api/chat') {
+        const key = process.env.OPENAI_API_KEY;
+        if (!key) return json(res, 503, { error: 'AI-chatten är inte tillgänglig just nu.' });
+        const payload = JSON.parse((await body(req, 60000)).toString());
+        const input = validateChatInput(payload.text, payload.history);
+        return await runAI(async () => {
+          const answer = await chatWithList(input.text, await store.read(), key, input.history);
+          if (!answer.actions.length) return json(res, 200, { items: await store.read(), reply: answer.reply, message: '' });
+          const result = await commit(answer.actions);
+          // Only the backend receipt describes applied changes, including stale/missing items.
+          const reply = [answer.reply, result.message].filter(Boolean).join('\n\n');
+          return json(res, 200, { ...result, reply });
+        });
+      }
       if (url.pathname === '/api/voice' || url.pathname === '/api/command') {
         const key = process.env.OPENAI_API_KEY;
         if (!key) return json(res, 503, { error: 'Lägg till OPENAI_API_KEY i serverns .env för att aktivera AI och röst.' });
@@ -92,7 +106,7 @@ const server = http.createServer(async (req, res) => {
         });
       }
     }
-    const files = { '/': ['index.html', 'text/html'], '/app.js': ['app.js', 'text/javascript'], '/categories.js': ['categories.js', 'text/javascript'], '/list-view.js': ['list-view.js', 'text/javascript'], '/style.css': ['style.css', 'text/css'], '/manifest.webmanifest': ['manifest.webmanifest', 'application/manifest+json'], '/icon.svg': ['icon.svg', 'image/svg+xml'] };
+    const files = { '/': ['index.html', 'text/html'], '/app.js': ['app.js', 'text/javascript'], '/chat.js': ['chat.js', 'text/javascript'], '/categories.js': ['categories.js', 'text/javascript'], '/list-view.js': ['list-view.js', 'text/javascript'], '/style.css': ['style.css', 'text/css'], '/manifest.webmanifest': ['manifest.webmanifest', 'application/manifest+json'], '/icon.svg': ['icon.svg', 'image/svg+xml'] };
     const file = files[url.pathname];
     if (req.method !== 'GET' || !file) return json(res, 404, { error: 'Sidan finns inte.' });
     res.writeHead(200, { 'Content-Type': `${file[1]}; charset=utf-8` });

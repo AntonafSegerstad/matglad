@@ -1,4 +1,5 @@
 import { renderList } from './list-view.js';
+import { setupChat } from './chat.js';
 const $ = id => document.getElementById(id);
 let items = [], busy = false, recorder, stream, timer, chunks = [], starting = false;
 function status(message, error = false) { $('status').textContent = message; $('status').className = error ? 'error' : ''; }
@@ -15,7 +16,7 @@ function render() {
 }
 function lock(value) {
   busy = value;
-  document.querySelectorAll('button,input,select').forEach(el => { el.disabled = value; });
+  document.querySelectorAll('button,input,select,textarea').forEach(el => { el.disabled = value; });
   if (!value) render();
 }
 async function mutate(url, body, raw = false) {
@@ -36,10 +37,19 @@ $('add-form').addEventListener('submit', async event => {
   event.preventDefault(); const name = $('item').value.trim(); if (!name) return;
   if (await mutate('/api/actions', { actions: [{ type: 'add', name }] })) $('item').value = '';
 });
-$('command-form').addEventListener('submit', async event => {
-  event.preventDefault(); const text = $('command').value.trim(); if (!text) return;
-  status('Tolkar kommandot…');
-  if (await mutate('/api/command', { text })) $('command').value = '';
+setupChat({
+  document,
+  async send(payload) {
+    if (starting || recorder?.state === 'recording') throw new Error('Avsluta inspelningen innan du skickar ett meddelande.');
+    if (busy) throw new Error('Vänta tills den pågående ändringen är klar.');
+    lock(true); status('AI:n svarar…');
+    try {
+      const result = await request('/api/chat', payload);
+      items = result.items; status(result.message || '');
+      return result.reply;
+    } finally { lock(false); }
+  },
+  onError: message => status(message, true)
 });
 function stop() { if (recorder?.state === 'recording') recorder.stop(); }
 $('mic').addEventListener('click', async () => {
@@ -61,7 +71,7 @@ $('mic').addEventListener('click', async () => {
       status('Lyssnar och uppdaterar listan…'); await mutate('/api/voice', audio, true);
     };
     recorder.onerror = () => { stop(); stream?.getTracks().forEach(track => track.stop()); status('Inspelningen avbröts. Försök igen.', true); };
-    recorder.start(); $('mic').classList.add('recording'); $('mic').textContent = '■ Klart, uppdatera listan';
+    recorder.start(); $('mic').classList.add('recording'); $('mic').textContent = '■ Avsluta';
     status('Prata nu. Tryck på knappen när du är klar.'); timer = setTimeout(stop, 30000);
   } catch (error) {
     stream?.getTracks().forEach(track => track.stop());

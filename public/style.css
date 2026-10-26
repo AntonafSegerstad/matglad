@@ -1,13 +1,15 @@
 :root{font-family:Inter,ui-sans-serif,system-ui,sans-serif;color:#21392d;background:#f5f5ee;font-synthesis:none}
-*{box-sizing:border-box}body{margin:0}main{max-width:640px;margin:auto;padding:30px 24px 50px}
+*{box-sizing:border-box}[hidden]{display:none!important}body{margin:0}main{max-width:640px;margin:auto;padding:30px 24px 50px}
 header{display:flex;align-items:center;gap:10px;font-size:11px;font-weight:700;letter-spacing:1px}
 .mark{background:#266347;color:white;border-radius:9px;padding:6px 10px;font-size:19px}
 .tag{margin-left:auto;font-weight:500;border:1px solid #d1d8c8;border-radius:20px;padding:6px 10px;font-size:10px;letter-spacing:0}
 .voice{margin:30px 0 8px;background:#e8edde;border-radius:20px;padding:24px 18px;text-align:center}
 .mic{border:0;background:#266347;color:white;border-radius:40px;font-size:16px;font-weight:600;padding:17px 28px;box-shadow:0 4px 10px #193d2020}
+.voice-actions{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;max-width:440px;margin:auto}
+.voice-actions .mic{width:100%;min-width:0;padding:17px 12px;white-space:nowrap}
 .mic.recording{background:#9b3e35;animation:pulse 1.4s infinite}
 .voice p{font-size:12px;color:#53654e;line-height:1.6;margin:16px 0 0}.voice .privacy{font-size:10px;margin-top:6px;color:#717d6d}
-button,input,select{font:inherit}button{cursor:pointer;touch-action:manipulation}button:disabled{opacity:.45;cursor:default}
+button,input,select,textarea{font:inherit}button{cursor:pointer;touch-action:manipulation}button:disabled{opacity:.45;cursor:default}
 button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid #9cb189;outline-offset:3px}
 #status{font-size:13px;line-height:1.6;min-height:22px;color:#526746}#status.error{color:#973e32}
 #transcript{font-size:13px;padding:12px;background:#eaece4;border-radius:8px;overflow-wrap:anywhere}
@@ -31,11 +33,18 @@ input{min-width:0;width:100%;padding:10px;border:0;background:transparent;font-s
 input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
 .category-select{min-width:0;width:100%;min-height:36px;padding:5px 16px 5px 5px;border:1px solid #dce2d3;border-radius:8px;color:#5c7050;background:#fffef9;font-size:12px;text-overflow:ellipsis}
 #empty{font-size:13px;color:#87917f;text-align:center;line-height:1.8;padding:20px 0 5px}
-details{margin-top:22px;color:#6d7965;font-size:12px}summary{cursor:pointer}#command-form{margin-top:15px}#command-form label{display:block;margin-bottom:8px}
-.command-row{display:flex;border:1px solid #dbe0d2;border-radius:8px;overflow:hidden;background:#fffef9}.command-row button{border:0;background:#e3e9da;padding:10px 16px;color:#266347}
+.chat-panel{text-align:left;margin-top:18px}
+.chat-messages{max-height:320px;overflow-y:auto;overscroll-behavior:contain}
+.chat-message{max-width:94%;padding:10px 12px;border-radius:12px;background:#fffef9;margin:0 0 10px}
+.chat-message.user{margin-left:auto;background:#d9e5ce}
+.chat-speaker{font-size:10px;font-weight:700;color:#5c7050;letter-spacing:.3px}
+.voice .chat-message p{margin:4px 0 0;font-size:14px;line-height:1.55;color:#21392d;white-space:pre-wrap;overflow-wrap:anywhere}
+.chat-compose{display:flex;align-items:flex-end;gap:8px}
+.chat-compose textarea{display:block;min-width:0;flex:1;min-height:54px;max-height:160px;resize:vertical;padding:12px;border:1px solid #c8d4bc;border-radius:10px;background:#fffef9;color:#21392d;font-size:16px;line-height:1.4}
+.chat-compose button{min-height:48px;padding:12px 16px;border:0;border-radius:10px;background:#266347;color:#fffef9;font-size:14px;font-weight:600}
 footer{text-align:center;font-size:11px;color:#909985;margin-top:40px}
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 @media(max-width:600px){main{padding-right:16px;padding-left:16px}.list-card{padding:16px}}
-@media(max-width:380px){.tag{font-size:9px;padding:6px 8px}}
+@media(max-width:380px){.tag{font-size:9px;padding:6px 8px}.voice-actions{gap:8px}.voice-actions .mic{font-size:14px;padding:16px 8px}}
 @media(max-width:360px){.quantity-control button{display:none}.item{gap:5px}}
 @keyframes pulse{50%{box-shadow:0 0 0 8px #9b3e3518}}@media(prefers-reduced-motion:reduce){.mic.recording{animation:none}}

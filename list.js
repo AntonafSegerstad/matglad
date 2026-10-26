@@ -74,21 +74,47 @@ async function structuredResponse(system, input, name, schema, apiKey, request) 
   return JSON.parse(result.choices?.[0]?.message?.content || '{}');
 }
 
+const commandInstructions = `Returnera add för varor som behövs, check för köpta varor, uncheck för att ångra avbockning, update för ändrat antal eller kategori och remove ENDAST när användaren uttryckligen ber att ta bort en vara. Köpt eller klar betyder check, aldrig remove. Flera varor ger flera actions. Vid matchning använd exakt namn och id från befintliga listan; nya varor har id=null. Namnet ska vara ett kort svenskt varunamn utan antal. quantity är antal artiklar/förpackningar, ett heltal 1–999. Lägg inte till vikt eller volym som antal: ”2 liter mjölk” blir namnet ”mjölk, 2 liter” med quantity=null, ”två paket mjölk” blir namnet ”mjölk” med quantity=2. Vid add utan uttryckligt antal använd quantity=null så att befintligt antal bevaras. När användaren anger totalt antal, sätt quantity till det. När användaren vill lägga till fler av en befintlig vara, beräkna det nya totala antalet. Välj kategori för varje ny vara från categories. För befintliga varor behåll kategorin, om inte användaren uttryckligen ber att byta. Vid check/uncheck/remove använd quantity=null och category=null. ${shoppingContext}`;
+const actionsSchema = { type: 'array', items: { type: 'object', properties: {
+  type: { type: 'string', enum: ['add', 'check', 'uncheck', 'update', 'remove'] },
+  id: { type: ['string', 'null'] }, name: { type: 'string' },
+  quantity: { type: ['integer', 'null'], minimum: 1, maximum: 999 },
+  category: { type: ['string', 'null'], enum: [...CATEGORY_IDS, null] }
+}, required: ['type', 'id', 'name', 'quantity', 'category'], additionalProperties: false } };
+
 export async function interpret(text, items, apiKey, request = fetch) {
   const result = await structuredResponse(
-    `Du tolkar svenska röstkommandon för en inköpslista. Returnera add för varor som behövs, check för köpta varor, uncheck för att ångra avbockning, update för ändrat antal eller kategori och remove ENDAST när användaren uttryckligen ber att ta bort en vara. Köpt eller klar betyder check, aldrig remove. Flera varor ger flera actions. Vid matchning använd exakt namn och id från befintliga listan; nya varor har id=null. Namnet ska vara ett kort svenskt varunamn utan antal. quantity är antal artiklar/förpackningar, ett heltal 1–999. Lägg inte till vikt eller volym som antal: ”2 liter mjölk” blir namnet ”mjölk, 2 liter” med quantity=null, ”två paket mjölk” blir namnet ”mjölk” med quantity=2. Vid add utan uttryckligt antal använd quantity=null så att befintligt antal bevaras. När användaren anger totalt antal, sätt quantity till det. När användaren vill lägga till fler av en befintlig vara, beräkna det nya totala antalet. Välj kategori för varje ny vara från categories. För befintliga varor behåll kategorin, om inte användaren uttryckligen ber att byta. Vid check/uncheck/remove använd quantity=null och category=null. Vid otydligt eller orelaterat tal returnera tom actions. ${shoppingContext}`,
+    `Du tolkar svenska röstkommandon för en inköpslista. ${commandInstructions} Vid otydligt eller orelaterat tal returnera tom actions.`,
     { categories: categoryContext, items: normalizeItems(items), command: text },
     'list_actions', {
-      type: 'object', properties: { actions: { type: 'array', items: { type: 'object', properties: {
-        type: { type: 'string', enum: ['add', 'check', 'uncheck', 'update', 'remove'] },
-        id: { type: ['string', 'null'] }, name: { type: 'string' },
-        quantity: { type: ['integer', 'null'], minimum: 1, maximum: 999 },
-        category: { type: ['string', 'null'], enum: [...CATEGORY_IDS, null] }
-      }, required: ['type', 'id', 'name', 'quantity', 'category'], additionalProperties: false } } }, required: ['actions'], additionalProperties: false
+      type: 'object', properties: { actions: actionsSchema }, required: ['actions'], additionalProperties: false
     }, apiKey, request);
   // Validate model output completely before any database mutation.
   applyActions(items, result.actions);
   return result.actions;
+}
+
+export function validateChatInput(text, history = []) {
+  if (typeof text !== 'string' || !text.trim() || text.length > 4000) throw new Error('Skriv ett meddelande på högst 4 000 tecken.');
+  if (!Array.isArray(history) || history.length > 10) throw new Error('Ogiltig chatthistorik.');
+  const messages = history.map(message => {
+    if (!message || !['user', 'assistant'].includes(message.role) || typeof message.content !== 'string' || !message.content.trim() || message.content.length > 4000) throw new Error('Ogiltig chatthistorik.');
+    return { role: message.role, content: message.content };
+  });
+  return { text: text.trim(), history: messages };
+}
+
+export async function chatWithList(text, items, apiKey, history = [], request = fetch) {
+  const input = validateChatInput(text, history);
+  const result = await structuredResponse(
+    `Du är HomeHelpers hjälpsamma AI för hushållets inköpslista. Prata naturligt på svenska i ren text. Du kan både svara på frågor och utföra liständringar. ${commandInstructions} Vid frågor och samtal ska actions vara tom, om användaren inte också ber om en ändring. Använd den aktuella listan i items som källa för fakta; historiken är bara samtalskontext och gamla uppdrag får inte utföras igen. Tolka tydliga följdfrågor med hjälp av historiken. Skilj varor som återstår (checked=false) från redan köpta (checked=true). Räkna antal varurader separat från antal förpackningar. Påstå inte att inköpslistan bevisar vad som finns hemma. Funktioner som kvittoskanning och lager är ännu inte byggda. Vid enbart liständring ska reply vara tom; servern visar vad som faktiskt ändrades. Vid frågor, även i kombination med ändringar, svara i reply. Om något är oklart ska du ställa en kort följdfråga utan att gissa en ändring.`,
+    { categories: categoryContext, items: normalizeItems(items), history: input.history, command: input.text },
+    'list_chat', {
+      type: 'object', properties: { reply: { type: 'string' }, actions: actionsSchema }, required: ['reply', 'actions'], additionalProperties: false
+    }, apiKey, request);
+  applyActions(items, result.actions);
+  if (typeof result.reply !== 'string' || result.reply.length > 4000 || (!result.reply.trim() && result.actions.length === 0)) throw new Error('AI:n gav inget läsbart svar. Försök igen.');
+  return { reply: result.reply.trim(), actions: result.actions };
 }
 
 export async function classifyProducts(names, apiKey, request = fetch) {

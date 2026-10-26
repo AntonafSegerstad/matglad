@@ -3,12 +3,16 @@
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#266347"><link rel="manifest" href="/manifest.webmanifest"><link rel="icon" href="/icon.svg"><link rel="stylesheet" href="/style.css"><title>HomeHelper</title></head>
 <body><main>
 <header><span class="mark" aria-hidden="true">✓</span><span>HOMEHELPER / INKÖPSLISTA</span><span class="tag">Första steget</span></header>
-<section class="voice"><button id="mic" class="mic" type="button">● Börja prata</button><p id="voice-hint">”Lägg till mjölk och ägg” · ”Jag har köpt mjölken”</p><p class="privacy">Ljud skickas till OpenAI när du stoppar inspelningen.</p></section>
+<section class="voice"><div class="voice-actions"><button id="mic" class="mic" type="button">● Börja prata</button><button id="chat-toggle" class="mic" type="button" aria-expanded="false" aria-controls="chat-panel">Chatta</button></div>
+<section id="chat-panel" class="chat-panel" aria-label="Chatta med HomeHelper" hidden>
+<div id="chat-messages" class="chat-messages" role="log" aria-label="Konversation" aria-live="polite" aria-relevant="additions"></div>
+<form id="chat-form"><label class="sr-only" for="chat-text">Skriv till AI:n</label><div class="chat-compose"><textarea id="chat-text" rows="2" maxlength="2000" placeholder="Skriv till AI:n…" required></textarea><button id="chat-send" type="submit">Skicka</button></div></form>
+</section><p id="voice-hint">”Lägg till mjölk och ägg” · ”Jag har köpt mjölken”</p><p class="privacy">Ljud skickas till OpenAI när du stoppar inspelningen.</p></section>
 <p id="status" role="status" aria-live="polite"></p><p id="transcript" hidden></p>
 <section class="list-card"><div class="list-heading"><h2>Att handla</h2><span id="count">0 kvar</span></div>
 <form id="add-form"><label class="sr-only" for="item">Lägg till en vara</label><input id="item" maxlength="120" placeholder="Skriv en vara…" autocomplete="off" required><button type="submit" aria-label="Lägg till vara">+</button></form>
 <div id="items"></div><p id="empty">Listan är tom. Säg eller skriv det ni behöver.</p>
 </section>
-<details><summary>Vill du skriva ett röstkommando?</summary><form id="command-form"><label for="command">Till exempel ”Bocka av äggen”</label><div class="command-row"><input id="command" maxlength="2000" required placeholder="Vad vill du ändra?"><button type="submit">Skicka</button></div></form></details>
+
 <footer>En lista. Lite mindre att hålla i huvudet.</footer>
 </main><script type="module" src="/app.js"></script></body></html>

@@ -45,6 +45,10 @@ test('HTTP: äldre lista, antal, kategoribyte, omstart och borttagning', { timeo
   assert.equal(bad.status, 400); assert.equal((await get('/api/list')).items.length, 2);
   await act([{ type: 'remove', id: 'legacy', name: 'mjölk' }]);
   current = await get('/api/list'); assert.equal(current.items.length, 1); assert.equal(current.items[0].name, 'potatis');
-  for (const route of ['/', '/list-view.js', '/categories.js', '/style.css']) assert.equal((await fetch(base + route)).status, 200);
+  for (const route of ['/', '/list-view.js', '/categories.js', '/chat.js', '/style.css']) assert.equal((await fetch(base + route)).status, 200);
   assert.equal((await fetch(base + '/.env')).status, 404);
+  const chat = await fetch(base + '/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json', Origin: base }, body: JSON.stringify({ text: 'Vad finns på listan?', history: [] }) });
+  assert.equal(chat.status, 503);
+  assert.match((await chat.json()).error, /AI-chatten/);
+  assert.equal((await get('/api/list')).items.length, 1);
 });

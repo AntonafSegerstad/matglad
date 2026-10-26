@@ -3,6 +3,7 @@
 ## Inköpslistan – implementerat
 
 - Gemensam lista med tillägg och avbockning via röst eller manuell inmatning.
+- ”Chatta” bredvid ”Börja prata” öppnar ett fritextfält för samtal med AI:n, frågor om listan och liständringar.
 - AI-kategorisering enligt Elins butiksordning. Kategorier visas endast när de innehåller artiklar.
 - Avbockade artiklar behåller sin plats inom kategorin.
 - Kategoribyte, antal och borttagning per artikel.
