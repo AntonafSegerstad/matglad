@@ -1,6 +1,6 @@
 # Deploymentstatus – HomeHelper
 
-Verifierad 2026-10-25.
+Verifierad 2026-10-26.
 
 ## Publicerat
 - Privat repo: https://github.com/AntonafSegerstad/Home-Helper
@@ -8,9 +8,9 @@ Verifierad 2026-10-25.
 - Render: https://dashboard.render.com/web/srv-dbf4etoae00c73eo92d0
 - Bekräftad workspace My Workspace: tea-dajv1feq1p3s739let4g.
 - Ny tjänst srv-dbf4etoae00c73eo92d0, Free, Node 24.19.0, Frankfurt.
-- Kodcommit e4ae38eb011d4dd789aaf906d4765e97d0934567.
-- Deploy dep-dbf53f6k1f9s73ftm67g: live.
-- GitHub CI: https://github.com/AntonafSegerstad/Home-Helper/actions/runs/40223916093 (success, 21 tester).
+- Kodcommit 54bf47af65130c812d08b7143bd96ccbea969f39.
+- Deploy dep-dbfm7fks728c73doi8l0: live.
+- GitHub CI: https://github.com/AntonafSegerstad/Home-Helper/actions/runs/40339985518 (success, 34 tester).
 - Auto-deploy är aktiv vid commit. Byggkommandot kör npm ci och npm test före start.
 
 ## Databas
@@ -49,6 +49,17 @@ Verifierad 2026-10-25.
 - Antalväljaren vid fältet för nya varor är borttagen. Antal ändras per vara eller via röst.
 - På de smalaste skärmarna visas direkt antalfält utan minus/plus för att behålla plats för varunamnet.
 - Alla 21 tester passerar. Publika HTML-, JS- och CSS-filer samt hälsokontrollen är verifierade efter deployment. Inga produktionsartiklar ändrades vid denna layoutkontroll.
+
+## Familjväljare, kategoriöversikt och chatt
+- Startskärmen har runda familjeknappar och ”Lägg till familj”. Den ursprungliga listan ligger under ”Vår familj” med samma artiklar och avbockningar.
+- Varje familj har separat lagring. Röst, chatt och samtliga liständringar använder den valda familjens id. Chattens historik töms när familj byts.
+- Kategorier visas som kort med SVG-symbol, namn och röd siffra. Siffran räknar varurader inklusive avbockade, inte förpackningsantal. Tomma kategorier döljs. Ett tryck öppnar kategorins artiklar.
+- Chatta är en knapp bredvid Börja prata med samma utseende. Den visar fritextfält och konversation. Listfrågor använder totalsiffror beräknade av backend.
+- Migrering migrations/002_families.sql är tillämpad. Den skapar endast nya tabeller och familjemetadata; den ursprungliga shopping_list ändras inte. Ursprungliga artiklars datahash och version var oförändrade efter både migrering och deployment.
+- Testgren br-bold-wave-b9sy3o3x i samma Neon-projekt användes för migrering och riktiga lagringsprov. Grenen upphör automatiskt 2026-10-27 14:00 UTC. Produktionsgrenen är fortsatt br-wispy-dust-b9s4tm6l.
+- Riktiga databasprov verifierade transaktioner, nya familjer, listseparering, antal, beständighet och avvisade dubbelnamn. Testfamiljerna finns endast på testgrenen.
+- 34 tester är godkända lokalt, i GitHub CI och Render-bygget, inklusive hela familjval/kategoriöversiktsflödet med DOM och API.
+- Publik HTTPS-kontroll verifierade familjer, samma ursprungliga lista via explicit familje-id och äldre API, korrekta symboler och röda siffror samt familjens riktiga AI-chatt. Inga nya testfamiljer eller testvaror lämnades i produktion. Inga runtime-fel hittades efter deployment.
 
 ## Kvar
 1. Verifiera riktigt svenskt tal via mobilens mikrofon.
