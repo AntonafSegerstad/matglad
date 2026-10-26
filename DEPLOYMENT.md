@@ -8,9 +8,9 @@ Verifierad 2026-10-26.
 - Render: https://dashboard.render.com/web/srv-dbf4etoae00c73eo92d0
 - Bekräftad workspace My Workspace: tea-dajv1feq1p3s739let4g.
 - Ny tjänst srv-dbf4etoae00c73eo92d0, Free, Node 24.19.0, Frankfurt.
-- Kodcommit 54bf47af65130c812d08b7143bd96ccbea969f39.
-- Deploy dep-dbfm7fks728c73doi8l0: live.
-- GitHub CI: https://github.com/AntonafSegerstad/Home-Helper/actions/runs/40339985518 (success, 34 tester).
+- Kodcommit 6221ff09f518bbe7e4e459d9150f645f20158287.
+- Deploy dep-dbfmkjjbc2fs739e1mvg: live.
+- GitHub CI: https://github.com/AntonafSegerstad/Home-Helper/actions/runs/40344524696 (success, 37 tester).
 - Auto-deploy är aktiv vid commit. Byggkommandot kör npm ci och npm test före start.
 
 ## Databas
@@ -60,6 +60,13 @@ Verifierad 2026-10-26.
 - Riktiga databasprov verifierade transaktioner, nya familjer, listseparering, antal, beständighet och avvisade dubbelnamn. Testfamiljerna finns endast på testgrenen.
 - 34 tester är godkända lokalt, i GitHub CI och Render-bygget, inklusive hela familjval/kategoriöversiktsflödet med DOM och API.
 - Publik HTTPS-kontroll verifierade familjer, samma ursprungliga lista via explicit familje-id och äldre API, korrekta symboler och röda siffror samt familjens riktiga AI-chatt. Inga nya testfamiljer eller testvaror lämnades i produktion. Inga runtime-fel hittades efter deployment.
+
+## Kompakt huvudskärm och kortväxling
+- Familjenamnet ligger i logoraden, med en ikon med person och cirkelpilar för familjbyte.
+- Den gröna panelen har bildförhållande 7:2 och höjdgräns 92–124 px. Status ligger på en enda avkortad rad. Inget chattinnehåll eller textfält finns i panelen.
+- Chatta öppnar ett separat fast positionerat fönster med intern rullning, stängknapp, Escape och klick utanför. Huvudskärmens kategorier flyttas inte av samtalet. Fönstret kan stängas även under pågående AI-anrop, och ett senare svar återöppnar det inte.
+- Kategorivaror öppnas lokalt under det valda kortparet. Alla övriga kort ligger kvar; nästa kategori stänger föregående. Varulistan rullas inom kortområdet. Klickad kortposition och fokus bevaras vid byte.
+- 37 tester passerar. Publika frontendfiler jämfördes med repot och familjval, kortväxling och separat chatt provades med befintliga data i en DOM-kontroll. Ingen fysisk skärmgeometri eller telefonmikrofon testades i denna kontroll. Inga produktionsartiklar ändrades. Inga runtime-fel hittades efter deployment.
 
 ## Kvar
 1. Verifiera riktigt svenskt tal via mobilens mikrofon.
