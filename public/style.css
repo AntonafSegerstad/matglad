@@ -68,22 +68,26 @@ footer{text-align:center;font-size:11px;color:#909985;margin-top:20px}
 .category-badge{position:absolute;top:-5px;right:-11px;min-width:18px;height:18px;padding:0 4px;display:grid;place-items:center;border-radius:50%;background:#bf4e36;color:white;font-size:11px;font-weight:600;line-height:1}
 .category-tile-label{min-width:0;font-size:12px;font-weight:550;line-height:1.15;overflow-wrap:anywhere}.category-tile.long-label .category-tile-label{font-size:10.5px}
 .category-slot.is-open{z-index:20}
-.category-detail{position:absolute;top:0;left:0;bottom:auto;right:auto;width:max-content;min-width:100%;max-width:calc(100vw - 32px);min-height:100%;display:flex;flex-direction:column;overflow:visible;padding:4px 6px;background:#fffef9;border:1px solid #d8e1c9;border-radius:12px;box-shadow:0 5px 18px #253d2420;transform-origin:top center}
+/* Open item panels and their contents are 25% larger; keep real layout sizes
+   so edge positioning and the space above checkout use the enlarged bounds. */
+.category-detail{position:absolute;top:0;left:0;bottom:auto;right:auto;width:max-content;min-width:125%;max-width:calc(100vw - 32px);min-height:125%;display:flex;flex-direction:column;overflow:visible;padding:5px 7.5px;background:#fffef9;border:1.25px solid #d8e1c9;border-radius:15px;box-shadow:0 6.25px 22.5px #253d2420;transform-origin:top center}
 .category-detail.is-revealing{animation:category-turn .16s ease-out}
-.category-detail-header{display:flex;justify-content:flex-end;flex:0 0 20px;height:20px}
-.category-close{display:grid;place-items:center;width:22px;height:20px;flex-shrink:0;border:0;border-radius:50%;background:#edf2e3;color:#536d43;font-size:20px;line-height:1}
+.category-detail-header{display:flex;justify-content:flex-end;flex:0 0 25px;height:25px}
+.category-close{display:grid;place-items:center;width:27.5px;height:25px;flex-shrink:0;border:0;border-radius:50%;background:#edf2e3;color:#536d43;font-size:25px;line-height:1}
 .category-detail-items{flex:0 0 auto;min-height:0;overflow:visible}
 .category-detail .category-group{margin-top:0}
 .item-quantity{font-size:10px;white-space:nowrap;color:#7b886f;text-decoration:none}
-.compact-item{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px;align-items:center;padding:3px 0;border-color:#eef0e5;font-size:12px}
-.compact-item .item-check{gap:4px;min-height:24px;align-items:center;font-size:12px;line-height:18px}
-.compact-item .item-check input{flex-basis:15px;width:15px;height:15px;border-radius:4px;margin-top:1px}
-.compact-item .item-check input:checked:after{font-size:12px;line-height:13px}
-.item-tools{display:flex;flex-wrap:nowrap;justify-content:flex-end;align-items:center;gap:2px;height:24px}
-.category-change{position:relative;display:grid;place-items:center;flex:0 0 20px;width:20px;height:24px;color:#6a7d5c}
-.category-change .category-select{position:absolute;inset:0;width:100%;height:100%;min-height:0;opacity:0;padding:0;cursor:pointer;font-size:16px}
-.category-change:focus-within{outline:2px solid #9cb189;border-radius:4px}
-.compact-item .remove-item{width:20px;height:24px}.compact-item .remove-item svg{width:14px;height:14px}
+.compact-item{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:5px;align-items:center;padding:3.75px 0;border-color:#eef0e5;border-bottom-width:1.25px;font-size:15px}
+.compact-item .item-check{gap:5px;min-height:30px;align-items:center;font-size:15px;line-height:22.5px}
+.compact-item .item-check input{flex-basis:18.75px;width:18.75px;height:18.75px;border-width:1.875px;border-radius:5px;margin-top:1.25px}
+.compact-item .item-check input:checked:after{font-size:15px;line-height:16.25px}
+.compact-item .item-quantity{font-size:12.5px}
+.item-tools{display:flex;flex-wrap:nowrap;justify-content:flex-end;align-items:center;gap:2.5px;height:30px}
+.category-change{position:relative;display:grid;place-items:center;flex:0 0 25px;width:25px;height:30px;color:#6a7d5c}
+.category-change svg{width:18.75px;height:18.75px}
+.category-change .category-select{position:absolute;inset:0;width:100%;height:100%;min-height:0;opacity:0;padding:0;cursor:pointer;font-size:20px}
+.category-change:focus-within{outline:2.5px solid #9cb189;border-radius:5px}
+.compact-item .remove-item{width:25px;height:30px;border-radius:10px}.compact-item .remove-item svg{width:17.5px;height:17.5px}
 @keyframes category-turn{from{opacity:0;transform:perspective(600px) rotateY(-12deg)}to{opacity:1;transform:none}}
 @media(prefers-reduced-motion:reduce){.category-detail.is-revealing{animation:none}}
 
