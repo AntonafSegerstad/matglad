@@ -94,7 +94,7 @@ async function mutate(url, body, raw = false) {
   lock(true);
   try {
     const result = await request(url, body, raw); items = result.items; status(result.warning ? `${result.message} ${result.warning}` : result.message);
-    if (result.transcript) chat.addExchange(result.transcript, result.message);
+    if (result.transcript) chat.addExchange(result.transcript, result.reply || result.message);
     return true;
   } catch (error) { status(error.message, true); return false; }
   finally {
@@ -138,7 +138,7 @@ $('mic').addEventListener('click', async () => {
       $('mic').classList.remove('recording'); $('mic').textContent = '● Börja prata';
       const audio = new Blob(chunks, { type: mimeType }); chunks = [];
       if (audio.size === 0) { status('Inget ljud spelades in. Försök igen.', true); return; }
-      status('Lyssnar och uppdaterar listan…'); await mutate('/api/voice', audio, true);
+      status('AI:n lyssnar och svarar…'); await mutate('/api/voice', audio, true);
     };
     recorder.onerror = () => { stop(); stream?.getTracks().forEach(track => track.stop()); status('Inspelningen avbröts. Försök igen.', true); };
     recorder.start(); $('mic').classList.add('recording'); $('mic').textContent = '■ Avsluta';

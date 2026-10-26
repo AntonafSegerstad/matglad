@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { CATEGORIES, CATEGORY_IDS, isCategory } from './public/categories.js';
+import { homeHelperInstructions } from './ai-instructions.js';
 
 export const normalizeName = value => value.trim().toLocaleLowerCase('sv');
 const validQuantity = value => Number.isInteger(value) && value >= 1 && value <= 999;
@@ -92,7 +93,7 @@ const actionsSchema = { type: 'array', items: { type: 'object', properties: {
 
 export async function interpret(text, items, apiKey, request = fetch) {
   const result = await structuredResponse(
-    `Du tolkar svenska röstkommandon för en inköpslista. ${commandInstructions} Vid otydligt eller orelaterat tal returnera tom actions.`,
+    `${homeHelperInstructions}\n\n${commandInstructions}\nDet här anropet returnerar enbart actions utan reply. Vid frågor, matlagningsrapporter, otydligt eller orelaterat tal returnera tom actions om ingen liständring begärs.`,
     { categories: categoryContext, items: normalizeItems(items), command: text },
     'list_actions', {
       type: 'object', properties: { actions: actionsSchema }, required: ['actions'], additionalProperties: false
@@ -134,7 +135,7 @@ export function summarizeList(items) {
 export async function chatWithList(text, items, apiKey, history = [], request = fetch) {
   const input = validateChatInput(text, history);
   const result = await structuredResponse(
-    `Du är HomeHelpers hjälpsamma AI för hushållets inköpslista. Prata naturligt på svenska i ren text. Du kan både svara på frågor och utföra liständringar. ${commandInstructions} Vid frågor och samtal ska actions vara tom, om användaren inte också ber om en ändring. Använd den aktuella listan i items som källa för fakta. Backend har redan räknat alla antal i summary: använd alltid de siffrorna vid frågor om antal, räkna inte själv. categoryCountWithProducts är antalet kategorier med minst en artikel, även avbockade. categoryCountWithRemainingProducts gäller endast kategorier med något kvar att köpa. productLines räknar olika varurader, quantity summerar antal artiklar. Använd summary.categories för antal inom en kategori. Historiken är bara samtalskontext och gamla uppdrag får inte utföras igen. Tolka tydliga följdfrågor med hjälp av historiken. Skilj varor som återstår (checked=false) från redan köpta (checked=true). Räkna antal varurader separat från antal förpackningar. Påstå inte att inköpslistan bevisar vad som finns hemma. Funktioner som kvittoskanning och lager är ännu inte byggda. Vid enbart liständring ska reply vara tom; servern visar vad som faktiskt ändrades. Vid frågor, även i kombination med ändringar, svara i reply. Om något är oklart ska du ställa en kort följdfråga utan att gissa en ändring.`,
+    `${homeHelperInstructions}\n\nLISTÄNDRINGAR\n${commandInstructions}`,
     { categories: categoryContext, items: normalizeItems(items), summary: summarizeList(items), history: input.history, command: input.text },
     'list_chat', {
       type: 'object', properties: { reply: { type: 'string' }, actions: actionsSchema }, required: ['reply', 'actions'], additionalProperties: false

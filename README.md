@@ -1,6 +1,6 @@
 # HomeHelper – första prototypen
 
-En öppen gemensam inköpslista. Lägg till och bocka av med tryck eller röst via ditt OpenAI API-konto. Alla enheter som väljer samma familj delar den familjens lista; ändringar hämtas var femte sekund. Inga konton, recept, lager eller hushållssysslor ännu.
+En öppen gemensam inköpslista med en AI som hjälper med mat, recept och näring. Lägg till och bocka av med tryck eller röst via ditt OpenAI API-konto. Alla enheter som väljer samma familj delar den familjens lista; ändringar hämtas var femte sekund. Inga konton, sparade recept, lager eller hushållssysslor ännu.
 
 Planerade funktioner, inklusive kvittoskanning, finns i [kravdokumentet](KRAV.md).
 
@@ -46,6 +46,16 @@ Appen visar transkript och resultat. Bocka tillbaka manuellt vid feltolkning. Be
 - Konversationen bevaras när fältet stängs och öppnas. Den finns bara under det aktuella sidbesöket; den lagras inte som en gemensam chatt. De senaste tio meddelandena används som samtalskontext.
 - AI-kopplingen använder samma servernyckel, modell och anropsgräns som röststyrningen.
 
+## Köksassistent och AI-instruktion
+
+Den gemensamma instruktionen i `ai-instructions.js` används för chatt och transkriberat tal. AI:n hjälper med matvaror, ingredienser, recept, tillagning, ersättningar, näring och appens nuvarande funktioner. En rapport om lagad mat ändrar inte inköpslistan. Röstfrågans fullständiga svar sparas i det separata chattfönstret; huvudskärmens gröna panel behåller sin storlek.
+
+Instruktionen är skriven för HomeHelper med inspiration från communityns [Chef och Personal Chef i Awesome ChatGPT Prompts](https://github.com/amirtds/awesome-chatgpt-prompts#act-as-a-chef) av devisasari respektive giorgiop. Näringsdelen följer principen att ange mängd och skilja rå/tillagad mat samt uppskattningar från verifierade värden; se [Livsmedelsverkets beskrivning av Sök näringsinnehåll](https://www.livsmedelsverket.se/livsmedel-och-innehall/naringsamne/livsmedelsdatabasen/sok-naringsinnehall/). Appen har ingen ansluten näringsdatabas eller webbsökning och AI:n får inte påstå att ett värde har hämtats därifrån.
+
+Standardmodell för chatt, listtolkning och kategorisering är `gpt-4.1-mini` (`OPENAI_COMMAND_MODEL`). Tal transkriberas med `gpt-4o-mini-transcribe` (`OPENAI_TRANSCRIBE_MODEL`). Modellerna har inte bytts i denna uppdatering.
+
+Skafferi, flytt av utcheckade varor till lager och avdrag efter lagad mat är planerade enligt `KRAV.md`. AI:n känner till planen och skiljer den från funktionerna som faktiskt finns. Det finns ännu inget beständigt lager eller sparad måltidshistorik.
+
 ## Kategorier och artikelkontroller
 
 - Kategorierna i `public/categories.js` följer Elins butiksordning. Endast kategorier med artiklar visas. Även avbockade artiklar behåller platsen inom sin kategori.
@@ -84,4 +94,4 @@ Manifest och ikon finns för hemskärmsläge. Offlinefunktion, service worker oc
 
 ## Kontroll
 
-`npm test` kör 41 tester för liständringar, AI-kontrakt, kategoriernas ordning, chatt och följdfrågor, familjseparering, kategorikort, DOM-kontroller och HTTP-API inklusive sparande efter serveromstart. AI-svaren i testsviten är simulerade. Ett riktigt rösttest kräver mikrofon och konfigurerad API-nyckel. `.npmrc` inkluderar testberoenden även när byggmiljön har NODE_ENV=production.
+`npm test` kör 43 tester för liständringar, AI-kontrakt, kategoriernas ordning, chatt och följdfrågor, familjseparering, kategorikort, DOM-kontroller och HTTP-API inklusive sparande efter serveromstart. Testerna verifierar också gemensam AI-hantering för röst/text och att matsvar inte skriver om listan. AI-svaren i testsviten är simulerade. Ett riktigt rösttest kräver mikrofon och konfigurerad API-nyckel. `.npmrc` inkluderar testberoenden även när byggmiljön har NODE_ENV=production.

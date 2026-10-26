@@ -17,6 +17,24 @@
 
 - ”Checka ut varor” längst ned raderar markerade artiklar i vald familj. Omarkerade artiklar och andra familjers listor bevaras.
 
+## Matkunnig AI – implementerat
+
+- Samma köksassistent för röst och text: frågor om råvaror, recept, matlagning, ingrediensbyten, innehåll och näring, samt hjälp med alla nuvarande listfunktioner.
+- Anpassa råd efter uppgivna allergier, kostval, tid, budget och portioner. Näringsberäkningar ska ange underlag, mängd och om de är uppskattningar; exakta produktuppgifter kräver förpackning eller annat faktiskt underlag.
+- Listfrågor använder aktuella familjedata. Listan får inte behandlas som bevis för innehållet hemma. Receptförslag och rapporter om lagad mat ändrar inte inköpslistan utan en uttrycklig begäran.
+- ”Vi lagade köttfärssås idag” ska förstås som en måltid. AI:n kan förklara troliga ingredienser men får inte hitta på vad som faktiskt användes eller påstå att lager dragits av innan Skafferi finns.
+
+## Skafferi – planerat, nästa separat funktion
+
+- En knapp ”Skafferi” längst upp öppnar den valda familjens varor hemma. Skafferi omfattar också kyl och frys.
+- ”Checka ut varor” ska då flytta de markerade varorna och deras antal från inköpslistan till samma familjs skafferi. Överföringen ska sparas atomiskt så att en upprepning inte ger dubbla inköp. Fram till dess gäller dagens borttagning utan lagerregistrering.
+- Matcha samma produkt och summera kompatibla mängder utan att slå ihop olika varianter av misstag. Förpackningsantal ska skiljas från gram, milliliter och stycken; en okänd förpackningsstorlek får inte gissas.
+- ”Vi lagade X idag” via röst eller chatt ska senare identifiera troliga ingredienser, matcha dem mot familjens skafferi och dra av faktiskt använd mängd. Uttryckliga mängder och familjens bekräftade recept går före standardantaganden. Antagna ingredienser och mängder ska framgå och kunna korrigeras; en kort följdfråga behövs när underlaget inte räcker för ett meningsfullt avdrag.
+- Minus betyder minskad mängd i skafferiet. En okänd mängd ska visas som okänd, inte som ett påhittat exakt saldo. Varan får inte automatiskt förklaras slut för att den ingick i en rätt. Saknade råvaror ska inte skapas med påhittat lagersaldo.
+- Visa vilka varor och mängder som påverkades och ge möjlighet att rätta eller ångra hela måltidsavdraget. Samma rapport ska inte dras av två gånger vid återförsök. Historik och avdrag ska höra till rätt familj.
+
+Skafferiknapp, lageröverföring och måltidsavdrag ingår inte i denna uppdatering av AI-instruktionen.
+
 ## Kvittoskanning – planerat
 
 Användaren ska kunna fotografera ett kvitto och låta AI registrera vad som faktiskt har köpts i hushållets listor.

@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { classifyProducts, categorizeNewActions, interpret } from '../list.js';
+import { classifyProducts, categorizeNewActions, interpret, chatWithList } from '../list.js';
+import { homeHelperInstructions } from '../ai-instructions.js';
 const reply = data => ({ ok: true, json: async () => ({ choices: [{ message: { content: JSON.stringify(data) } }] }) });
 
 test('kategorisering kopplas till rätt vara även om AI-svaret är omordnat', async () => {
@@ -46,4 +47,26 @@ test('röstkommandon stöder antal, kategori och uttrycklig borttagning', async 
     return reply({ actions });
   }), actions);
   await assert.rejects(interpret('mjölk', [], 'test-key', async () => reply({ actions: [{ type: 'add', name: 'mjölk', category: 'unknown' }] })), /kategori/);
+});
+
+test('köksassistenten får samma instruktion i text och kommandon utan åtkomst till framtida lageråtgärder', async () => {
+  const items = [{ id: 'mince', name: 'köttfärs', category: 'meat', quantity: 2, checked: false }];
+  const original = structuredClone(items);
+  for (const text of ['Vi lagade köttfärssås idag', 'Hur mycket protein innehåller linser?', 'Hur fungerar Checka ut varor?']) {
+    const answer = await chatWithList(text, items, 'test-key', [], async (_, options) => {
+      const body = JSON.parse(options.body);
+      assert.ok(body.messages[0].content.startsWith(homeHelperInstructions));
+      assert.equal(JSON.parse(body.messages[1].content).command, text);
+      const actionTypes = body.response_format.json_schema.schema.properties.actions.items.properties.type.enum;
+      assert.deepEqual(actionTypes, ['add', 'check', 'uncheck', 'update', 'remove']);
+      return reply({ reply: 'Ett matsvar utan någon lager- eller liständring.', actions: [] });
+    });
+    assert.deepEqual(answer.actions, []);
+  }
+  await interpret('Vi lagade köttfärssås idag', items, 'test-key', async (_, options) => {
+    assert.ok(JSON.parse(options.body).messages[0].content.startsWith(homeHelperInstructions));
+    return reply({ actions: [] });
+  });
+  assert.deepEqual(items, original);
+  await assert.rejects(chatWithList('Dra av köttfärs', items, 'test-key', [], async () => reply({ reply: 'Klart', actions: [{ type: 'consume', name: 'köttfärs', quantity: 1 }] })), /liständringen/);
 });

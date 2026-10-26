@@ -2,7 +2,7 @@ import http from 'node:http';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { interpret, applyActions, classifyProducts, categorizeNewActions, chatWithList, validateChatInput } from './list.js';
+import { applyActions, classifyProducts, categorizeNewActions, chatWithList, validateChatInput } from './list.js';
 import { isCategory } from './public/categories.js';
 import { createStore } from './storage.js';
 import { DEFAULT_FAMILY_ID, validateFamilyId } from './families.js';
@@ -10,6 +10,13 @@ import { DEFAULT_FAMILY_ID, validateFamilyId } from './families.js';
 const root = path.dirname(fileURLToPath(import.meta.url));
 const store = await createStore();
 const commit = (actions, familyId) => store.commit(actions, familyId);
+async function answerWithList(text, familyId, key, history = []) {
+  const answer = await chatWithList(text, await store.read(familyId), key, history);
+  if (!answer.actions.length) return { items: await store.read(familyId), reply: answer.reply, message: '' };
+  const result = await commit(answer.actions, familyId);
+  // Only the backend receipt describes applied changes, including stale/missing items.
+  return { ...result, reply: [answer.reply, result.message].filter(Boolean).join('\n\n') };
+}
 async function body(req, max) {
   const chunks = []; let size = 0;
   for await (const chunk of req) {
@@ -87,14 +94,7 @@ const server = http.createServer(async (req, res) => {
         if (!key) return json(res, 503, { error: 'AI-chatten är inte tillgänglig just nu.' });
         const payload = JSON.parse((await body(req, 60000)).toString());
         const input = validateChatInput(payload.text, payload.history);
-        return await runAI(async () => {
-          const answer = await chatWithList(input.text, await store.read(familyId), key, input.history);
-          if (!answer.actions.length) return json(res, 200, { items: await store.read(familyId), reply: answer.reply, message: '' });
-          const result = await commit(answer.actions, familyId);
-          // Only the backend receipt describes applied changes, including stale/missing items.
-          const reply = [answer.reply, result.message].filter(Boolean).join('\n\n');
-          return json(res, 200, { ...result, reply });
-        });
+        return await runAI(async () => json(res, 200, await answerWithList(input.text, familyId, key, input.history)));
       }
       if (url.pathname === '/api/voice' || url.pathname === '/api/command') {
         const key = process.env.OPENAI_API_KEY;
@@ -115,8 +115,8 @@ const server = http.createServer(async (req, res) => {
             text = (await response.json()).text;
           } else { text = JSON.parse((await body(req, 10000)).toString()).text; }
           if (typeof text !== 'string' || !text.trim() || text.length > 4000) throw new Error('Kommandot är tomt eller för långt.');
-          const actions = await interpret(text, await store.read(familyId), key);
-          return json(res, 200, { ...await commit(actions, familyId), transcript: text });
+          const result = await answerWithList(text, familyId, key);
+          return json(res, 200, { ...result, message: result.reply, transcript: text });
         });
       }
     }
