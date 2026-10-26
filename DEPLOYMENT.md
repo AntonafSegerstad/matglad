@@ -8,9 +8,9 @@ Verifierad 2026-10-26.
 - Render: https://dashboard.render.com/web/srv-dbf4etoae00c73eo92d0
 - Bekräftad workspace My Workspace: tea-dajv1feq1p3s739let4g.
 - Ny tjänst srv-dbf4etoae00c73eo92d0, Free, Node 24.19.0, Frankfurt.
-- Kodcommit 7c4029eed8c63d3c547fc4b2f6a5ee4cebf5765c.
-- Deploy dep-dbfn3q6k1f9s738hfuq0: live.
-- GitHub CI: https://github.com/AntonafSegerstad/Home-Helper/actions/runs/40349868468 (success, 41 tester).
+- Kodcommit 5d0a10ae4c479c4ffcd1ee1590105bfe23cd66e4.
+- Deploy dep-dbfnernavr4c7399o0sg: live.
+- GitHub CI: https://github.com/AntonafSegerstad/Home-Helper/actions/runs/40353734360 (success, 43 tester).
 - Auto-deploy är aktiv vid commit. Byggkommandot kör npm ci och npm test före start.
 
 ## Databas
@@ -81,6 +81,15 @@ Verifierad 2026-10-26.
 - Avbockning, varunamn, kategoribytesikon och radering ligger på en och samma rad.
 - 41 tester passerar lokalt, i GitHub CI och Render. HTTP-proven verifierade utcheckning, familjseparering och beständighet efter omstart; DOM-proven verifierade räknarnas nedräkning och utcheckningsknappens tillstånd. Geometriprovet verifierade högerkant och utrymme för utcheckningsknappen.
 - Publika frontendfiler, räknare och knapptillstånd verifierades med befintliga data utan ändringar. Riktiga inköpsvaror checkades inte ut under slutkontrollen. Ingen fysisk telefongeometri mättes. Inga runtime-fel hittades efter deployment.
+
+## Köksassistent och planerat Skafferi
+- Gemensam svensk instruktion i ai-instructions.js för matvaror, recept, matlagning, ingrediensbyten, innehåll, näring och nuvarande appfunktioner. Källor till inspirationen finns i README.md. Uppskattade näringsvärden ska märkas tydligt; ingen direkt näringsdatabas eller webbsökning är ansluten.
+- Chatt, transkriberat tal och äldre textkommando använder samma svarshantering. Matfrågor ger svar utan att skriva om listan. Fullständiga röstsvar finns i chatthistoriken; gröna panelen behåller sin storlek. Vanliga liständringar får fortsatt en faktisk sparad kvittens från backend.
+- Modellerna är oförändrade: gpt-4.1-mini för svar/listtolkning/kategorisering och gpt-4o-mini-transcribe för transkribering.
+- Skafferi dokumenteras som nästa separat funktion i KRAV.md: knapp längst upp, familjseparerad överföring vid utcheckning och ingrediensavdrag efter lagad mat med hantering av okända mängder och rättning. Inget lager eller måltidsavdrag har byggts i denna ändring. En matlagningsrapport får inte bli en avbockning/radering på inköpslistan.
+- 43 tester passerar lokalt, i GitHub CI och i Render-bygget. Isolerade HTTP-prov med simulerad OpenAI verifierar matlagningsrapport via både text och ljud, oförändrad listfil och vanlig avbockning av köpt vara. Dessa är kontraktstester, inte verifiering av den riktiga modellens svar.
+- Render är live, /healthz svarar med ok=true, storage=postgres och voiceEnabled=true. Publicerad app.js matchar repot. Inga runtime-fel hittades. Inga familjers listor hämtades eller ändrades under denna slutkontroll.
+- De planerade riktiga AI-proven stoppades före körning av automatisk godkännandegranskning: de skulle skicka familjens listinnehåll till OpenAI och kunna ändra listan vid feltolkning. Ett uttryckligt godkännande har efterfrågats; inga sådana prov har ännu körts för denna uppdatering.
 
 ## Kvar
 1. Verifiera riktigt svenskt tal via mobilens mikrofon.
