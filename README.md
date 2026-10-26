@@ -30,16 +30,17 @@ Appen visar transkript och resultat. Bocka tillbaka manuellt vid feltolkning. Be
 - Startskärmen visar familjer som runda namngivna knappar och en knapp ”Lägg till familj”.
 - Varje familj får en egen lista. Den ursprungliga listan finns under ”Vår familj”, med alla tidigare artiklar bevarade. Inga konton eller inloggningar krävs.
 - Efter familjval visas bara kategorier med artiklar, som kort med symbol, namn och rött antal. Antalet räknar varurader, inte förpackningar: lamm och köttfärs blir 2 även om mängderna är större. Avbockade varor finns kvar och räknas tills de tas bort.
-- Tryck på ett kategorikort för att öppna varorna. ”Alla kategorier” går tillbaka till översikten och ”Byt familj” går till familjväljaren.
+- Tryck på ett kategorikort för att öppna dess varor på plats i översikten. Endast en kategori är öppen åt gången: ett tryck på nästa kort stänger den förra. Tryck igen eller använd krysset för att stänga. Övriga kategorikort ligger kvar. Längre varulistor rullas inuti kortområdet.
+- Familjenamnet och en ikon för familjbyte ligger på samma rad som HomeHelper-logotypen. Den gröna knappanelen har fast bildförhållande med höjdgräns och kan inte växa av AI-svar.
 - Röst, chatt, antal, kategoribyten och borttagning gäller alltid den valda familjen. Chatten töms vid familjbyte.
 - API: `GET/POST /api/families` listar/skapar familjer. List- och AI-anrop använder `?familyId=<id>`. Anrop utan familj-id går till den ursprungliga listan för kompatibilitet med tidigare klienter.
 
 ## Chatta
 
-- Knappen ”Chatta” har samma utseende som ”Börja prata” och öppnar ett fritextfält.
+- Knappen ”Chatta” har samma utseende som ”Börja prata” och öppnar ett separat chattfönster ovanpå sidan. Textfält och Skicka finns bara där och flyttar inte kategoriöversikten. Stäng med krysset, Escape eller ett tryck utanför fönstret.
 - Skriv exempelvis ”Lägg till två mjölk”, ”Vad återstår att köpa?” eller en följdfråga.
 - AI:n ser den aktuella listan och kan både svara och utföra liständringar. Backend räknar kategorier, varurader och antal åt AI:n. Frågor ändrar inte listan om ingen ändring begärs.
-- Svar visas i en konversation. Enter skickar och Shift+Enter ger radbrytning.
+- Svar visas i en konversation som rullas inom chattfönstret. Röstkommandon och deras kvittenser finns också i chatthistoriken; huvudskärmen visar bara en kort statusrad. Enter skickar och Shift+Enter ger radbrytning.
 - Konversationen bevaras när fältet stängs och öppnas. Den finns bara under det aktuella sidbesöket; den lagras inte som en gemensam chatt. De senaste tio meddelandena används som samtalskontext.
 - AI-kopplingen använder samma servernyckel, modell och anropsgräns som röststyrningen.
 
@@ -81,4 +82,4 @@ Manifest och ikon finns för hemskärmsläge. Offlinefunktion, service worker oc
 
 ## Kontroll
 
-`npm test` kör 34 tester för liständringar, AI-kontrakt, kategoriernas ordning, chatt och följdfrågor, familjseparering, kategorikort, DOM-kontroller och HTTP-API inklusive sparande efter serveromstart. AI-svaren i testsviten är simulerade. Ett riktigt rösttest kräver mikrofon och konfigurerad API-nyckel. `.npmrc` inkluderar testberoenden även när byggmiljön har NODE_ENV=production.
+`npm test` kör 37 tester för liständringar, AI-kontrakt, kategoriernas ordning, chatt och följdfrågor, familjseparering, kategorikort, DOM-kontroller och HTTP-API inklusive sparande efter serveromstart. AI-svaren i testsviten är simulerade. Ett riktigt rösttest kräver mikrofon och konfigurerad API-nyckel. `.npmrc` inkluderar testberoenden även när byggmiljön har NODE_ENV=production.

@@ -1,4 +1,5 @@
 import { groupItems } from './categories.js';
+import { renderList } from './list-view.js';
 
 // Small inline symbols share the visual style of the category overview.
 const icons = {
@@ -35,22 +36,61 @@ const icons = {
 };
 const fallback = '<path d="M4 7h16v14H4zM8 7V5a4 4 0 0 1 8 0v2"/>';
 
-export function renderCategoryDashboard(container, items, onSelect) {
+export function renderCategoryDashboard(container, items, onSelect, { selectedCategory = null, onAction = () => {}, busy = false } = {}) {
   const doc = container.ownerDocument;
+  const active = doc.activeElement;
+  const focusKey = active && container.contains(active) ? active.dataset.focusKey : null;
+  const tiles = new Map([...container.querySelectorAll('.category-tile')].map(tile => [tile.dataset.category, tile]));
+  const previousPanel = container.querySelector('.category-detail');
+  const groups = groupItems(items);
+  const selectedIndex = groups.findIndex(group => (group.id ?? 'unassigned') === selectedCategory);
   const fragment = doc.createDocumentFragment();
-  for (const group of groupItems(items)) {
-    const tile = doc.createElement('button');
-    tile.type = 'button'; tile.className = 'category-tile'; tile.dataset.category = group.id ?? 'unassigned';
+  for (const [index, group] of groups.entries()) {
+    const id = group.id ?? 'unassigned';
+    let tile = tiles.get(id);
+    if (!tile) {
+      tile = doc.createElement('button'); tile.type = 'button'; tile.className = 'category-tile'; tile.dataset.category = id;
+      const symbol = doc.createElement('span'); symbol.className = `category-symbol${['home', 'wraps-bags'].includes(group.id) ? ' warm' : ''}`;
+      symbol.setAttribute('aria-hidden', 'true');
+      symbol.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${icons[group.id] || fallback}</svg>`;
+      const badge = doc.createElement('span'); badge.className = 'category-badge'; symbol.append(badge);
+      const label = doc.createElement('span'); label.className = 'category-tile-label'; label.textContent = group.label;
+      tile.append(symbol, label);
+      tile.addEventListener('click', () => tile.selectCategory(id, tile));
+    }
+    tile.selectCategory = onSelect; tile.disabled = busy;
+    tile.dataset.focusKey = `category:${id}`;
+    tile.querySelector('.category-badge').textContent = String(group.items.length);
     tile.setAttribute('aria-label', `${group.label}, ${group.items.length} ${group.items.length === 1 ? 'vara' : 'varor'}`);
-    const symbol = doc.createElement('span'); symbol.className = `category-symbol${['home', 'wraps-bags'].includes(group.id) ? ' warm' : ''}`;
-    symbol.setAttribute('aria-hidden', 'true');
-    symbol.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${icons[group.id] || fallback}</svg>`;
-    const badge = doc.createElement('span'); badge.className = 'category-badge'; badge.textContent = String(group.items.length);
-    symbol.append(badge);
-    const label = doc.createElement('span'); label.className = 'category-tile-label'; label.textContent = group.label;
-    tile.append(symbol, label);
-    tile.addEventListener('click', () => onSelect(group.id ?? 'unassigned'));
+    tile.setAttribute('aria-expanded', String(id === selectedCategory));
+    tile.classList.toggle('is-open', id === selectedCategory);
+    if (id === selectedCategory) tile.setAttribute('aria-controls', `detail-${id}`);
+    else tile.removeAttribute('aria-controls');
     fragment.append(tile);
+    // Open inside the same grid, immediately after the selected pair of cards.
+    if (selectedIndex >= 0 && Math.floor(index / 2) === Math.floor(selectedIndex / 2) && (index % 2 === 1 || index === groups.length - 1)) {
+      const selected = groups[selectedIndex], selectedId = selected.id ?? 'unassigned';
+      let panel = previousPanel?.dataset.category === selectedId ? previousPanel : null;
+      if (!panel) {
+        panel = doc.createElement('section'); panel.className = 'category-detail is-revealing';
+        panel.addEventListener('animationend', () => panel.classList.remove('is-revealing')); panel.dataset.category = selectedId;
+        const header = doc.createElement('div'); header.className = 'category-detail-header';
+        const title = doc.createElement('h3'); title.textContent = selected.label; title.id = `detail-title-${selectedId}`;
+        const close = doc.createElement('button'); close.type = 'button'; close.className = 'category-close'; close.textContent = '×'; close.setAttribute('aria-label', `Stäng ${selected.label}`);
+        close.addEventListener('click', () => panel.closeCategory(selectedId));
+        header.append(title, close);
+        const list = doc.createElement('div'); list.className = 'category-detail-items';
+        panel.append(header, list); panel.setAttribute('aria-labelledby', title.id);
+      }
+      panel.id = `detail-${selectedId}`; panel.closeCategory = onSelect;
+      panel.querySelector('.category-close').disabled = busy;
+      const list = panel.querySelector('.category-detail-items');
+      const scrollTop = list.scrollTop;
+      renderList(list, selected.items, onAction, busy, { headings: false });
+      list.scrollTop = scrollTop;
+      fragment.append(panel);
+    }
   }
   container.replaceChildren(fragment);
+  if (focusKey) [...container.querySelectorAll('[data-focus-key]')].find(control => control.dataset.focusKey === focusKey)?.focus({ preventScroll: true });
 }

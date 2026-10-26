@@ -2,7 +2,7 @@
 <html lang="sv">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#266347"><link rel="manifest" href="/manifest.webmanifest"><link rel="icon" href="/icon.svg"><link rel="stylesheet" href="/style.css"><title>HomeHelper</title></head>
 <body><main>
-<header><span class="mark" aria-hidden="true">✓</span><span>HOMEHELPER</span></header>
+<header class="app-header"><div class="brand"><span class="mark" aria-hidden="true">✓</span><span>HOMEHELPER</span></div><div id="family-toolbar" class="family-toolbar" hidden><span id="active-family"></span><button id="family-back" type="button" aria-label="Byt familj" title="Byt familj"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9a9 9 0 0 1 15-5l3 3M21 3v4h-4M21 15A9 9 0 0 1 6 20l-3-3M3 21v-4h4"/><circle cx="12" cy="9" r="2.4"/><path d="M7.5 17a4.5 4.5 0 0 1 9 0"/></svg></button></div></header>
 <section id="family-screen" class="family-screen" aria-labelledby="family-title">
 <h1 id="family-title">Välj familj</h1><p class="family-intro">En plats för familjens inköp.</p>
 <div id="family-buttons" class="family-grid"></div>
@@ -11,18 +11,17 @@
 <p id="family-status" role="status" aria-live="polite"></p>
 </section>
 <section id="shopping-screen" hidden>
-<div class="family-toolbar"><h1 id="active-family"></h1><button id="family-back" class="text-button" type="button">Byt familj</button></div>
-<section class="voice"><div class="voice-actions"><button id="mic" class="mic" type="button">● Börja prata</button><button id="chat-toggle" class="mic" type="button" aria-expanded="false" aria-controls="chat-panel">Chatta</button></div>
-<section id="chat-panel" class="chat-panel" aria-label="Chatta med HomeHelper" hidden>
-<div id="chat-messages" class="chat-messages" role="log" aria-label="Konversation" aria-live="polite" aria-relevant="additions"></div>
-<form id="chat-form"><label class="sr-only" for="chat-text">Skriv till AI:n</label><div class="chat-compose"><textarea id="chat-text" rows="2" maxlength="2000" placeholder="Skriv till AI:n…" required></textarea><button id="chat-send" type="submit">Skicka</button></div></form>
-</section><p id="voice-hint">”Lägg till mjölk och ägg” · ”Jag har köpt mjölken”</p><p class="privacy">Ljud skickas till OpenAI när du stoppar inspelningen.</p></section>
-<p id="status" role="status" aria-live="polite"></p><p id="transcript" hidden></p>
+<section class="voice" aria-label="Prata eller chatta"><div class="voice-actions"><button id="mic" class="mic" type="button">● Börja prata</button><button id="chat-toggle" class="mic" type="button" aria-expanded="false" aria-controls="chat-panel">Chatta</button></div><p id="status" role="status" aria-live="polite"></p></section>
 <section id="list-card" class="list-card dashboard"><div class="list-heading"><h2>Att handla</h2><span id="count">0 kvar</span></div>
 <form id="add-form"><label class="sr-only" for="item">Lägg till en vara</label><input id="item" maxlength="120" placeholder="Skriv en vara…" autocomplete="off" required><button type="submit" aria-label="Lägg till vara">+</button></form>
-<button id="category-back" class="text-button category-back" type="button" hidden>← Alla kategorier</button>
-<div id="category-grid" class="category-grid"></div><div id="items" hidden></div><p id="empty">Listan är tom. Säg eller skriv det ni behöver.</p>
+<div id="category-grid" class="category-grid"></div><p id="empty">Listan är tom. Säg eller skriv det ni behöver.</p>
 </section>
+</section>
+<section id="chat-panel" class="chat-overlay" role="dialog" aria-modal="true" aria-labelledby="chat-title" hidden>
+<div class="chat-dialog"><div class="chat-header"><h2 id="chat-title">Chatta med HomeHelper</h2><button id="chat-close" type="button" data-dismiss aria-label="Stäng chatten">×</button></div>
+<div id="chat-messages" class="chat-messages" role="log" aria-label="Konversation" aria-live="polite" aria-relevant="additions"></div>
+<p id="chat-error" class="chat-error" role="alert" hidden></p>
+<form id="chat-form"><label class="sr-only" for="chat-text">Skriv till AI:n</label><div class="chat-compose"><textarea id="chat-text" rows="2" maxlength="2000" placeholder="Skriv till AI:n…" required></textarea><button id="chat-send" type="submit">Skicka</button></div></form></div>
 </section>
 <footer>En lista. Lite mindre att hålla i huvudet.</footer>
 </main><script type="module" src="/app.js"></script></body></html>

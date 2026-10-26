@@ -125,3 +125,35 @@ test('familjbyte tömmer chatthistorik, textfält och synliga meddelanden', asyn
   input.value = 'Och nu?'; form.dispatchEvent(new window.Event('submit', { cancelable: true })); await settle();
   assert.deepEqual(sent[1].history, []);
 });
+
+test('chatten är ett separat fönster och kan stängas medan ett långt AI-svar väntas', async () => {
+  let resolve;
+  const { document, window, input, form } = setup(() => new Promise(done => { resolve = done; }));
+  const panel = document.getElementById('chat-panel');
+  assert.equal(panel.getAttribute('role'), 'dialog');
+  assert.equal(panel.closest('.voice'), null);
+  assert.equal(document.querySelector('.voice textarea'), null);
+  assert.equal(document.querySelector('.voice #chat-send'), null);
+  let focuses = 0; input.focus = () => { focuses++; };
+  document.getElementById('chat-toggle').click();
+  assert.equal(document.body.classList.contains('dialog-open'), true);
+  input.value = 'Svara långt'; form.dispatchEvent(new window.Event('submit', { cancelable: true }));
+  document.getElementById('chat-close').click();
+  assert.equal(panel.hidden, true);
+  assert.equal(document.body.classList.contains('dialog-open'), false);
+  resolve('Ett långt svar. '.repeat(200)); await settle();
+  assert.equal(panel.hidden, true);
+  assert.equal(focuses, 1, 'Ett avslutat anrop får inte fokusera det stängda fönstret.');
+  document.getElementById('chat-toggle').click();
+  assert.ok(document.querySelector('.assistant p').textContent.length > 2000);
+  const escape = new window.Event('keydown', { cancelable: true }); escape.key = 'Escape'; document.dispatchEvent(escape);
+  assert.equal(panel.hidden, true);
+});
+test('rösthistorik sparas i chatten utan att öppna något på huvudskärmen', async () => {
+  const sent = [];
+  const { chat, document, window, input, form } = setup(async payload => { sent.push(payload); return 'Tre mjölk.'; });
+  chat.addExchange('Lägg till två mjölk', 'Lade till mjölk.');
+  assert.equal(document.getElementById('chat-panel').hidden, true);
+  input.value = 'Ändra till tre'; form.dispatchEvent(new window.Event('submit', { cancelable: true })); await settle();
+  assert.deepEqual(sent[0].history, [{ role: 'user', content: 'Lägg till två mjölk' }, { role: 'assistant', content: 'Lade till mjölk.' }]);
+});

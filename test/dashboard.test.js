@@ -41,3 +41,31 @@ test('familjenamn och familje-id valideras utan att kunna användas som filsökv
   assert.deepEqual(familyName('  Familjen   Öberg  '), { name: 'Familjen Öberg', key: 'familjen öberg' });
   for (const name of ['', '   ', 'x'.repeat(61), null]) assert.throws(() => familyName(name));
 });
+
+test('ett kort öppnas på plats och stängs när nästa kategori väljs', () => {
+  const { document } = setup(), grid = document.getElementById('grid');
+  const items = [{ id: 'v', name: 'gurka', category: 'vegetables', quantity: 1 }, { id: 'm', name: 'lamm', category: 'meat', quantity: 1 }, { id: 'd', name: 'mjölk', category: 'dairy', quantity: 1 }];
+  let selectedCategory = null; const actions = [];
+  function draw() { renderCategoryDashboard(grid, items, id => { selectedCategory = selectedCategory === id ? null : id; draw(); }, { selectedCategory, onAction: action => actions.push(action) }); }
+  draw();
+  const vegetables = grid.querySelector('.category-tile[data-category=vegetables]');
+  const meat = grid.querySelector('.category-tile[data-category=meat]');
+  vegetables.click();
+  assert.equal(grid.querySelectorAll('.category-detail').length, 1);
+  assert.equal(grid.querySelector('.category-detail').dataset.category, 'vegetables');
+  assert.equal(grid.children[2].classList.contains('category-detail'), true);
+  assert.equal(grid.querySelectorAll('.category-tile').length, 3);
+  meat.click();
+  assert.equal(grid.querySelectorAll('.category-detail').length, 1);
+  assert.equal(grid.querySelector('.category-detail').dataset.category, 'meat');
+  assert.equal(vegetables.getAttribute('aria-expanded'), 'false');
+  assert.equal(meat.getAttribute('aria-expanded'), 'true');
+  grid.querySelector('.category-detail .item-check input').dispatchEvent(new document.defaultView.Event('change'));
+  assert.equal(actions[0].id, 'm');
+  grid.querySelector('.category-close').click();
+  assert.equal(grid.querySelector('.category-detail'), null);
+  assert.equal(grid.querySelector('.category-tile[data-category=meat]'), meat);
+  grid.querySelector('.category-tile[data-category=dairy]').click();
+  assert.equal(grid.lastElementChild.dataset.category, 'dairy');
+  assert.equal(grid.lastElementChild.classList.contains('category-detail'), true);
+});

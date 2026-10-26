@@ -15,7 +15,7 @@ test('startskärm, familjval, kategorikort och anrop följer vald familj', async
   const other = '11111111-1111-4111-8111-111111111111';
   const families = [{ id: DEFAULT_FAMILY_ID, name: 'Vår familj' }, { id: other, name: 'Elins familj' }];
   const lists = new Map([
-    [DEFAULT_FAMILY_ID, [{ id: 'lamb', name: 'lamm', category: 'meat', quantity: 5, checked: false }, { id: 'mince', name: 'köttfärs', category: 'meat', quantity: 3, checked: false }]],
+    [DEFAULT_FAMILY_ID, [{ id: 'lamb', name: 'lamm', category: 'meat', quantity: 5, checked: false }, { id: 'mince', name: 'köttfärs', category: 'meat', quantity: 3, checked: false }, { id: 'onion', name: 'lök', category: 'vegetables', quantity: 1, checked: false }]],
     [other, []]
   ]);
   const requests = [];
@@ -40,12 +40,17 @@ test('startskärm, familjval, kategorikort och anrop följer vald familj', async
   assert.equal(document.getElementById('active-family').textContent, 'Vår familj');
   const tile = document.querySelector('#category-grid [data-category=meat]');
   assert.equal(tile.querySelector('.category-badge').textContent, '2');
-  assert.equal(document.getElementById('items').hidden, true);
+  assert.ok(document.querySelector('.app-header').contains(document.getElementById('active-family')));
+  const vegetables = document.querySelector('#category-grid .category-tile[data-category=vegetables]');
   tile.click();
-  assert.equal(document.getElementById('category-grid').hidden, true);
-  assert.equal(document.getElementById('items').querySelectorAll('.item').length, 2);
-  document.getElementById('category-back').click();
   assert.equal(document.getElementById('category-grid').hidden, false);
+  assert.equal(document.querySelector('.category-detail[data-category=meat]').querySelectorAll('.item').length, 2);
+  vegetables.click();
+  assert.equal(document.querySelectorAll('.category-detail').length, 1);
+  assert.equal(document.querySelector('.category-detail').dataset.category, 'vegetables');
+  assert.equal(document.querySelector('#category-grid .category-tile[data-category=meat]'), tile);
+  vegetables.click();
+  assert.equal(document.querySelector('.category-detail'), null);
   document.getElementById('family-back').click(); await settle();
   document.querySelector(`[data-family-id="${other}"]`).click(); await settle();
   assert.equal(document.getElementById('active-family').textContent, 'Elins familj');
@@ -53,7 +58,7 @@ test('startskärm, familjval, kategorikort och anrop följer vald familj', async
   assert.equal(document.getElementById('empty').hidden, false);
   document.getElementById('item').value = 'gurka';
   document.getElementById('add-form').dispatchEvent(new window.Event('submit', { cancelable: true })); await settle();
-  assert.equal(lists.get(DEFAULT_FAMILY_ID).length, 2);
+  assert.equal(lists.get(DEFAULT_FAMILY_ID).length, 3);
   assert.equal(lists.get(other).length, 1);
   assert.equal(requests.find(request => request.target.pathname === '/api/actions').target.searchParams.get('familyId'), other);
   assert.equal(document.getElementById('category-grid').querySelectorAll('button').length, 1);

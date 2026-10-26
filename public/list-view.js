@@ -2,7 +2,7 @@ import { CATEGORIES, groupItems } from './categories.js';
 
 const trashIcon = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v5M14 11v5"/></svg>';
 
-export function renderList(container, items, onAction, busy = false) {
+export function renderList(container, items, onAction, busy = false, { headings = true } = {}) {
   const doc = container.ownerDocument;
   const active = doc.activeElement;
   const focusKey = active && container.contains(active) ? active.dataset.focusKey : null;
@@ -16,7 +16,8 @@ export function renderList(container, items, onAction, busy = false) {
     heading.id = `category-${group.id ?? 'unassigned'}`;
     heading.textContent = group.label;
     section.setAttribute('aria-labelledby', heading.id);
-    section.append(heading);
+    if (headings) section.append(heading);
+    else { section.removeAttribute('aria-labelledby'); section.setAttribute('aria-label', group.label); }
     for (const item of group.items) {
       const row = doc.createElement('div');
       row.className = `item${item.checked ? ' done' : ''}`;

@@ -1,4 +1,3 @@
-import { renderList } from './list-view.js';
 import { setupChat } from './chat.js';
 import { renderFamilyButtons } from './families-view.js';
 import { renderCategoryDashboard } from './dashboard.js';
@@ -6,7 +5,7 @@ import { groupItems } from './categories.js';
 const $ = id => document.getElementById(id);
 let items = [], busy = false, recorder, stream, timer, chunks = [], starting = false;
 let currentFamily = null, selectedCategory = null;
-function status(message, error = false) { $('status').textContent = message; $('status').className = error ? 'error' : ''; }
+function status(message, error = false) { $('status').textContent = message; $('status').title = message; $('status').className = error ? 'error' : ''; }
 async function request(url, body, raw = false) {
   const scoped = url.startsWith('/api/') && url !== '/api/families';
   if (scoped && !currentFamily) throw new Error('Välj en familj först.');
@@ -18,18 +17,22 @@ async function request(url, body, raw = false) {
 }
 function render() {
   const groups = groupItems(items);
-  let group = groups.find(group => (group.id ?? 'unassigned') === selectedCategory);
-  if (selectedCategory !== null && !group) selectedCategory = null;
-  const detail = selectedCategory !== null;
-  $('category-grid').hidden = detail; $('items').hidden = !detail; $('category-back').hidden = !detail;
-  $('list-card').classList.toggle('dashboard', !detail);
-  renderCategoryDashboard($('category-grid'), items, id => { if (!busy) { selectedCategory = id; render(); } });
-  const visibleItems = detail ? group.items : items;
-  renderList($('items'), detail ? visibleItems : [], action => mutate('/api/actions', { actions: [action] }), busy);
-  $('count').textContent = `${visibleItems.filter(i => !i.checked).length} kvar`;
+  if (!groups.some(group => (group.id ?? 'unassigned') === selectedCategory)) selectedCategory = null;
+  renderCategoryDashboard($('category-grid'), items, (id, anchor) => {
+    if (busy) return;
+    const before = anchor?.getBoundingClientRect?.().top;
+    selectedCategory = selectedCategory === id ? null : id;
+    render();
+    // Preserve the clicked card's position when another row closes above it.
+    const view = document.defaultView;
+    if (typeof before === 'number' && typeof view?.scrollBy === 'function') {
+      const after = anchor.getBoundingClientRect().top;
+      if (Math.abs(after - before) > 1) view.scrollBy({ top: after - before, behavior: 'auto' });
+    }
+  }, { selectedCategory, onAction: action => mutate('/api/actions', { actions: [action] }), busy });
+  $('count').textContent = `${items.filter(i => !i.checked).length} kvar`;
   $('empty').hidden = items.length > 0;
 }
-$('category-back').addEventListener('click', () => { selectedCategory = null; render(); });
 
 function familyStatus(message, error = false) { $('family-status').textContent = message; $('family-status').className = error ? 'error' : ''; }
 async function loadFamilies() {
@@ -46,8 +49,9 @@ async function openFamily(family) {
   familyStatus('Öppnar listan…');
   try {
     const result = await request('/api/list'); items = result.items;
-    $('active-family').textContent = family.name;
-    chat.reset(); status(''); $('transcript').hidden = true; $('item').value = '';
+    $('active-family').textContent = family.name; $('active-family').title = family.name;
+    $('family-toolbar').hidden = false;
+    chat.reset(); status(''); $('item').value = '';
     $('family-screen').hidden = true; $('shopping-screen').hidden = false;
     familyStatus('');
   } catch (error) { currentFamily = null; familyStatus(error.message, true); }
@@ -56,7 +60,7 @@ async function openFamily(family) {
 $('family-back').addEventListener('click', async () => {
   if (busy || starting || recorder?.state === 'recording') { status('Avsluta inspelningen innan du byter familj.'); return; }
   currentFamily = null; selectedCategory = null; items = []; chat.reset();
-  $('shopping-screen').hidden = true; $('family-screen').hidden = false;
+  $('shopping-screen').hidden = true; $('family-screen').hidden = false; $('family-toolbar').hidden = true;
   await loadFamilies();
 });
 function showFamilyForm(show) {
@@ -80,7 +84,7 @@ $('family-form').addEventListener('submit', async event => {
 });
 function lock(value) {
   busy = value;
-  document.querySelectorAll('button,input,select,textarea').forEach(el => { el.disabled = value; });
+  document.querySelectorAll('button,input,select,textarea').forEach(el => { if (!el.hasAttribute('data-dismiss')) el.disabled = value; });
   if (!value) render();
 }
 async function mutate(url, body, raw = false) {
@@ -89,12 +93,12 @@ async function mutate(url, body, raw = false) {
   lock(true);
   try {
     const result = await request(url, body, raw); items = result.items; status(result.warning ? `${result.message} ${result.warning}` : result.message);
-    if (result.transcript) { $('transcript').textContent = `Du sa: ”${result.transcript}”`; $('transcript').hidden = false; }
+    if (result.transcript) chat.addExchange(result.transcript, result.message);
     return true;
   } catch (error) { status(error.message, true); return false; }
   finally {
     lock(false);
-    if (focusKey) [...$('items').querySelectorAll('[data-focus-key]')].find(control => control.dataset.focusKey === focusKey)?.focus();
+    if (focusKey) [...$('category-grid').querySelectorAll('[data-focus-key]')].find(control => control.dataset.focusKey === focusKey)?.focus({ preventScroll: true });
   }
 }
 $('add-form').addEventListener('submit', async event => {
@@ -109,7 +113,7 @@ const chat = setupChat({
     lock(true); status('AI:n svarar…');
     try {
       const result = await request('/api/chat', payload);
-      items = result.items; status(result.message || '');
+      items = result.items; status('');
       return result.reply;
     } finally { lock(false); }
   },
@@ -144,7 +148,7 @@ $('mic').addEventListener('click', async () => {
 });
 function editingItem() {
   const active = document.activeElement;
-  return $('items').contains(active) && (active?.tagName === 'SELECT' || (active?.tagName === 'INPUT' && active.type === 'number'));
+  return $('category-grid').contains(active) && (active?.tagName === 'SELECT' || (active?.tagName === 'INPUT' && active.type === 'number'));
 }
 async function refresh() {
   const familyId = currentFamily?.id;
