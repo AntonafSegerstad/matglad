@@ -8,9 +8,9 @@ Verifierad 2026-10-26.
 - Render: https://dashboard.render.com/web/srv-dbf4etoae00c73eo92d0
 - Bekräftad workspace My Workspace: tea-dajv1feq1p3s739let4g.
 - Ny tjänst srv-dbf4etoae00c73eo92d0, Free, Node 24.19.0, Frankfurt.
-- Kodcommit da9e2ead125a6ae682d308a9ee419be283bdb437.
-- Deploy dep-dbfo3d4s728c73cr8img: live.
-- GitHub CI: https://github.com/AntonafSegerstad/Home-Helper/actions/runs/40360847327 (success, 43 tester).
+- Kodcommit 1c6f82625412a3c55e40175a9a8aaa40ef0d71a0.
+- Deploy dep-dbfreq15efls73frjko0: live.
+- GitHub CI: https://github.com/AntonafSegerstad/Home-Helper/actions/runs/40395622932 (success, 43 tester).
 - Auto-deploy är aktiv vid commit. Byggkommandot kör npm ci och npm test före start.
 
 ## Databas
@@ -94,6 +94,11 @@ Verifierad 2026-10-26.
 ## Större öppnade varurutor
 - Den öppnade kategorins varuruta är förstorad med cirka 25 procent: text 12 → 15 px, radkontroller 20 × 24 → 25 × 30 px, samt större kryssrutor, ikoner, stängknapp, mellanrum och ram. Kategoricirklarna behåller sin storlek.
 - Storleken ingår i den vanliga layouten så att befintlig kantplacering och utrymmet ovanför utcheckningsknappen räknar med den större rutan. Maxbredden begränsas fortsatt till kategoriöversiktens bredd, och alla varor visas nedåt utan intern scroll.
+- Alla 43 befintliga tester passerar lokalt, i GitHub CI och i Render-bygget. Publicerad CSS matchar repot och hälsokontrollen är godkänd. Inga familjelistor eller AI-anrop användes vid slutkontrollen. Ingen fysisk telefongeometri har mätts.
+
+## Varma pastellfärger per kategori
+- Alla 30 kategoricirklar har varsin unik bakgrundsfärg i en fast palett med smörgult, persika, puderrosa, salvia och mild turkos, med användarens färgbild som referens. Färgerna binds till kategori-id i CSS och flyttar inte mellan kategorier när andra kategorier blir tomma. Okategoriserade varor har en egen neutral färg.
+- Mörk text och symboler behåller kontrast; röda räknare fortsätter visa oplockade varor. Hover behåller kategorins färg. En lokal kontroll verifierade 30 unika färger, lägsta textkontrast 6,38:1, lägsta symbolkontrast 3,54:1 och vit räknartext mot rött 4,82:1.
 - Alla 43 befintliga tester passerar lokalt, i GitHub CI och i Render-bygget. Publicerad CSS matchar repot och hälsokontrollen är godkänd. Inga familjelistor eller AI-anrop användes vid slutkontrollen. Ingen fysisk telefongeometri har mätts.
 
 ## Kvar
