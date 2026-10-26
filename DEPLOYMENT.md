@@ -8,9 +8,9 @@ Verifierad 2026-10-26.
 - Render: https://dashboard.render.com/web/srv-dbf4etoae00c73eo92d0
 - Bekräftad workspace My Workspace: tea-dajv1feq1p3s739let4g.
 - Ny tjänst srv-dbf4etoae00c73eo92d0, Free, Node 24.19.0, Frankfurt.
-- Kodcommit 1c6f82625412a3c55e40175a9a8aaa40ef0d71a0.
-- Deploy dep-dbfreq15efls73frjko0: live.
-- GitHub CI: https://github.com/AntonafSegerstad/Home-Helper/actions/runs/40395622932 (success, 43 tester).
+- Kodcommit d7c3c0489fb68168c9a984a71d8e4bee10aa0a81.
+- Deploy dep-dbfrhsrncjis738kfp90: live.
+- GitHub CI: https://github.com/AntonafSegerstad/Home-Helper/actions/runs/40396611133 (success, 43 tester).
 - Auto-deploy är aktiv vid commit. Byggkommandot kör npm ci och npm test före start.
 
 ## Databas
@@ -101,11 +101,17 @@ Verifierad 2026-10-26.
 - Mörk text och symboler behåller kontrast; röda räknare fortsätter visa oplockade varor. Hover behåller kategorins färg. En lokal kontroll verifierade 30 unika färger, lägsta textkontrast 6,38:1, lägsta symbolkontrast 3,54:1 och vit räknartext mot rött 4,82:1.
 - Alla 43 befintliga tester passerar lokalt, i GitHub CI och i Render-bygget. Publicerad CSS matchar repot och hälsokontrollen är godkänd. Inga familjelistor eller AI-anrop användes vid slutkontrollen. Ingen fysisk telefongeometri har mätts.
 
+## Mikrofon- och chattikoner
+- Linjeikoner i SVG visar en mikrofon före ”Börja prata” och en pratbubbla före ”Chatta”. Ikoner och text är centrerade med jämnt mellanrum i knapparna.
+- Vid inspelning visas en stoppsymbol och ”Avsluta”. När inspelningen stoppas återställs mikrofonen och ”Börja prata”. Endast textens span ändras, så ikonerna bevaras. Knappen förmedlar inspelningsläget med aria-pressed; dekorativa SVG:er är dolda för skärmläsare.
+- Alla 43 befintliga tester passerar lokalt, i GitHub CI och i Render-bygget. Ett separat DOM-prov med simulerad MediaRecorder verifierade start/stopp, återställd text och bevarade ikoner utan mikrofonåtkomst eller AI-anrop. Publicerad HTML, CSS och JavaScript matchar repot; ikonerna finns i publicerad HTML och hälsokontrollen är godkänd. Inga familjelistor eller AI-anrop användes vid slutkontrollen.
+
 ## Kvar
 1. Verifiera riktigt svenskt tal via mobilens mikrofon.
 2. Nyckeln är konfigurerad och AI-kopplingen verifierad; ingen ytterligare nyckelinmatning behövs.
 3. Skapa separat Render-projekt HomeHelper och flytta endast den nya tjänsten dit via Dashboard/API. Render MCP saknar stöd för detta. Tjänsten finns tills vidare fristående i workspacen.
 4. /healthz finns i appen. Render-skapandeverktyget kan inte konfigurera healthCheckPath, så plattformen använder sin normala TCP-kontroll tills HTTP-sökvägen sätts i panelen.
+5. Byt appens typsnitt till Right Grotesk Compact när användaren tillhandahåller fontfilerna. Inga sådana filer finns ännu i projektet; den tidigare typografin används tills dess.
 
 ## Skyddade resurser
 Inga befintliga GitHub-repon, Render-tjänster eller Neon-databaser har ändrats. Godnatt, invoice-simulator och VASS-todo-list är orörda.
