@@ -24,18 +24,13 @@ test('gränssnittet visar endast fyllda kategorier i butiksordning och behåller
   renderList(container, items.filter(i => i.category !== 'vegetables'), () => {});
   assert.deepEqual([...container.querySelectorAll('h3')].map(h => h.textContent), ['Mejeri']);
 });
-test('antal, kategori och borttagning har separata kontroller och ändrar rätt artikel', () => {
+test('kategori och borttagning fungerar utan någon antalväljare', () => {
   const { container, window } = setup(); const actions = [];
   renderList(container, [items[0]], action => actions.push(action));
   const row = container.querySelector('.item');
-  const number = row.querySelector('input[type=number]');
-  assert.equal(number.value, '2');
-  number.value = '4'; number.dispatchEvent(new window.Event('change'));
-  assert.deepEqual(actions.pop(), { type: 'update', id: 'a', name: 'mjölk', quantity: 4 });
-  number.value = '0'; number.dispatchEvent(new window.Event('change'));
-  assert.equal(number.value, '2'); assert.equal(actions.length, 0);
-  row.querySelector('button[aria-label="Öka antal mjölk"]').click();
-  assert.equal(actions.pop().quantity, 3);
+  assert.equal(row.querySelector('input[type=number]'), null);
+  assert.equal(row.querySelector('.quantity-control'), null);
+  assert.equal(row.querySelector('.item-quantity').textContent, '×2');
   const select = row.querySelector('select');
   select.querySelector('option[value=drinks]').selected = true;
   select.dispatchEvent(new window.Event('change'));
@@ -46,10 +41,10 @@ test('antal, kategori och borttagning har separata kontroller och ändrar rätt 
   assert.deepEqual(actions.pop(), { type: 'remove', id: 'a', name: 'mjölk' });
   assert.equal(row.querySelector('input[type=checkbox]').checked, false);
 });
-test('antal kan inte minskas under ett och nätverksarbete låser radkontrollerna', () => {
+test('nätverksarbete låser kompakta radkontroller utan antalväljare', () => {
   const { container } = setup();
   renderList(container, [items[1]], () => {});
-  assert.equal(container.querySelector('[aria-label="Minska antal potatis"]').disabled, true);
-  renderList(container, [items[0]], () => {}, true);
+  assert.equal(container.querySelector('input[type=number]'), null);
+  renderList(container, [items[0]], () => {}, true, { compact: true });
   assert.ok([...container.querySelectorAll('input,select,button')].every(el => el.disabled));
 });

@@ -29,8 +29,8 @@ Appen visar transkript och resultat. Bocka tillbaka manuellt vid feltolkning. Be
 
 - Startskärmen visar familjer som runda namngivna knappar och en knapp ”Lägg till familj”.
 - Varje familj får en egen lista. Den ursprungliga listan finns under ”Vår familj”, med alla tidigare artiklar bevarade. Inga konton eller inloggningar krävs.
-- Efter familjval visas bara kategorier med artiklar, som kort med symbol, namn och rött antal. Antalet räknar varurader, inte förpackningar: lamm och köttfärs blir 2 även om mängderna är större. Avbockade varor finns kvar och räknas tills de tas bort.
-- Tryck på ett kategorikort för att öppna dess varor på plats i översikten. Endast en kategori är öppen åt gången: ett tryck på nästa kort stänger den förra. Tryck igen eller använd krysset för att stänga. Övriga kategorikort ligger kvar. Längre varulistor rullas inuti kortområdet.
+- Efter familjval visas bara kategorier med artiklar, som små runda knappar med symbol, text och rött antal, tre per rad. Antalet räknar varurader, inte förpackningar: lamm och köttfärs blir 2 även om mängderna är större. Avbockade varor finns kvar och räknas tills de tas bort.
+- Tryck på en kategori för att ersätta just den cirkeln med en liten varulista i samma ruta. Endast en kategori är öppen åt gången: nästa cirkel stänger den förra. Krysset visar cirkeln igen. Övriga cirklar behåller sina platser. Längre varulistor rullas inom den lilla rutan; ingen bred detaljpanel öppnas.
 - Familjenamnet och en ikon för familjbyte ligger på samma rad som HomeHelper-logotypen. Den gröna knappanelen har fast bildförhållande med höjdgräns och kan inte växa av AI-svar.
 - Röst, chatt, antal, kategoribyten och borttagning gäller alltid den valda familjen. Chatten töms vid familjbyte.
 - API: `GET/POST /api/families` listar/skapar familjer. List- och AI-anrop använder `?familyId=<id>`. Anrop utan familj-id går till den ursprungliga listan för kompatibilitet med tidigare klienter.
@@ -48,12 +48,12 @@ Appen visar transkript och resultat. Bocka tillbaka manuellt vid feltolkning. Be
 
 - Kategorierna i `public/categories.js` följer Elins butiksordning. Endast kategorier med artiklar visas. Även avbockade artiklar behåller platsen inom sin kategori.
 - AI kategoriserar både röstinmatade och manuellt tillagda nya varor. Nuvarande varor utan kategori kategoriseras i bakgrunden vid serverstart.
-- Varje artikel visas på en kompakt rad med namn, kategoriväljare, antal 1–999 och borttagning. Antal kan ändras direkt eller med minus/plus; på de smalaste skärmarna används direkt inmatning. Kategorirubrikerna är större och tydligare.
-- Inmatningsfältet för nya varor har ingen separat antalväljare. Nya varor får antal ett, som kan ändras på artikelraden eller via röst.
+- Varje artikel visas kompakt med avbockning och namn. Små ikoner ger kategoribyte och borttagning. Antalväljarna är borttagna; antal över ett visas som vanlig text, exempelvis ×2, och kan ändras via röst eller chatt.
+- Inmatningsfältet för nya varor har ingen separat antalväljare. Nya varor får antal ett, som kan ändras via röst eller chatt.
 - Kategoribyten och antal sparas direkt. Manuellt valda kategorier bevaras vid senare AI-kategorisering och när samma vara läggs till igen.
 - Exempel: ”Lägg till två paket mjölk”, ”Ändra antalet mjölk till tre” och ”Ta bort mjölken”. ”Jag har köpt mjölken” bockar av varan och tar inte bort den.
 - Antal avser artiklar/förpackningar. Vikt eller volym kan finnas i namnet och räknas inte om till antal.
-- Om AI-kategorisering inte är tillgänglig sparas varan ändå under ”Välj kategori”, där kategori kan väljas manuellt. Kontroller för antal, avbockning, kategoribyte och borttagning kräver inga AI-anrop.
+- Om AI-kategorisering inte är tillgänglig sparas varan ändå under ”Välj kategori”, där kategori kan väljas manuellt. Kontroller för avbockning, kategoribyte och borttagning kräver inga AI-anrop.
 - Äldre varor får antal ett. Utökningen använder befintlig JSON-lagring och kräver ingen SQL-migrering.
 
 ## Data och drift

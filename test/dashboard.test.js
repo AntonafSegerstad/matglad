@@ -16,7 +16,7 @@ test('kategorikort visar ikon, namn och antal varusorter, inte förpackningar', 
   ];
   renderCategoryDashboard(grid, items, id => selected.push(id));
   assert.deepEqual([...grid.querySelectorAll('button')].map(button => button.dataset.category), ['vegetables', 'meat']);
-  const meat = grid.querySelector('[data-category=meat]');
+  const meat = grid.querySelector('.category-tile[data-category=meat]');
   assert.equal(meat.querySelector('.category-badge').textContent, '2');
   assert.equal(meat.querySelector('.category-tile-label').textContent, 'Kött');
   assert.ok(meat.querySelector('svg'));
@@ -53,12 +53,19 @@ test('ett kort öppnas på plats och stängs när nästa kategori väljs', () =>
   vegetables.click();
   assert.equal(grid.querySelectorAll('.category-detail').length, 1);
   assert.equal(grid.querySelector('.category-detail').dataset.category, 'vegetables');
-  assert.equal(grid.children[2].classList.contains('category-detail'), true);
+  assert.equal(grid.children[0].classList.contains('category-slot'), true);
+  assert.equal(grid.children[0].querySelector('.category-detail').dataset.category, 'vegetables');
+  assert.equal(vegetables.hidden, true);
+  assert.equal(grid.children.length, 3);
   assert.equal(grid.querySelectorAll('.category-tile').length, 3);
   meat.click();
   assert.equal(grid.querySelectorAll('.category-detail').length, 1);
   assert.equal(grid.querySelector('.category-detail').dataset.category, 'meat');
   assert.equal(vegetables.getAttribute('aria-expanded'), 'false');
+  assert.equal(vegetables.hidden, false);
+  assert.equal(meat.hidden, true);
+  assert.equal(grid.querySelector('.category-detail').parentElement, meat.parentElement);
+  assert.equal(grid.querySelector('.category-detail input[type=number]'), null);
   assert.equal(meat.getAttribute('aria-expanded'), 'true');
   grid.querySelector('.category-detail .item-check input').dispatchEvent(new document.defaultView.Event('change'));
   assert.equal(actions[0].id, 'm');
@@ -67,5 +74,7 @@ test('ett kort öppnas på plats och stängs när nästa kategori väljs', () =>
   assert.equal(grid.querySelector('.category-tile[data-category=meat]'), meat);
   grid.querySelector('.category-tile[data-category=dairy]').click();
   assert.equal(grid.lastElementChild.dataset.category, 'dairy');
-  assert.equal(grid.lastElementChild.classList.contains('category-detail'), true);
+  assert.equal(grid.lastElementChild.classList.contains('category-slot'), true);
+  assert.ok(grid.lastElementChild.querySelector('.category-detail'));
+  assert.equal(grid.lastElementChild.querySelector('.category-tile').hidden, true);
 });
