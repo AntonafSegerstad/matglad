@@ -49,17 +49,17 @@ Appen visar transkript och resultat. Bocka tillbaka manuellt vid feltolkning. Be
 
 ## Köksassistent och AI-instruktion
 
-Den gemensamma instruktionen i `ai-instructions.js` används för chatt och transkriberat tal. AI:n hjälper med matvaror, ingredienser, recept, tillagning, ersättningar, näring och appens nuvarande funktioner. En rapport om lagad eller uppäten mat gråmarkerar inventerade huvudingredienser i skafferiet och ändrar inte inköpslistan. Röstfrågans fullständiga svar sparas i det separata chattfönstret; huvudskärmens gröna panel behåller sin storlek.
+Den gemensamma instruktionen i `ai-instructions.js` används för chatt och transkriberat tal. AI:n hjälper med matvaror, ingredienser, recept, tillagning, ersättningar, näring och appens nuvarande funktioner. En rapport om lagad eller uppäten mat granskas separat: huvudingredienser markeras som behöver köpas och läggs i Att handla. Kryddor, olja och antagna tillbehör utelämnas. Svaren bekräftar bara sparade ändringar. Röstfrågans fullständiga svar sparas i det separata chattfönstret; huvudskärmens gröna panel behåller sin storlek.
 
 Instruktionen är skriven för matglad med inspiration från communityns [Chef och Personal Chef i Awesome ChatGPT Prompts](https://github.com/amirtds/awesome-chatgpt-prompts#act-as-a-chef) av devisasari respektive giorgiop. Näringsdelen följer principen att ange mängd och skilja rå/tillagad mat samt uppskattningar från verifierade värden; se [Livsmedelsverkets beskrivning av Sök näringsinnehåll](https://www.livsmedelsverket.se/livsmedel-och-innehall/naringsamne/livsmedelsdatabasen/sok-naringsinnehall/). Appen har ingen ansluten näringsdatabas eller webbsökning och AI:n får inte påstå att ett värde har hämtats därifrån.
 
-Standardmodell för chatt, listtolkning och kategorisering är `gpt-4.1-mini` (`OPENAI_COMMAND_MODEL`). Tal transkriberas med `gpt-4o-mini-transcribe` (`OPENAI_TRANSCRIBE_MODEL`). Modellerna har inte bytts i denna uppdatering.
+Standardmodell för chatt, listtolkning och kategorisering är `gpt-5-mini` (`OPENAI_COMMAND_MODEL`). Måltidsrapporter granskas separat med `OPENAI_MEAL_MODEL`, också `gpt-5-mini`. Modellen använder låg reasoning effort och timeout på 90 sekunder per AI-anrop. Tal transkriberas fortsatt med `gpt-4o-mini-transcribe` (`OPENAI_TRANSCRIBE_MODEL`).
 
 ## Skafferi och Ångra
 
-Dörrikonen öppnar en enkel lista över familjens varutyper hemma, inklusive kyl, frys och kryddor. Börja med att inventera genom att prata, chatta eller skriva i skafferifältet. Mörk text betyder finns hemma; ljusgrå text betyder slut eller för lite kvar. Varje rad har en kundvagn för ”slut / dags att köpa”, minus för att radera varan från både skafferi och inköpslista samt pilar för kategori. Bockikonen visas bara för gråa varor och markerar dem som tillgängliga igen. Ingen mängd eller negativ post visas. Manuella inventeringsrader får kategori via pilarna, utan separat AI-kategorisering.
+Dörrikonen öppnar en enkel lista över familjens varutyper hemma, inklusive kyl, frys och kryddor. Börja med att inventera genom att prata, chatta eller skriva i skafferifältet. Mörk text betyder finns hemma; grå text betyder behöver köpas. Varje rad har en kundvagn för ”behöver köpas”, minus för att radera varan från både skafferi och inköpslista samt pilar för kategori. Bockikonen visas bara för gråa varor och markerar dem som tillgängliga igen. Ingen mängd eller negativ post visas. Manuella inventeringsrader får kategori via pilarna, utan separat AI-kategorisering.
 
-Utcheckning fyller på skafferiet. ”Vi åt lax och potatis” gråmarkerar motsvarande inventerade varor. Förbrukade huvudingredienser som saknas skapas som röda slutposter i skafferiet, utan automatiskt återköp. Dubbla förbrukningsåtgärder ger ett besked och felaktiga namn/id-kombinationer avvisas. ”Bara lite pasta kvar” gråmarkerar pasta och aktiverar den på inköpslistan. AI:n kan också svara på vad som saknas till en maträtt och lägga dessa huvudingredienser på inköpslistan när användaren ber om det. Vanliga smaksättningar antas normalt finnas hemma vid receptinköp, men inventeras när användaren uttryckligen nämner dem.
+Utcheckning fyller på skafferiet. Måltidsrapporter identifierar huvudingredienser och betydande basingredienser som läggs i Att handla och gråmarkeras. Separat maträttsbedömning skiljer huvudingredienser från kryddor, olja och tillbehör som inte nämndes. Grå betyder bara behöver köpas; ingen separat förbrukningsstatus eller mängd beräknas. En uttrycklig begäran att ta bort en vara raderar den från både skafferiet och Att handla. Varor som användaren säger finns kvar eller inte ska återköpas lämnas oförändrade.
 
 ”Ångra” via röst eller chatt återställer hela senaste ändringen av inköpslista och skafferi tillsammans. Tio steg sparas per familj. Skafferi, inköp och historik sparas atomiskt med versionskontroll. Återförsök med samma ändrings-id är idempotenta. AI-svar baserade på en gammal familjeversion avvisas med en uppmaning att försöka igen. Detta är varutypstatus, inte en beräkning av kvarvarande gram eller förpackningar.
 
@@ -67,11 +67,11 @@ Utcheckning fyller på skafferiet. ”Vi åt lax och potatis” gråmarkerar mot
 
 - Kategorierna i `public/categories.js` följer Elins butiksordning. Endast kategorier med artiklar visas. Även avbockade artiklar behåller platsen inom sin kategori.
 - AI kategoriserar både röstinmatade och manuellt tillagda nya varor. Nuvarande varor utan kategori kategoriseras i bakgrunden vid serverstart.
-- Varje artikel visas kompakt med avbockning och namn. Små ikoner ger kategoribyte och borttagning. Antalväljarna är borttagna; antal över ett visas som vanlig text, exempelvis ×2, och kan ändras via röst eller chatt.
+- Varje artikel visas med avbockning och namn. Ikoner ger kategoribyte och borttagning. Antal och mängder stöds inte; äldre interna mängdfält bevaras men visas inte.
 - Inmatningsfältet för nya varor har ingen separat antalväljare. Nya varor får antal ett, som kan ändras via röst eller chatt.
 - Kategoribyten och antal sparas direkt. Manuellt valda kategorier bevaras vid senare AI-kategorisering och när samma vara läggs till igen.
 - Exempel: ”Lägg till två paket mjölk”, ”Ändra antalet mjölk till tre” och ”Ta bort mjölken”. ”Jag har köpt mjölken” bockar av varan och tar inte bort den.
-- Antal avser artiklar/förpackningar. Vikt eller volym kan finnas i namnet och räknas inte om till antal.
+- AI-åtgärder måste ha quantity=null. Varje produkt läggs till som en varutyp, utan mängd.
 - Om AI-kategorisering inte är tillgänglig sparas varan ändå under ”Välj kategori”, där kategori kan väljas manuellt. Kontroller för avbockning, kategoribyte och borttagning kräver inga AI-anrop.
 - Äldre varor får antal ett. Utökningen använder befintlig JSON-lagring och kräver ingen SQL-migrering.
 
@@ -101,10 +101,11 @@ Manifest och ikon finns för hemskärmsläge. Offlinefunktion, service worker oc
 
 ## Kontroll
 
-`npm test` kör 51 tester för liständringar, AI-kontrakt, kategoriernas ordning, chatt och följdfrågor, familjseparering, kategorikort, DOM-kontroller och HTTP-API inklusive sparande efter serveromstart. Testerna verifierar också gemensam AI-hantering för röst/text, inventering, förbrukning, gråa poster, återköp, kategoribyte, Ångra, familjseparering och sparande efter omstart. AI-svaren i testsviten är simulerade. Ett riktigt rösttest kräver mikrofon och konfigurerad API-nyckel. `.npmrc` inkluderar testberoenden även när byggmiljön har NODE_ENV=production.
+`npm test` kör regressionstester för liständringar, AI-kontrakt, kategoriernas ordning, chatt och följdfrågor, familjseparering, kategorikort, DOM-kontroller och HTTP-API inklusive sparande efter serveromstart. Testerna verifierar också gemensam AI-hantering för röst/text, inventering, förbrukning, gråa poster, återköp, kategoribyte, Ångra, familjseparering och sparande efter omstart. AI-svaren i testsviten är simulerade. Ett riktigt rösttest kräver mikrofon och konfigurerad API-nyckel. `.npmrc` inkluderar testberoenden även när byggmiljön har NODE_ENV=production.
 
 ## Grafisk profil
 
 Matglad använder logotyperna i `design-assets/matglad-logo/`. Toppfältet är mörkblått (#1E2A47), sidan äggvit (#F8F2E7), med rödorange (#D9482B), grönt (#3E9B5B) och gula accenter (#F2B632) i grafiken. Ingen gul logotyptext eller lägesväxling används. Bannerordmärket har vita Mat-bokstäver och rödorange glad från originalets vektorgrafik.
 
 Rubriker och knappar använder det lokalt levererade typsnittet Fredoka, vars former ligger nära logotypen. Typsnittsnamnet finns inte i originalfilerna och identiteten är därför inte bekräftad. Källa: https://github.com/google/fonts/tree/main/ofl/fredoka. Licensen ligger i `public/fonts/OFL-Fredoka.txt`. Appen behöver ingen extern typsnittstjänst.
+

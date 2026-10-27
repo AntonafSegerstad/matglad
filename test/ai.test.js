@@ -72,12 +72,15 @@ test('manuellt tillagda nya varor kategoriseras i ett anrop och befintliga val b
 test('ogiltiga manuella ändringar skickas aldrig vidare till AI', async () => {
   await assert.rejects(categorizeNewActions([{ type: 'add', name: 'mjölk', quantity: 0 }], [], () => assert.fail('Ingen AI får anropas.')), /Antalet/);
 });
-test('röstkommandon stöder antal, kategori och uttrycklig borttagning', async () => {
-  const actions = [{ type: 'add', id: null, name: 'potatis', quantity: 2, category: 'vegetables' }, { type: 'remove', id: 'a', name: 'mjölk', quantity: null, category: null }];
-  assert.deepEqual(await interpret('Två påsar potatis och ta bort mjölken', [{ id: 'a', name: 'mjölk', checked: false }], 'test-key', async (_, options) => {
+test('röstkommandon stöder kategori och uttrycklig borttagning utan antal', async () => {
+  const actions = [{ type: 'add', id: null, name: 'potatis', quantity: null, category: 'vegetables' }, { type: 'remove', id: 'a', name: 'mjölk', quantity: null, category: null }];
+  assert.deepEqual(await interpret('Potatis och ta bort mjölken', [{ id: 'a', name: 'mjölk', checked: false }], 'test-key', async (_, options) => {
     const body = JSON.parse(options.body);
     const schema = body.response_format.json_schema.schema.properties.actions.items.properties;
     assert.ok(schema.type.enum.includes('remove'));
+    assert.equal(schema.quantity.type, 'null');
+    assert.equal(body.model, process.env.OPENAI_COMMAND_MODEL || 'gpt-5-mini');
+    if (body.model === 'gpt-5-mini') assert.equal(body.reasoning_effort, 'low');
     assert.ok(schema.category.enum.includes('frozen'));
     assert.equal(JSON.parse(body.messages[1].content).items[0].quantity, 1);
     return reply({ actions });
@@ -94,7 +97,7 @@ test('köksassistenten får samma instruktion och validerade skafferiåtgärder'
       assert.ok(body.messages[0].content.startsWith(matgladInstructions));
       assert.equal(JSON.parse(body.messages[1].content).command, text);
       const actionTypes = body.response_format.json_schema.schema.properties.actions.items.properties.type.enum;
-      assert.deepEqual(actionTypes, ['add', 'check', 'uncheck', 'update', 'remove', 'pantry_add', 'pantry_use', 'pantry_remove', 'pantry_category', 'pantry_buy', 'pantry_low', 'undo']);
+      assert.deepEqual(actionTypes, ['add', 'check', 'uncheck', 'update', 'remove', 'pantry_add', 'pantry_remove', 'pantry_category', 'pantry_buy', 'pantry_low', 'undo']);
       return reply({ reply: 'Ett matsvar utan någon lager- eller liständring.', actions: [] });
     });
     assert.deepEqual(answer.actions, []);
@@ -104,6 +107,6 @@ test('köksassistenten får samma instruktion och validerade skafferiåtgärder'
     return reply({ actions: [] });
   });
   assert.deepEqual(items, original);
-  await assert.rejects(chatWithList('Dra av köttfärs', items, 'test-key', [], async () => reply({ reply: 'Klart', actions: [{ type: 'consume', name: 'köttfärs', quantity: 1 }] })), /liständringen/);
+  await assert.rejects(chatWithList('Dra av köttfärs', items, 'test-key', [], async () => reply({ reply: 'Klart', actions: [{ type: 'consume', name: 'köttfärs', quantity: null }] })), /liständringen/);
 });
 

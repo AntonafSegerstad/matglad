@@ -25,11 +25,11 @@ test('AI-chatten får aktuell lista och historik och kan svara utan ändringar',
   assert.equal(items[0].checked, false);
 });
 test('AI-chatten kan lämna validerade liständringar för backend att utföra', async () => {
-  const actions = [{ type: 'update', id: 'milk', name: 'mjölk', category: null, quantity: 4 }];
-  const answer = await chatWithList('Ändra till fyra mjölk', items, 'test-key', [], async () => reply({ reply: '', actions }));
-  assert.equal(applyActions(items, answer.actions).items[0].quantity, 4);
+  const actions = [{ type: 'update', id: 'milk', name: 'mjölk', category: 'juice-snacks', quantity: null }];
+  const answer = await chatWithList('Byt kategori för mjölk', items, 'test-key', [], async () => reply({ reply: '', actions }));
+  assert.equal(applyActions(items, answer.actions).items[0].category, 'juice-snacks');
   assert.equal(items[0].quantity, 2);
-  await assert.rejects(chatWithList('Fyra mjölk', items, 'test-key', [], async () => reply({ reply: 'Klart', actions: [{ type: 'update', name: 'mjölk', quantity: -1 }] })), /Antalet/);
+  await assert.rejects(chatWithList('Fyra mjölk', items, 'test-key', [], async () => reply({ reply: 'Klart', actions: [{ type: 'update', name: 'mjölk', quantity: -1 }] })), /stöder inte antal/);
   await assert.rejects(chatWithList('Hej', items, 'test-key', [], async () => reply({ reply: '', actions: [] })), /inget läsbart svar/);
 });
 test('chatthistoriken tillåter bara begränsade användar- och assistantsvar', async () => {

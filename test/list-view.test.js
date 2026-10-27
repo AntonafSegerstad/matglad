@@ -30,7 +30,7 @@ test('kategori och borttagning fungerar utan någon antalväljare', () => {
   const row = container.querySelector('.item');
   assert.equal(row.querySelector('input[type=number]'), null);
   assert.equal(row.querySelector('.quantity-control'), null);
-  assert.equal(row.querySelector('.item-quantity').textContent, '×2');
+  assert.equal(row.querySelector('.item-quantity'), null);
   const select = row.querySelector('select');
   select.querySelector('option[value=drinks]').selected = true;
   select.dispatchEvent(new window.Event('change'));
@@ -48,3 +48,4 @@ test('nätverksarbete låser kompakta radkontroller utan antalväljare', () => {
   renderList(container, [items[0]], () => {}, true, { compact: true });
   assert.ok([...container.querySelectorAll('input,select,button')].every(el => el.disabled));
 });
+

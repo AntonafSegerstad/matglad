@@ -30,9 +30,6 @@ export function renderList(container, items, onAction, busy = false, { headings 
       const text = doc.createElement('span'); text.className = 'item-name'; text.textContent = item.name.charAt(0).toLocaleUpperCase('sv-SE') + item.name.slice(1);
       check.addEventListener('change', () => action({ type: check.checked ? 'check' : 'uncheck' }));
       label.append(check, text);
-      if ((item.quantity ?? 1) > 1) {
-        const quantity = doc.createElement('span'); quantity.className = 'item-quantity'; quantity.textContent = `×${item.quantity}`; label.append(quantity);
-      }
       const remove = track(doc.createElement('button'), 'remove');
       remove.type = 'button'; remove.className = 'remove-item'; remove.disabled = busy;
       remove.setAttribute('aria-label', `Ta bort ${item.name}`); remove.title = `Ta bort ${item.name}`;
@@ -64,3 +61,4 @@ export function renderList(container, items, onAction, busy = false, { headings 
   container.replaceChildren(fragment);
   if (focusKey) [...container.querySelectorAll('[data-focus-key]')].find(control => control.dataset.focusKey === focusKey)?.focus();
 }
+

@@ -18,7 +18,7 @@ export function renderPantry(container, entries, onAction, busy = false, { shopp
       const queued = !entry.available && (entry.needsRestock || shopping.has(key(entry)));
       const row = doc.createElement('div'); row.className = `pantry-item${entry.available ? '' : ' is-empty'}${queued ? ' is-shopping' : ''}`; row.dataset.pantryId = entry.id;
       const name = doc.createElement('span'); name.className = 'pantry-name'; name.textContent = entry.name.charAt(0).toLocaleUpperCase('sv') + entry.name.slice(1);
-      name.setAttribute('aria-label', `${entry.name}, ${entry.available ? 'finns hemma' : 'slut'}`);
+      name.setAttribute('aria-label', `${entry.name}, ${entry.available ? 'finns hemma' : 'behöver köpas'}`);
       const tools = doc.createElement('div'); tools.className = 'pantry-tools';
       const action = patch => onAction({ id: entry.id, name: entry.name, ...patch });
       function button(symbol, label, type) {
@@ -27,7 +27,7 @@ export function renderPantry(container, entries, onAction, busy = false, { shopp
         el.dataset.focusKey = `${entry.id}:${type}`; el.disabled = busy;
         el.addEventListener('click', () => action({ type })); return el;
       }
-      const stock = entry.available ? button('', 'Slut / dags att köpa:', 'pantry_low') : button('', 'Finns hemma igen:', 'pantry_add');
+      const stock = entry.available ? button('', 'Behöver köpas:', 'pantry_low') : button('', 'Finns hemma igen:', 'pantry_add');
       stock.innerHTML = entry.available ? cart : check;
       const remove = button('−', 'Ta bort från skafferi och Att handla:', 'pantry_remove');
       const change = doc.createElement('label'); change.className = 'category-change pantry-tool'; change.title = `Byt kategori för ${entry.name}`;
@@ -49,3 +49,4 @@ export function renderPantry(container, entries, onAction, busy = false, { shopp
   container.replaceChildren(fragment);
   if (activeKey) [...container.querySelectorAll('[data-focus-key]')].find(el => el.dataset.focusKey === activeKey)?.focus({ preventScroll: true });
 }
+

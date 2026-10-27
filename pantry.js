@@ -33,7 +33,7 @@ export function pantryChange(entries, action) {
       if (entry) { entry.available = available; if (available) delete entry.needsRestock; }
       else pantry.push({ id: randomUUID(), name, category: action.category ?? null, available });
       if (!available) shopping = { name, category: entry?.category ?? action.category ?? null };
-      message = available ? `${name} finns i skafferiet.` : `${name} räcker inte till en måltid. Lades på inköpslistan.`;
+      message = available ? `${name} finns i skafferiet.` : `${name} har lagts i Att handla.`;
       break;
     }
     case 'pantry_use':
@@ -42,7 +42,7 @@ export function pantryChange(entries, action) {
         pantry.push(entry);
       }
       entry.available = false; usedId = entry.id;
-      message = entry.needsRestock ? `${entry.name} är slut och visas som en röd post i skafferiet.` : `${entry.name} är slut och visas ljusgrå.`;
+      message = `${entry.name} markerades som förbrukad.`;
       break;
     case 'pantry_remove':
       if (entry) { removed = entry; pantry.splice(pantry.indexOf(entry), 1); message = `Tog bort ${entry.name} från skafferiet och inköpslistan.`; }
@@ -59,5 +59,7 @@ export function pantryChange(entries, action) {
       message = `${shopping.name} lades på inköpslistan.`;
       break;
   }
+  message = message.charAt(0).toLocaleUpperCase('sv') + message.slice(1);
   return { pantry, shopping, removed, usedId, message };
 }
+

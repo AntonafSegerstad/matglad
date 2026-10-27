@@ -19,13 +19,13 @@ test('utcheckning fyller på kända varutyper utan mängder och återaktiverar g
   assert.equal(current.pantry[0].available, false);
 });
 
-test('måltid gråmarkerar kända varor och skapar röda slutposter för okända utan återköp', () => {
+test('uttrycklig förbrukning utan återköp bevarar inköpslistan', () => {
   const current = { items: [], pantry: [{ id: 'p', name: 'lax', category: 'fish', available: true }] };
   const actions = [{ type: 'pantry_use', id: 'p', name: 'lax' }, { type: 'pantry_use', name: 'potatis' }, { type: 'pantry_use', name: 'potatis' }];
   const result = applyHousehold(current, actions);
   assert.equal(result.pantry.length, 2); assert.equal(result.pantry[0].available, false);
   assert.equal(result.pantry[1].available, false); assert.equal(result.pantry[1].needsRestock, true);
-  assert.equal(result.message.match(/potatis/g).length, 1);
+  assert.equal(result.message.match(/potatis/gi).length, 1);
   assert.deepEqual(result.items, []);
   assert.deepEqual(applyHousehold(result, actions).pantry, result.pantry);
   const restored = applyHousehold(result, [{ type: 'pantry_add', id: result.pantry[1].id, name: 'potatis' }]);
@@ -39,7 +39,7 @@ test('felmatchade id och tvetydiga varianter avvisas utan att ändra andra varor
   assert.throws(() => applyHousehold(current, [{ type: 'pantry_use', id: 'gone', name: 'nötfärs' }]), /säkert matcha/);
   assert.equal(current.pantry[0].available, true);
   const same = applyHousehold(current, [{ type: 'pantry_use', id: 'mix', name: 'blandfärs' }, { type: 'pantry_use', name: 'blandfärs' }]);
-  assert.equal(same.message.match(/blandfärs/g).length, 1);
+  assert.equal(same.message.match(/blandfärs/gi).length, 1);
   const variants = { items: [], pantry: [{ id: 'a', name: 'broccoli', category: 'frozen', available: true }, { id: 'b', name: 'broccoli', category: 'vegetables', available: true }] };
   assert.throws(() => applyHousehold(variants, [{ type: 'pantry_use', name: 'broccoli' }]), /flera varianter/);
 });
@@ -101,6 +101,7 @@ test('AI receives pantry context and can return an atomic low-stock change', asy
   const pantry = [{ id: 'p', name: 'pasta', category: 'pasta-rice', available: true }];
   const result = await chatWithList('Bara lite pasta kvar', [], 'fake', [], async (_, options) => {
     const body = JSON.parse(options.body);
+    if (body.response_format.json_schema.name === 'meal_review') return Response.json({ choices: [{ message: { content: JSON.stringify({ intent: 'stock_update', clarification: '', ingredients: [] }) } }] });
     assert.deepEqual(JSON.parse(body.messages[1].content).pantry, pantry);
     return Response.json({ choices: [{ message: { content: JSON.stringify({ reply: '', actions: [{ type: 'pantry_low', id: 'p', name: 'pasta', quantity: null, category: null }] }) } }] });
   }, pantry);
@@ -154,3 +155,4 @@ test('spara, ångra, återförsök, samtidighet och familjbyte håller skafferi 
   const undoMissing = await store.commit([{ type: 'undo' }], family.id, { undoId: missing.undoId });
   assert.deepEqual(undoMissing.pantry, recovered.pantry);
 });
+

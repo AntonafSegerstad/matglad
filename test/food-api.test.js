@@ -7,7 +7,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
-test('HTTP: röst och text skapar en röd slutpost utan dubbla besked eller automatiskt inköp', { timeout: 20000 }, async t => {
+test('HTTP: behöver köpas markeras grått och återaktiveras i Att handla via röst och text', { timeout: 20000 }, async t => {
   const dir = await mkdtemp(path.join(os.tmpdir(), 'matglad-food-test-'));
   const root = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
   const original = [{ id: 'mince', name: 'köttfärs', checked: false, category: 'meat', quantity: 2 }];
@@ -24,9 +24,10 @@ test('HTTP: röst och text skapar en röd slutpost utan dubbla besked eller auto
       if (String(url).endsWith('/audio/transcriptions')) {
         assert.equal(options.body.get('model'), 'gpt-4o-mini-transcribe');
         assert.equal(options.body.get('language'), 'sv');
-        return Response.json({ text: 'Vi lagade köttfärssås idag' });
+        return Response.json({ text: 'Köttfärsen behöver köpas' });
       }
       const body = JSON.parse(options.body);
+      if (body.response_format.json_schema.name === 'meal_review') return Response.json({ choices: [{ message: { content: JSON.stringify({ intent: 'stock_update', clarification: '', ingredients: [] }) } }] });
       assert.equal(body.response_format.json_schema.name, 'list_chat');
       assert.match(body.messages[0].content, /familjens matkunniga köksassistent/);
       const { command } = JSON.parse(body.messages[1].content);
@@ -34,7 +35,7 @@ test('HTTP: röst och text skapar en röd slutpost utan dubbla besked eller auto
       const buying = command === 'Jag har köpt köttfärsen';
       const answer = buying
         ? { reply: '', actions: [{ type: 'check', id: 'mince', name: 'köttfärs', quantity: null, category: null }] }
-        : { reply: 'En egen, osäker ändringsbeskrivning som inte ska visas.', actions: [{ type: 'pantry_use', id: null, name: 'köttfärs', quantity: null, category: 'meat' }, { type: 'pantry_use', id: null, name: 'köttfärs', quantity: null, category: 'meat' }] };
+        : { reply: 'En egen, osäker ändringsbeskrivning som inte ska visas.', actions: [{ type: 'pantry_low', id: null, name: 'köttfärs', quantity: null, category: 'meat' }, { type: 'pantry_low', id: null, name: 'köttfärs', quantity: null, category: 'meat' }] };
       return Response.json({ choices: [{ message: { content: JSON.stringify(answer) } }] });
     };
   `);
@@ -59,14 +60,14 @@ test('HTTP: röst och text skapar en röd slutpost utan dubbla besked eller auto
     assert.equal(response.status, 200);
     return response.json();
   }
-  const text = await send('/api/chat', { text: 'Vi lagade köttfärssås idag' });
-  assert.match(text.reply, /röd post/); assert.equal(text.pantry.length, 1); assert.equal(text.pantry[0].needsRestock, true);
-  assert.equal(text.reply.match(/köttfärs/g).length, 1); assert.equal(text.reply.includes('osäker ändringsbeskrivning'), false);
+  const text = await send('/api/chat', { text: 'Köttfärsen behöver köpas' });
+  assert.match(text.reply, /har lagts i Att handla/); assert.equal(text.pantry.length, 1); assert.equal(text.pantry[0].available, false);
+  assert.equal(text.reply.match(/köttfärs/gi).length, 1); assert.equal(text.reply.includes('osäker ändringsbeskrivning'), false);
   assert.deepEqual(text.items, original);
   const voice = await send('/api/voice', new Uint8Array([1, 2, 3]), true);
-  assert.equal(voice.transcript, 'Vi lagade köttfärssås idag');
+  assert.equal(voice.transcript, 'Köttfärsen behöver köpas');
   assert.equal(voice.message, voice.reply);
-  assert.match(voice.reply, /röd post/); assert.deepEqual(voice.pantry, text.pantry);
+  assert.match(voice.reply, /har lagts i Att handla/); assert.deepEqual(voice.pantry, text.pantry);
   assert.equal(await readFile(listFile, 'utf8'), saved, 'Den gamla listfilen lämnas kvar oförändrad.');
   const bought = await send('/api/command', { text: 'Jag har köpt köttfärsen' });
   assert.equal(bought.items[0].checked, true);
@@ -82,8 +83,8 @@ test('HTTP: röst och text skapar en röd slutpost utan dubbla besked eller auto
   // Inventory, consumption and undo operate on the same saved household state.
   const inventory = await send('/api/pantry', { actions: [{ type: 'pantry_add', name: 'köttfärs', category: 'meat' }] });
   assert.equal(inventory.pantry[0].available, true);
-  const meal = await send('/api/chat', { text: 'Vi lagade köttfärssås idag' });
-  assert.equal(meal.pantry[0].available, false); assert.equal(meal.items[0].checked, true);
+  const meal = await send('/api/chat', { text: 'Köttfärsen behöver köpas' });
+  assert.equal(meal.pantry[0].available, false); assert.equal(meal.items[0].checked, false);
   const undone = await send('/api/undo', { undoId: meal.undoId, requestId: 'undo-meal' });
   assert.equal(undone.pantry[0].available, true);
   const repeatUndo = await send('/api/undo', { undoId: meal.undoId, requestId: 'undo-meal' });
