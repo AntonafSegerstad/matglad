@@ -4,6 +4,11 @@ import { renderCategoryDashboard, positionCategoryPanel } from './dashboard.js';
 import { groupItems } from './categories.js';
 import { renderPantry } from './pantry-view.js';
 const $ = id => document.getElementById(id);
+$('brand-top').addEventListener('click', event => {
+  event.preventDefault();
+  const reducedMotion = document.defaultView?.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
+  document.querySelector('main').scrollTo({ top: 0, left: 0, behavior: reducedMotion ? 'instant' : 'smooth' });
+});
 let items = [], busy = false, recorder, stream, timer, chunks = [], starting = false;
 let currentFamily = null, selectedCategory = null;
 let pantry = [], undoId = null;

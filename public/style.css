@@ -3,7 +3,7 @@
 /* The banner stays outside the scrolling frame shared by both inventory views. */
 main{flex:1;min-height:0;min-width:0;width:100%;max-width:640px;margin:0 auto;padding:12px 20px 24px;overflow-y:auto;overflow-x:hidden;overscroll-behavior-y:contain}
 .app-header{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:34px}
-.brand{display:flex;align-items:center;gap:8px;flex-shrink:0;font-size:10px;font-weight:750;letter-spacing:1px}
+.brand{text-decoration:none;color:inherit;display:flex;align-items:center;gap:8px;flex-shrink:0;font-size:10px;font-weight:750;letter-spacing:1px}
 .mark{display:grid;place-items:center;width:30px;height:32px;background:#1e2a47;color:white;border-radius:8px;font-size:20px}
 .family-toolbar{display:flex;align-items:center;gap:7px;min-width:0;margin-left:auto}
 #active-family{max-width:clamp(70px,32vw,190px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:14px;font-weight:650;letter-spacing:-.2px}
@@ -18,7 +18,7 @@ main{flex:1;min-height:0;min-width:0;width:100%;max-width:640px;margin:0 auto;pa
 .mic.recording .voice-icon-stop{display:block}
 .mic.recording{background:#9b3e35;animation:pulse 1.4s infinite}
 button,input,select,textarea{font:inherit}button{cursor:pointer;touch-action:manipulation}button:disabled{opacity:.45;cursor:default}
-button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid #d9482b;outline-offset:3px}
+.brand:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid #d9482b;outline-offset:3px}
 #status{flex:0 0 16px;height:16px;min-height:0;margin:0;font-size:11px;line-height:16px;color:#59637a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#status.error{color:#973e32}
 .list-card{background:#fffef9;border:1px solid #e0e3d8;border-radius:18px;overflow:hidden;padding:22px}
 .list-heading{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
