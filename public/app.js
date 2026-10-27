@@ -11,6 +11,7 @@ function accept(result) { items = result.items; pantry = result.pantry ?? []; un
 function showPantry(open) {
   $('pantry-card').hidden = !open; $('list-card').hidden = open; $('checkout').hidden = open;
   $('pantry-toggle').setAttribute('aria-pressed', String(open)); $('shopping-toggle').setAttribute('aria-pressed', String(!open));
+  document.querySelector('main').scrollTop = 0;
 }
 function status(message, error = false) { $('status').textContent = message; $('status').title = message; $('status').className = error ? 'error' : ''; }
 async function request(url, body, raw = false) {
@@ -32,10 +33,10 @@ function render() {
     selectedCategory = selectedCategory === id ? null : id;
     render();
     // Preserve the clicked card's position when another row closes above it.
-    const view = document.defaultView;
-    if (typeof before === 'number' && typeof view?.scrollBy === 'function') {
+    const frame = document.querySelector('main');
+    if (typeof before === 'number' && typeof frame?.scrollBy === 'function') {
       const after = anchor.getBoundingClientRect().top;
-      if (Math.abs(after - before) > 1) view.scrollBy({ top: after - before, behavior: 'auto' });
+      if (Math.abs(after - before) > 1) frame.scrollBy({ top: after - before, behavior: 'auto' });
     }
   }, { selectedCategory, onAction: action => mutate('/api/actions', { actions: [action] }), busy });
   $('count').textContent = `${items.filter(i => !i.checked).length} kvar`;
@@ -186,3 +187,4 @@ document.defaultView?.addEventListener('resize', () => {
   const slot = $('category-grid').querySelector('.category-slot.is-open');
   if (slot) positionCategoryPanel(slot.querySelector('.category-detail'), slot, $('category-grid'));
 });
+

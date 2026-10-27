@@ -1,5 +1,7 @@
 :root{font-family:Inter,ui-sans-serif,system-ui,sans-serif;color:#1e2a47;background:#f5f5ee;font-synthesis:none}
-*{box-sizing:border-box}[hidden]{display:none!important}html{scrollbar-gutter:stable;touch-action:manipulation}body{margin:0}body.dialog-open{overflow:hidden}main{max-width:640px;margin:auto;padding:12px 20px 24px}
+*{box-sizing:border-box}[hidden]{display:none!important}html{height:100%;touch-action:manipulation}body{margin:0;height:100vh;height:100dvh;display:flex;flex-direction:column;overflow:hidden}body.dialog-open main{overflow:hidden}
+/* The banner stays outside the scrolling frame shared by both inventory views. */
+main{flex:1;min-height:0;min-width:0;width:100%;max-width:640px;margin:0 auto;padding:12px 20px 24px;overflow-y:auto;overflow-x:hidden;overscroll-behavior-y:contain}
 .app-header{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:34px}
 .brand{display:flex;align-items:center;gap:8px;flex-shrink:0;font-size:10px;font-weight:750;letter-spacing:1px}
 .mark{display:grid;place-items:center;width:30px;height:32px;background:#1e2a47;color:white;border-radius:8px;font-size:20px}
@@ -7,7 +9,7 @@
 #active-family{max-width:clamp(70px,32vw,190px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:14px;font-weight:650;letter-spacing:-.2px}
 #family-back{display:grid;place-items:center;flex-shrink:0;width:34px;height:34px;padding:5px;background:transparent;color:#1e2a47;border:1px solid #ccd6bd;border-radius:50%}
 #family-back svg{width:23px;height:23px}
-.voice{aspect-ratio:7 / 2;min-height:92px;max-height:124px;overflow:hidden;display:flex;flex-direction:column;justify-content:center;gap:8px;margin:12px 0;background:#efe8dc;border-radius:18px;padding:10px 12px;text-align:center}
+.voice{width:100%;min-width:0;aspect-ratio:7 / 2;min-height:92px;max-height:124px;overflow:hidden;display:flex;flex-direction:column;justify-content:center;gap:8px;margin:12px 0;background:#efe8dc;border-radius:18px;padding:10px 12px;text-align:center}
 .mic{border:0;background:#1e2a47;color:white;border-radius:40px;font-size:16px;font-weight:600;padding:17px 28px;box-shadow:0 4px 10px #1e2a4720}
 .voice-actions{width:100%;flex-shrink:0;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;max-width:440px;margin:auto}
 .voice-actions .mic{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-width:0;padding:14px 12px;white-space:nowrap}
@@ -136,7 +138,7 @@ footer{text-align:center;font-size:11px;color:#707789;margin-top:20px}
 .inventory-nav button{display:flex;align-items:center;justify-content:center;gap:6px;min-height:40px;padding:8px 12px;border:1px solid #d8dfca;border-radius:12px;background:#fffef9;color:#1e2a47;font-size:14px}
 .inventory-nav button[aria-pressed=true]{background:#1e2a47;color:white;border-color:#1e2a47}
 .pantry-door{width:21px;height:22px;flex-shrink:0}
-.pantry-card{padding:16px;background:#fffef9;border:1px solid #e0e3d8;border-radius:18px}
+.pantry-card{width:100%;min-width:0;padding:0;background:transparent;border:0}
 .pantry-intro,#pantry-empty{font-size:12px;line-height:1.5;color:#59637a;margin:10px 0 14px}
 #pantry-form{display:flex;gap:4px;padding:3px;border:1px solid #dbe0d2;border-radius:10px;background:white}
 #pantry-form button{min-width:40px;border:0;border-radius:7px;background:#eef1e7;font-size:25px;color:#1e2a47}
@@ -153,7 +155,7 @@ footer{text-align:center;font-size:11px;color:#707789;margin-top:20px}
 :root{--brand-navy:#1E2A47;--brand-orange:#D9482B;--brand-green:#3E9B5B;--brand-gold:#F2B632;--brand-surface:#F8F2E7;background:var(--brand-surface);color:var(--brand-navy);font-family:ui-sans-serif,system-ui,sans-serif}
 h1,h2,h3,button,.category-tile-label{font-family:Fredoka,ui-sans-serif,system-ui,sans-serif}
 h1,h2,h3{font-weight:600}button{font-weight:500}
-.app-header{display:block;background:var(--brand-navy);color:#fff;min-height:0}
+.app-header{display:block;flex:0 0 auto;background:var(--brand-navy);color:#fff;min-height:0;padding-top:env(safe-area-inset-top,0px)}
 .header-inner{display:flex;align-items:center;justify-content:space-between;gap:12px;max-width:640px;min-height:82px;margin:auto;padding:14px 20px}
 .brand{gap:10px;letter-spacing:0}.brand-symbol{display:block;width:44px;height:40px;object-fit:contain}.brand-wordmark{display:block;width:144px;height:44px;object-fit:contain}
 #active-family{color:#fff;min-width:0}#family-back{color:#fff;border-color:#ffffff70}#family-back:hover{background:#ffffff16}
@@ -167,3 +169,4 @@ h1,h2,h3{font-weight:600}button{font-weight:500}
 .pantry-tool:hover{background:#edf0f5}.pantry-tool[data-focus-key$=":pantry_add"]{color:#23673a}
 @media(max-width:600px){.header-inner{padding-left:16px;padding-right:16px}}
 @media(max-width:380px){.header-inner{gap:8px}.brand{gap:7px}.brand-symbol{width:34px;height:34px}.brand-wordmark{width:114px;height:35px}#active-family{font-size:13px}}
+
