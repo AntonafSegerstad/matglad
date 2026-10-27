@@ -7,7 +7,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
-test('HTTP: röst och text lämnar oinventerade varor orörda och tydliga köp bockas av', { timeout: 20000 }, async t => {
+test('HTTP: röst och text skapar en röd slutpost utan dubbla besked eller automatiskt inköp', { timeout: 20000 }, async t => {
   const dir = await mkdtemp(path.join(os.tmpdir(), 'homehelper-food-test-'));
   const root = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
   const original = [{ id: 'mince', name: 'köttfärs', checked: false, category: 'meat', quantity: 2 }];
@@ -33,7 +33,7 @@ test('HTTP: röst och text lämnar oinventerade varor orörda och tydliga köp b
       const buying = command === 'Jag har köpt köttfärsen';
       const answer = buying
         ? { reply: '', actions: [{ type: 'check', id: 'mince', name: 'köttfärs', quantity: null, category: null }] }
-        : { reply: '', actions: [{ type: 'pantry_use', id: null, name: 'köttfärs', quantity: null, category: 'meat' }] };
+        : { reply: 'En egen, osäker ändringsbeskrivning som inte ska visas.', actions: [{ type: 'pantry_use', id: null, name: 'köttfärs', quantity: null, category: 'meat' }, { type: 'pantry_use', id: null, name: 'köttfärs', quantity: null, category: 'meat' }] };
       return Response.json({ choices: [{ message: { content: JSON.stringify(answer) } }] });
     };
   `);
@@ -59,13 +59,14 @@ test('HTTP: röst och text lämnar oinventerade varor orörda och tydliga köp b
     return response.json();
   }
   const text = await send('/api/chat', { text: 'Vi lagade köttfärssås idag' });
-  assert.match(text.reply, /inte inventerad/); assert.deepEqual(text.pantry, []);
+  assert.match(text.reply, /röd post/); assert.equal(text.pantry.length, 1); assert.equal(text.pantry[0].needsRestock, true);
+  assert.equal(text.reply.match(/köttfärs/g).length, 1); assert.equal(text.reply.includes('osäker ändringsbeskrivning'), false);
   assert.deepEqual(text.items, original);
   const voice = await send('/api/voice', new Uint8Array([1, 2, 3]), true);
   assert.equal(voice.transcript, 'Vi lagade köttfärssås idag');
   assert.equal(voice.message, voice.reply);
-  assert.match(voice.reply, /inte inventerad/); assert.deepEqual(voice.pantry, []);
-  assert.equal(await readFile(listFile, 'utf8'), saved, 'Matfrågor får inte skriva om listfilen.');
+  assert.match(voice.reply, /röd post/); assert.deepEqual(voice.pantry, text.pantry);
+  assert.equal(await readFile(listFile, 'utf8'), saved, 'Den gamla listfilen lämnas kvar oförändrad.');
   const bought = await send('/api/command', { text: 'Jag har köpt köttfärsen' });
   assert.equal(bought.items[0].checked, true);
   assert.equal(bought.items[0].quantity, 2);

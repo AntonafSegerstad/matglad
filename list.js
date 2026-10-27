@@ -72,6 +72,7 @@ export function applyHousehold(current, actions) {
   let items = normalizeItems(structuredClone(current.items));
   let pantry = structuredClone(current.pantry ?? []);
   const messages = [];
+  const used = new Set();
   let checkedOut;
   for (const action of actions) {
     if (action?.type === 'checkout') {
@@ -82,7 +83,9 @@ export function applyHousehold(current, actions) {
       const result = applyActions(items, [action]); items = result.items; checkedOut = result.checkedOut;
       messages.push(checkedOut ? `Flyttade ${checkedOut} varor till skafferiet.` : 'Inga markerade varor att checka ut.');
     } else if (PANTRY_ACTIONS.includes(action?.type)) {
-      const result = pantryChange(pantry, action); pantry = result.pantry; messages.push(result.message);
+      const result = pantryChange(pantry, action); pantry = result.pantry;
+      if (!result.usedId || !used.has(result.usedId)) messages.push(result.message);
+      if (result.usedId) used.add(result.usedId);
       if (result.removed) items = items.filter(item => !sameProduct(item, result.removed));
       if (result.shopping) {
         const existing = items.find(item => sameProduct(item, result.shopping));
@@ -122,7 +125,7 @@ const actionsSchema = { type: 'array', items: { type: 'object', properties: {
 }, required: ['type', 'id', 'name', 'quantity', 'category'], additionalProperties: false } };
 const householdSchema = structuredClone(actionsSchema);
 householdSchema.items.properties.type.enum.push(...PANTRY_ACTIONS, 'undo');
-const pantryInstructions = `SKAFFERIÅTGÄRDER: pantry_add inventerar en vara som finns hemma och räcker till en måltid. pantry_use markerar en inventerad vara som slut (ljusgrå) efter förbrukning. Okända förbrukade varor ska inte skapas. pantry_low betyder bara lite kvar/inte tillräckligt: markera slut och lägg på inköpslistan i ett steg. pantry_remove raderar varan från både skafferiet och inköpslistan, endast på uttrycklig begäran. pantry_category byter skafferikategori. pantry_buy lägger varan på inköpslistan och aktiverar en redan avbockad rad utan att ändra skafferistatus. undo ångrar senaste ändringen; returnera den ensam med name="senaste ändringen" och övriga fält null. Skafferiet har inga mängder: quantity=null för alla skafferiåtgärder. Använd exakt pantry-namn och pantry-id när posten finns; id=null bara för nya varor. Inköpslistans id får aldrig användas som skafferi-id. Vid saknade ingredienser till en efterfrågad maträtt: jämför med pantry.available=true och returnera pantry_buy bara för saknade huvudingredienser. Inga skafferiändringar vid rena frågor eller hypotetiska exempel. Skapa en åtgärd per vara, högst 100; be användaren fortsätta i ett nytt meddelande vid fler. ${shoppingContext}`;
+const pantryInstructions = `SKAFFERIÅTGÄRDER: pantry_add inventerar en vara som finns hemma och räcker till en måltid. pantry_use markerar en inventerad vara som slut (ljusgrå) efter förbrukning. Om varutypen saknas helt skapas den som slut och rödmarkerad i skafferiet, med id=null i åtgärden. Den läggs inte automatiskt på inköpslistan. Samma varutyp får bara en pantry_use per meddelande. Befintligt id och namn måste avse samma produkt; byt aldrig nötfärs mot blandfärs eller vit fisk mot lax. Vid osäker matchning ska du fråga, inte ändra flera möjliga varor. pantry_low betyder bara lite kvar/inte tillräckligt: markera slut och lägg på inköpslistan i ett steg. pantry_remove raderar varan från både skafferiet och inköpslistan, endast på uttrycklig begäran. pantry_category byter skafferikategori. pantry_buy lägger varan på inköpslistan och aktiverar en redan avbockad rad utan att ändra skafferistatus. undo ångrar senaste ändringen; returnera den ensam med name="senaste ändringen" och övriga fält null. Skafferiet har inga mängder: quantity=null för alla skafferiåtgärder. Använd exakt pantry-namn och pantry-id när posten finns; id=null bara för nya varor. Inköpslistans id får aldrig användas som skafferi-id. Vid saknade ingredienser till en efterfrågad maträtt: jämför med pantry.available=true och returnera pantry_buy bara för saknade huvudingredienser. Inga skafferiändringar vid rena frågor eller hypotetiska exempel. Skapa en åtgärd per vara, högst 100; be användaren fortsätta i ett nytt meddelande vid fler. ${shoppingContext}`;
 
 export async function interpret(text, items, apiKey, request = fetch, pantry = []) {
   const result = await structuredResponse(

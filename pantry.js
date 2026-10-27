@@ -14,22 +14,35 @@ export function pantryChange(entries, action) {
   const pantry = structuredClone(entries);
   const name = productName(action.name);
   if (!name) throw new Error('Skriv ett varunamn.');
-  const entry = pantry.find(item => action.id ? item.id === action.id : sameProduct(item, { ...action, name }));
-  let shopping = null, removed = null, message;
+  let entry;
+  if (action.id) {
+    entry = pantry.find(item => item.id === action.id);
+    if (entry && productKey(entry.name) !== productKey(name)) throw new Error(`Kan inte säkert matcha ${name} i skafferiet. Förtydliga vilken vara du menar.`);
+    if (!entry && action.type === 'pantry_use') throw new Error(`Kan inte säkert matcha ${name} i skafferiet. Försök igen.`);
+  } else {
+    const matches = pantry.filter(item => productKey(item.name) === productKey(name) && (action.category == null || sameProduct(item, { ...action, name })));
+    if (matches.length > 1) throw new Error(`Det finns flera varianter av ${name}. Vilken menar du?`);
+    entry = matches[0];
+  }
+  let shopping = null, removed = null, usedId = null, message;
   switch (action.type) {
     case 'pantry_add':
     case 'pantry_low': {
       if (action.id && !entry) { message = `Hittade inte ${name} i skafferiet.`; break; }
       const available = action.type === 'pantry_add';
-      if (entry) entry.available = available;
+      if (entry) { entry.available = available; if (available) delete entry.needsRestock; }
       else pantry.push({ id: randomUUID(), name, category: action.category ?? null, available });
       if (!available) shopping = { name, category: entry?.category ?? action.category ?? null };
       message = available ? `${name} finns i skafferiet.` : `${name} räcker inte till en måltid. Lades på inköpslistan.`;
       break;
     }
     case 'pantry_use':
-      if (entry) { entry.available = false; message = `${entry.name} är slut och visas ljusgrå.`; }
-      else message = `${name} var inte inventerad och lades inte till i skafferiet.`;
+      if (!entry) {
+        entry = { id: randomUUID(), name, category: action.category ?? null, available: false, needsRestock: true };
+        pantry.push(entry);
+      }
+      entry.available = false; usedId = entry.id;
+      message = entry.needsRestock ? `${entry.name} är slut och visas som en röd post i skafferiet.` : `${entry.name} är slut och visas ljusgrå.`;
       break;
     case 'pantry_remove':
       if (entry) { removed = entry; pantry.splice(pantry.indexOf(entry), 1); message = `Tog bort ${entry.name} från skafferiet och inköpslistan.`; }
@@ -46,5 +59,5 @@ export function pantryChange(entries, action) {
       message = `${shopping.name} lades på inköpslistan.`;
       break;
   }
-  return { pantry, shopping, removed, message };
+  return { pantry, shopping, removed, usedId, message };
 }

@@ -1,1 +1,1 @@
-{"name":"HomeHelper","short_name":"HomeHelper","lang":"sv","start_url":"/","display":"standalone","background_color":"#f5f5ee","theme_color":"#266347","icons":[{"src":"/icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any"}]}
+{"name":"Matglad","short_name":"Matglad","lang":"sv","start_url":"/","display":"standalone","background_color":"#F8F2E7","theme_color":"#1E2A47","icons":[{"src":"/icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any"},{"src":"/brand/matglad-appicon-512.png","sizes":"512x512","type":"image/png","purpose":"any"}]}

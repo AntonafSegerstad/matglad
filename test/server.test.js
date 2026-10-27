@@ -45,7 +45,9 @@ test('HTTP: äldre lista, antal, kategoribyte, omstart och borttagning', { timeo
   assert.equal(bad.status, 400); assert.equal((await get('/api/list')).items.length, 2);
   await act([{ type: 'remove', id: 'legacy', name: 'mjölk' }]);
   current = await get('/api/list'); assert.equal(current.items.length, 1); assert.equal(current.items[0].name, 'potatis');
-  for (const route of ['/', '/list-view.js', '/categories.js', '/chat.js', '/families-view.js', '/dashboard.js', '/style.css']) assert.equal((await fetch(base + route)).status, 200);
+  for (const route of ['/', '/list-view.js', '/categories.js', '/chat.js', '/families-view.js', '/dashboard.js', '/style.css', '/brand/matglad-symbol-dark.svg', '/brand/matglad-wordmark-banner.svg', '/brand/matglad-appicon-180.png', '/brand/matglad-appicon-512.png', '/fonts/Fredoka.ttf', '/fonts/OFL-Fredoka.txt']) assert.equal((await fetch(base + route)).status, 200);
+  assert.equal((await fetch(base + '/fonts/Fredoka.ttf')).headers.get('content-type'), 'font/ttf');
+  assert.equal((await fetch(base + '/brand/matglad-appicon-512.png')).headers.get('content-type'), 'image/png');
   assert.equal((await fetch(base + '/.env')).status, 404);
   const chat = await fetch(base + '/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json', Origin: base }, body: JSON.stringify({ text: 'Vad finns på listan?', history: [] }) });
   assert.equal(chat.status, 503);

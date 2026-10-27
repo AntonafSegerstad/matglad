@@ -1,4 +1,4 @@
-# HomeHelper – första prototypen
+# Matglad – HomeHelper-prototypen
 
 En öppen gemensam inköpslista med en AI som hjälper med mat, recept och näring. Lägg till och bocka av med tryck eller röst via ditt OpenAI API-konto. Alla enheter som väljer samma familj delar den familjens lista; ändringar hämtas var femte sekund. Varje familj har också ett skafferi med varutyper som finns hemma eller är slut. Inga konton, sparade recept eller hushållssysslor ännu.
 
@@ -34,7 +34,7 @@ Appen visar transkript och resultat. Bocka tillbaka manuellt vid feltolkning. Be
 - Tryck på en kategori för att ersätta cirkeln med en varulista som växer nedåt ovanpå andra kategorier. Alla rader visas utan intern scroll. Bredden anpassas till den längsta varuraden, med skärmens bredd som gräns. Listor vid högerkanten flyttas åt vänster vid behov. Endast en kategori är öppen åt gången; nästa cirkel stänger den förra och krysset visar cirkeln igen.
 - Varunamn, kategoribytesikon och radering ligger på samma rad. Längre namn kan radbrytas först när skärmens bredd annars skulle överskridas.
 - ”Checka ut varor” längst ned flyttar alla avbockade artiklar till vald familjs skafferi. Omarkerade varor ligger kvar. Utcheckningen sker på serverns aktuella lista i ett atomiskt steg, utan AI-anrop.
-- Familjenamnet och en ikon för familjbyte ligger på samma rad som HomeHelper-logotypen. Den gröna knappanelen har fast bildförhållande med höjdgräns och kan inte växa av AI-svar.
+- Familjenamnet och en ikon för familjbyte ligger på samma rad som Matglad-logotypen. Knappanelen har fast bildförhållande med höjdgräns och kan inte växa av AI-svar.
 - Röst, chatt, antal, kategoribyten och borttagning gäller alltid den valda familjen. Chatten töms vid familjbyte.
 - API: `GET/POST /api/families` listar/skapar familjer. List- och AI-anrop använder `?familyId=<id>`. Anrop utan familj-id går till den ursprungliga listan för kompatibilitet med tidigare klienter.
 
@@ -57,9 +57,9 @@ Standardmodell för chatt, listtolkning och kategorisering är `gpt-4.1-mini` (`
 
 ## Skafferi och Ångra
 
-Dörrikonen öppnar en enkel lista över familjens varutyper hemma, inklusive kyl, frys och kryddor. Börja med att inventera genom att prata, chatta eller skriva i skafferifältet. Mörk text betyder finns hemma; ljusgrå text betyder slut eller för lite kvar. Varje rad har en kundvagn för ”slut / dags att köpa”, minus för att radera varan från både skafferi och inköpslista samt pilar för kategori. Plus visas bara för gråa varor och markerar dem som tillgängliga igen. Ingen mängd eller negativ post visas. Manuella inventeringsrader får kategori via pilarna, utan separat AI-kategorisering.
+Dörrikonen öppnar en enkel lista över familjens varutyper hemma, inklusive kyl, frys och kryddor. Börja med att inventera genom att prata, chatta eller skriva i skafferifältet. Mörk text betyder finns hemma; ljusgrå text betyder slut eller för lite kvar. Varje rad har en kundvagn för ”slut / dags att köpa”, minus för att radera varan från både skafferi och inköpslista samt pilar för kategori. Bockikonen visas bara för gråa varor och markerar dem som tillgängliga igen. Ingen mängd eller negativ post visas. Manuella inventeringsrader får kategori via pilarna, utan separat AI-kategorisering.
 
-Utcheckning fyller på skafferiet. ”Vi åt lax och potatis” gråmarkerar motsvarande inventerade varor. Oinventerade ingredienser skapas inte. ”Bara lite pasta kvar” gråmarkerar pasta och aktiverar den på inköpslistan. AI:n kan också svara på vad som saknas till en maträtt och lägga dessa huvudingredienser på inköpslistan när användaren ber om det. Vanliga smaksättningar antas normalt finnas hemma vid receptinköp, men inventeras när användaren uttryckligen nämner dem.
+Utcheckning fyller på skafferiet. ”Vi åt lax och potatis” gråmarkerar motsvarande inventerade varor. Förbrukade huvudingredienser som saknas skapas som röda slutposter i skafferiet, utan automatiskt återköp. Dubbla förbrukningsåtgärder ger ett besked och felaktiga namn/id-kombinationer avvisas. ”Bara lite pasta kvar” gråmarkerar pasta och aktiverar den på inköpslistan. AI:n kan också svara på vad som saknas till en maträtt och lägga dessa huvudingredienser på inköpslistan när användaren ber om det. Vanliga smaksättningar antas normalt finnas hemma vid receptinköp, men inventeras när användaren uttryckligen nämner dem.
 
 Ångra återställer hela senaste ändringen av inköpslista och skafferi tillsammans. Tio steg sparas per familj. Skafferi, inköp och historik sparas atomiskt med versionskontroll. Återförsök med samma ändrings-id är idempotenta. AI-svar baserade på en gammal familjeversion avvisas med en uppmaning att försöka igen. Detta är varutypstatus, inte en beräkning av kvarvarande gram eller förpackningar.
 
@@ -101,4 +101,10 @@ Manifest och ikon finns för hemskärmsläge. Offlinefunktion, service worker oc
 
 ## Kontroll
 
-`npm test` kör 50 tester för liständringar, AI-kontrakt, kategoriernas ordning, chatt och följdfrågor, familjseparering, kategorikort, DOM-kontroller och HTTP-API inklusive sparande efter serveromstart. Testerna verifierar också gemensam AI-hantering för röst/text, inventering, förbrukning, gråa poster, återköp, kategoribyte, Ångra, familjseparering och sparande efter omstart. AI-svaren i testsviten är simulerade. Ett riktigt rösttest kräver mikrofon och konfigurerad API-nyckel. `.npmrc` inkluderar testberoenden även när byggmiljön har NODE_ENV=production.
+`npm test` kör 51 tester för liständringar, AI-kontrakt, kategoriernas ordning, chatt och följdfrågor, familjseparering, kategorikort, DOM-kontroller och HTTP-API inklusive sparande efter serveromstart. Testerna verifierar också gemensam AI-hantering för röst/text, inventering, förbrukning, gråa poster, återköp, kategoribyte, Ångra, familjseparering och sparande efter omstart. AI-svaren i testsviten är simulerade. Ett riktigt rösttest kräver mikrofon och konfigurerad API-nyckel. `.npmrc` inkluderar testberoenden även när byggmiljön har NODE_ENV=production.
+
+## Grafisk profil
+
+Matglad använder logotyperna i `design-assets/matglad-logo/`. Toppfältet är mörkblått (#1E2A47), sidan äggvit (#F8F2E7), med rödorange (#D9482B), grönt (#3E9B5B) och gula accenter (#F2B632) i grafiken. Ingen gul logotyptext eller lägesväxling används. Bannerordmärket har vita Mat-bokstäver och rödorange glad från originalets vektorgrafik.
+
+Rubriker och knappar använder det lokalt levererade typsnittet Fredoka, vars former ligger nära logotypen. Typsnittsnamnet finns inte i originalfilerna och identiteten är därför inte bekräftad. Källa: https://github.com/google/fonts/tree/main/ofl/fredoka. Licensen ligger i `public/fonts/OFL-Fredoka.txt`. Appen behöver ingen extern typsnittstjänst.

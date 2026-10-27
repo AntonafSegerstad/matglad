@@ -28,9 +28,9 @@
 
 - En knapp med en dörr på glänt öppnar en enkel skafferilista i vald familj. Den omfattar kyl, frys, torrvaror och kryddor.
 - Skafferiet börjar tomt. Användaren inventerar via röst, chatt eller manuell inmatning. Manuella varor kan kategoriseras med pilarna; ingen separat AI-kategorisering görs vid manuell inventering.
-- Varje rad visar varunamn, en kundvagn för ”slut / dags att köpa”, minus för att radera varan från både skafferi och inköpslista samt pilar för kategoribyte. Plus visas bara för gråa varor och gör dem tillgängliga igen. Varorna grupperas per kategori.
+- Varje rad visar varunamn, en kundvagn för ”slut / dags att köpa”, minus för att radera varan från både skafferi och inköpslista samt pilar för kategoribyte. Bockikonen visas bara för gråa varor och gör dem tillgängliga igen. Varorna grupperas per kategori.
 - Mörka varunamn finns hemma. Slut eller för lite kvar visas ljusgrått. Inga mängder eller negativa saldon används.
-- En måltidsrapport gråmarkerar matchande inventerade huvudingredienser direkt, även om en liten rest kan finnas kvar. Oinventerade ingredienser skapas inte. Inköpslistan ändras inte av själva måltidsrapporten.
+- En måltidsrapport gråmarkerar matchande inventerade huvudingredienser direkt, även om en liten rest kan finnas kvar. Förbrukade huvudingredienser som saknas skapas som röda slutposter utan att läggas automatiskt på inköpslistan. Varje vara får ett besked per meddelande; felaktiga namn/id-kombinationer och tvetydiga matchningar avvisas. Inköpslistan ändras inte av själva måltidsrapporten.
 - ”Bara lite pasta kvar” gråmarkerar pasta och lägger den samtidigt som aktiv vara på inköpslistan. Redan avbockade inköpsrader aktiveras utan dubbletter.
 - Utcheckning tar bort markerade inköpsrader och fyller på skafferiet i samma sparning. En befintlig grå varutyp återaktiveras. Förpackningsantal och vikt flyttas inte till skafferiet.
 - AI:n får aktuell skafferistatus i röst- och chattdialogen. Den kan inventera, registrera förbrukning, hitta saknade huvudingredienser, lägga dem på inköpslistan på begäran och föreslå måltider med tillgängliga varor.

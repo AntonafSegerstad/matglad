@@ -3,6 +3,7 @@ import { productKey } from './product-name.js';
 
 const arrows = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h15l-4-4M20 17H5l4 4M19 7l-4 4M5 17l4-4"/></svg>';
 const cart = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3h2l3 12h11l2-8H6M8 15l-1 3h12"/><circle cx="9" cy="21" r="1"/><circle cx="18" cy="21" r="1"/></svg>';
+const check = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg>';
 export function renderPantry(container, entries, onAction, busy = false, { shoppingItems = [] } = {}) {
   const doc = container.ownerDocument;
   const activeKey = container.contains(doc.activeElement) ? doc.activeElement?.dataset.focusKey : null;
@@ -14,7 +15,7 @@ export function renderPantry(container, entries, onAction, busy = false, { shopp
     const heading = doc.createElement('h3'); heading.className = 'category-heading'; heading.textContent = group.label;
     section.append(heading);
     for (const entry of [...group.items].sort((a, b) => a.name.localeCompare(b.name, 'sv'))) {
-      const queued = !entry.available && shopping.has(key(entry));
+      const queued = !entry.available && (entry.needsRestock || shopping.has(key(entry)));
       const row = doc.createElement('div'); row.className = `pantry-item${entry.available ? '' : ' is-empty'}${queued ? ' is-shopping' : ''}`; row.dataset.pantryId = entry.id;
       const name = doc.createElement('span'); name.className = 'pantry-name'; name.textContent = entry.name.charAt(0).toLocaleUpperCase('sv') + entry.name.slice(1);
       name.setAttribute('aria-label', `${entry.name}, ${entry.available ? 'finns hemma' : 'slut'}`);
@@ -26,8 +27,8 @@ export function renderPantry(container, entries, onAction, busy = false, { shopp
         el.dataset.focusKey = `${entry.id}:${type}`; el.disabled = busy;
         el.addEventListener('click', () => action({ type })); return el;
       }
-      const stock = entry.available ? button('', 'Slut / dags att köpa:', 'pantry_low') : button('+', 'Finns hemma igen:', 'pantry_add');
-      if (entry.available) stock.innerHTML = cart;
+      const stock = entry.available ? button('', 'Slut / dags att köpa:', 'pantry_low') : button('', 'Finns hemma igen:', 'pantry_add');
+      stock.innerHTML = entry.available ? cart : check;
       const remove = button('−', 'Ta bort från skafferi och Att handla:', 'pantry_remove');
       const change = doc.createElement('label'); change.className = 'category-change pantry-tool'; change.title = `Byt kategori för ${entry.name}`;
       const icon = doc.createElement('span'); icon.innerHTML = arrows;

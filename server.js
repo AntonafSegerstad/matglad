@@ -9,6 +9,16 @@ import { DEFAULT_FAMILY_ID, validateFamilyId } from './families.js';
 import { PANTRY_ACTIONS } from './pantry.js';
 
 const root = path.dirname(fileURLToPath(import.meta.url));
+const brandFiles = {
+  '/brand/matglad-symbol.svg': ['brand/matglad-symbol.svg', 'image/svg+xml'],
+  '/brand/matglad-symbol-dark.svg': ['brand/matglad-symbol-dark.svg', 'image/svg+xml'],
+  '/brand/matglad-wordmark.svg': ['brand/matglad-wordmark.svg', 'image/svg+xml'],
+  '/brand/matglad-wordmark-banner.svg': ['brand/matglad-wordmark-banner.svg', 'image/svg+xml'],
+  '/brand/matglad-appicon-180.png': ['brand/matglad-appicon-180.png', 'image/png'],
+  '/brand/matglad-appicon-512.png': ['brand/matglad-appicon-512.png', 'image/png'],
+  '/fonts/Fredoka.ttf': ['fonts/Fredoka.ttf', 'font/ttf'],
+  '/fonts/OFL-Fredoka.txt': ['fonts/OFL-Fredoka.txt', 'text/plain']
+};
 const store = await createStore();
 const commit = (actions, familyId, options) => store.commit(actions, familyId, options);
 async function readPublic(familyId) {
@@ -21,7 +31,8 @@ async function answerWithList(text, familyId, key, history = [], requestId) {
   if (!answer.actions.length) return { ...await readPublic(familyId), reply: answer.reply, message: '' };
   const result = await commit(answer.actions, familyId, { requestId, expectedVersion: state.version, undoId: state.history.at(-1)?.id });
   // Only the backend receipt describes applied changes, including stale/missing items.
-  return { ...result, reply: [answer.reply, result.message].filter(Boolean).join('\n\n') };
+  const mealReceipt = answer.actions.every(action => action.type === 'pantry_use');
+  return { ...result, reply: mealReceipt ? result.message : [answer.reply, result.message].filter(Boolean).join('\n\n') };
 }
 async function body(req, max) {
   const chunks = []; let size = 0;
@@ -137,9 +148,9 @@ const server = http.createServer(async (req, res) => {
       }
     }
     const files = { '/': ['index.html', 'text/html'], '/app.js': ['app.js', 'text/javascript'], '/pantry-view.js': ['pantry-view.js', 'text/javascript'], '/product-name.js': ['product-name.js', 'text/javascript'], '/chat.js': ['chat.js', 'text/javascript'], '/dashboard.js': ['dashboard.js', 'text/javascript'], '/families-view.js': ['families-view.js', 'text/javascript'], '/categories.js': ['categories.js', 'text/javascript'], '/list-view.js': ['list-view.js', 'text/javascript'], '/style.css': ['style.css', 'text/css'], '/manifest.webmanifest': ['manifest.webmanifest', 'application/manifest+json'], '/icon.svg': ['icon.svg', 'image/svg+xml'] };
-    const file = files[url.pathname];
+    const file = files[url.pathname] ?? brandFiles[url.pathname];
     if (req.method !== 'GET' || !file) return json(res, 404, { error: 'Sidan finns inte.' });
-    res.writeHead(200, { 'Content-Type': `${file[1]}; charset=utf-8` });
+    res.writeHead(200, { 'Content-Type': `${file[1]}${file[1].startsWith('text/') || file[1].includes('json') ? '; charset=utf-8' : ''}` });
     res.end(await readFile(path.join(root, 'public', file[0])));
   } catch (error) {
     if (error.name === 'NeonDbError' || error.sourceError) return json(res, 503, { error: 'Databasen kunde inte nås. Försök igen.' });

@@ -34,7 +34,7 @@ export function setupChat({ document: doc, send, onError = () => {} }) {
 
   function appendMessage(role, content) {
     const bubble = doc.createElement('div'); bubble.className = `chat-message ${role}`;
-    const speaker = doc.createElement('span'); speaker.className = 'chat-speaker'; speaker.textContent = role === 'user' ? 'Du' : 'HomeHelper';
+    const speaker = doc.createElement('span'); speaker.className = 'chat-speaker'; speaker.textContent = role === 'user' ? 'Du' : 'Matglad';
     const text = doc.createElement('p'); text.textContent = content;
     bubble.append(speaker, text); messages.append(bubble);
     while (messages.children.length > 20) messages.firstElementChild.remove();
