@@ -34,7 +34,7 @@
 - ”Bara lite pasta kvar” gråmarkerar pasta och lägger den samtidigt som aktiv vara på inköpslistan. Redan avbockade inköpsrader aktiveras utan dubbletter.
 - Utcheckning tar bort markerade inköpsrader och fyller på skafferiet i samma sparning. En befintlig grå varutyp återaktiveras. Förpackningsantal och vikt flyttas inte till skafferiet.
 - AI:n får aktuell skafferistatus i röst- och chattdialogen. Den kan inventera, registrera förbrukning, hitta saknade huvudingredienser, lägga dem på inköpslistan på begäran och föreslå måltider med tillgängliga varor.
-- Ångra återställer senaste ändringen av inköpslista och skafferi tillsammans, inom vald familj. Upp till tio ändringar sparas, även efter omstart. Återförsök med samma ändrings-id utför inte ändringen igen.
+- ”Ångra” via röst eller chatt återställer senaste ändringen av inköpslista och skafferi tillsammans, inom vald familj. Upp till tio ändringar sparas, även efter omstart. Återförsök med samma ändrings-id utför inte ändringen igen.
 - Inköpslista, skafferi och ångrahistorik sparas atomiskt. Samtidiga ändringar versionskontrolleras. Ett AI-svar som utgår från en gammal version får inte skriva över nyare inventering.
 - Den tilläggande databasmigreringen finns i migrations/003_pantry.sql. Tidigare inköpsdata bevaras.
 

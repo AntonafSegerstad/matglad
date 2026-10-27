@@ -43,7 +43,6 @@ function render() {
   $('empty').hidden = items.length > 0;
   renderPantry($('pantry-items'), pantry, action => mutate('/api/pantry', { actions: [action] }), busy, { shoppingItems: items });
   $('pantry-empty').hidden = pantry.length > 0;
-  $('undo').disabled = busy || !undoId;
 }
 
 function familyStatus(message, error = false) { $('family-status').textContent = message; $('family-status').className = error ? 'error' : ''; }
@@ -116,7 +115,6 @@ async function mutate(url, body, raw = false) {
 $('checkout').addEventListener('click', () => { if (!busy) mutate('/api/checkout', {}); });
 $('pantry-toggle').addEventListener('click', () => showPantry(true));
 $('shopping-toggle').addEventListener('click', () => showPantry(false));
-$('undo').addEventListener('click', () => { if (!busy && undoId) mutate('/api/undo', { undoId }); });
 $('pantry-form').addEventListener('submit', async event => {
   event.preventDefault(); const name = $('pantry-input').value.trim(); if (!name || busy) return;
   if (await mutate('/api/pantry', { actions: [{ type: 'pantry_add', name }] })) $('pantry-input').value = '';

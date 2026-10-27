@@ -61,7 +61,7 @@ Dörrikonen öppnar en enkel lista över familjens varutyper hemma, inklusive ky
 
 Utcheckning fyller på skafferiet. ”Vi åt lax och potatis” gråmarkerar motsvarande inventerade varor. Förbrukade huvudingredienser som saknas skapas som röda slutposter i skafferiet, utan automatiskt återköp. Dubbla förbrukningsåtgärder ger ett besked och felaktiga namn/id-kombinationer avvisas. ”Bara lite pasta kvar” gråmarkerar pasta och aktiverar den på inköpslistan. AI:n kan också svara på vad som saknas till en maträtt och lägga dessa huvudingredienser på inköpslistan när användaren ber om det. Vanliga smaksättningar antas normalt finnas hemma vid receptinköp, men inventeras när användaren uttryckligen nämner dem.
 
-Ångra återställer hela senaste ändringen av inköpslista och skafferi tillsammans. Tio steg sparas per familj. Skafferi, inköp och historik sparas atomiskt med versionskontroll. Återförsök med samma ändrings-id är idempotenta. AI-svar baserade på en gammal familjeversion avvisas med en uppmaning att försöka igen. Detta är varutypstatus, inte en beräkning av kvarvarande gram eller förpackningar.
+”Ångra” via röst eller chatt återställer hela senaste ändringen av inköpslista och skafferi tillsammans. Tio steg sparas per familj. Skafferi, inköp och historik sparas atomiskt med versionskontroll. Återförsök med samma ändrings-id är idempotenta. AI-svar baserade på en gammal familjeversion avvisas med en uppmaning att försöka igen. Detta är varutypstatus, inte en beräkning av kvarvarande gram eller förpackningar.
 
 ## Kategorier och artikelkontroller
 

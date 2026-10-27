@@ -134,7 +134,7 @@ footer{text-align:center;font-size:11px;color:#707789;margin-top:20px}
 .checkout-button{display:block;width:100%;margin:18px 0 0;padding:13px 18px;border:0;border-radius:14px;background:#1e2a47;color:white;font-weight:600;font-size:15px}.checkout-button:disabled{background:#e5e7ed;color:#707789;opacity:1}
 .inventory-nav{display:flex;align-items:center;gap:8px;margin-top:12px}
 .inventory-nav button{display:flex;align-items:center;justify-content:center;gap:6px;min-height:40px;padding:8px 12px;border:1px solid #d8dfca;border-radius:12px;background:#fffef9;color:#1e2a47;font-size:14px}
-.inventory-nav button[aria-pressed=true]{background:#1e2a47;color:white;border-color:#1e2a47}.inventory-nav .undo-button{margin-left:auto;font-size:12px}
+.inventory-nav button[aria-pressed=true]{background:#1e2a47;color:white;border-color:#1e2a47}
 .pantry-door{width:21px;height:22px;flex-shrink:0}
 .pantry-card{padding:16px;background:#fffef9;border:1px solid #e0e3d8;border-radius:18px}
 .pantry-intro,#pantry-empty{font-size:12px;line-height:1.5;color:#59637a;margin:10px 0 14px}
