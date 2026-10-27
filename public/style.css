@@ -45,6 +45,7 @@ input{min-width:0;width:100%;padding:8px 10px;border:0;background:transparent;fo
 .chat-message p{margin:4px 0 0;font-size:14px;line-height:1.55;color:#21392d;white-space:pre-wrap;overflow-wrap:anywhere}
 .chat-error{margin:0;color:#973e32;font-size:13px;flex-shrink:0}
 #chat-form{flex-shrink:0}.chat-compose{display:flex;align-items:flex-end;gap:8px}
+.chat-hint{margin:7px 0 0;font-size:12px;line-height:1.4;color:#526746}
 .chat-compose textarea{display:block;min-width:0;flex:1;min-height:48px;max-height:90px;resize:vertical;padding:10px;border:1px solid #c8d4bc;border-radius:10px;background:#fffef9;color:#21392d;font-size:16px;line-height:1.4}
 .chat-compose button{min-height:48px;padding:12px 16px;border:0;border-radius:10px;background:#266347;color:#fffef9;font-size:14px;font-weight:600}
 footer{text-align:center;font-size:11px;color:#909985;margin-top:20px}

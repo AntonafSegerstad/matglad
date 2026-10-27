@@ -20,7 +20,7 @@
 </section>
 <section id="chat-panel" class="chat-overlay" role="dialog" aria-modal="true" aria-labelledby="chat-title" hidden>
 <div class="chat-dialog"><div class="chat-header"><h2 id="chat-title">Chatta med HomeHelper</h2><button id="chat-close" type="button" data-dismiss aria-label="Stäng chatten">×</button></div>
-<form id="chat-form"><label class="sr-only" for="chat-text">Skriv till AI:n</label><div class="chat-compose"><textarea id="chat-text" rows="2" maxlength="2000" placeholder="Skriv till AI:n…" required></textarea><button id="chat-send" type="submit">Skicka</button></div></form>
+<form id="chat-form"><label class="sr-only" for="chat-text">Skriv till AI:n</label><div class="chat-compose"><textarea id="chat-text" rows="2" maxlength="2000" placeholder="Skriv till AI:n…" aria-describedby="chat-hint" required></textarea><button id="chat-send" type="submit">Skicka</button></div><p id="chat-hint" class="chat-hint">T.ex. ”Gör inköpslista för köttfärssås” eller ”Idag åt vi lax och potatis”.</p></form>
 <p id="chat-error" class="chat-error" role="alert" hidden></p>
 <div id="chat-messages" class="chat-messages" role="log" aria-label="Konversation" aria-live="polite" aria-relevant="additions"></div></div>
 </section>
