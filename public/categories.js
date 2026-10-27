@@ -22,7 +22,7 @@ export const CATEGORIES = [
   { id: 'spices', label: 'Torra kryddor', examples: 'salt, svartpeppar, oregano, basilika, kanel, timjan' },
   { id: 'sauces', label: 'Såser, fond, olja och vinäger', examples: 'ketchup, majonnäs, fond, olja, vinäger, dressing, örtsalt, tomatpuré' },
   { id: 'canned-vegetables', label: 'Grönsakskonserver', examples: 'konserverad majs, krossade tomater, passerade tomater, oliver, bostongurka' },
-  { id: 'pasta-rice', label: 'Torkad pasta, ris och nudlar', examples: 'makaroner, spaghetti, torkade lasagneplattor, ris, risnudlar' },
+  { id: 'pasta-rice', label: 'Pasta, Ris och nudlar', examples: 'makaroner, spaghetti, torkade lasagneplattor, ris, risnudlar' },
   { id: 'cleaning', label: 'Städ, tvätt och papper', examples: 'diskmedel, diskmaskinssalt, tvättmedel, toapapper, hushållspapper, klädnypor' },
   { id: 'hygiene', label: 'Hygien, tandvård och sårvård', examples: 'schampo, tvål, deodorant, tandkräm, tandborste, plåster' },
   { id: 'frozen', label: 'Fryst', examples: 'alla uttryckligen frysta varor: grönsaker, kött, fisk, färdigmat, bär, glass, isbitar' },
