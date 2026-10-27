@@ -17,7 +17,7 @@
 <form id="add-form"><label class="sr-only" for="item">Lägg till en vara</label><input id="item" maxlength="120" placeholder="Skriv en vara…" autocomplete="off" required><button type="submit" aria-label="Lägg till vara">+</button></form>
 <div id="category-grid" class="category-grid"></div><p id="empty">Listan är tom. Säg eller skriv det ni behöver.</p>
 </section>
-<button id="checkout" class="checkout-button" type="button" disabled>Checka ut varor</button>
+<button id="checkout" class="checkout-button" type="button" disabled><span aria-hidden="true">$</span> Checka ut varor</button>
 <section id="pantry-card" class="pantry-card" hidden aria-labelledby="pantry-title"><h2 id="pantry-title">Skafferi</h2><p class="pantry-intro">Inventera med röst, chatt eller skriv här. Svart = finns hemma. Grå = behöver köpas.</p><form id="pantry-form"><label class="sr-only" for="pantry-input">Vara som finns hemma</label><input id="pantry-input" maxlength="120" placeholder="Vi har hemma…" autocomplete="off" required><button type="submit" aria-label="Lägg till i skafferiet">+</button></form><div id="pantry-items"></div><p id="pantry-empty">Börja med att inventera köket. Säg t.ex. ”Vi har mjölk, ris och salt hemma”. Utcheckade varor hamnar också här.</p></section>
 </section>
 <section id="chat-panel" class="chat-overlay" role="dialog" aria-modal="true" aria-labelledby="chat-title" hidden>
