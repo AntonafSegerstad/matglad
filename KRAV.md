@@ -15,25 +15,28 @@
 - Avbockade artiklar behåller sin plats inom kategorin.
 - Kategoribyte och borttagning på samma rad som varunamnet. Antal kan anges via röst/chatt och visas som text; ingen antalväljare visas.
 
-- ”Checka ut varor” längst ned raderar markerade artiklar i vald familj. Omarkerade artiklar och andra familjers listor bevaras.
+- ”Checka ut varor” flyttar markerade artiklar till samma familjs skafferi som varutyper utan mängder. Omarkerade artiklar och andra familjers listor bevaras.
 
 ## Matkunnig AI – implementerat
 
 - Samma köksassistent för röst och text: frågor om råvaror, recept, matlagning, ingrediensbyten, innehåll och näring, samt hjälp med alla nuvarande listfunktioner.
 - Anpassa råd efter uppgivna allergier, kostval, tid, budget och portioner. Näringsberäkningar ska ange underlag, mängd och om de är uppskattningar; exakta produktuppgifter kräver förpackning eller annat faktiskt underlag.
 - Listfrågor använder aktuella familjedata. Listan får inte behandlas som bevis för innehållet hemma. Receptförslag och rapporter om lagad mat ändrar inte inköpslistan utan en uttrycklig begäran.
-- ”Vi lagade köttfärssås idag” ska förstås som en måltid. AI:n kan förklara troliga ingredienser men får inte hitta på vad som faktiskt användes eller påstå att lager dragits av innan Skafferi finns.
+- Måltidsrapporter identifierar vanliga huvudingredienser för två vuxna och två barn, om inget annat anges. Inventerade huvudingredienser markeras som slut. Smaksättningar utelämnas om de inte uttryckligen anges som slut.
 
-## Skafferi – planerat, nästa separat funktion
+## Skafferi – implementerat
 
-- En knapp ”Skafferi” längst upp öppnar den valda familjens varor hemma. Skafferi omfattar också kyl och frys.
-- ”Checka ut varor” ska då flytta de markerade varorna och deras antal från inköpslistan till samma familjs skafferi. Överföringen ska sparas atomiskt så att en upprepning inte ger dubbla inköp. Fram till dess gäller dagens borttagning utan lagerregistrering.
-- Matcha samma produkt och summera kompatibla mängder utan att slå ihop olika varianter av misstag. Förpackningsantal ska skiljas från gram, milliliter och stycken; en okänd förpackningsstorlek får inte gissas.
-- ”Vi lagade X idag” via röst eller chatt ska senare identifiera troliga ingredienser, matcha dem mot familjens skafferi och dra av faktiskt använd mängd. Uttryckliga mängder och familjens bekräftade recept går före standardantaganden. Antagna ingredienser och mängder ska framgå och kunna korrigeras; en kort följdfråga behövs när underlaget inte räcker för ett meningsfullt avdrag.
-- Minus betyder minskad mängd i skafferiet. En okänd mängd ska visas som okänd, inte som ett påhittat exakt saldo. Varan får inte automatiskt förklaras slut för att den ingick i en rätt. Saknade råvaror ska inte skapas med påhittat lagersaldo.
-- Visa vilka varor och mängder som påverkades och ge möjlighet att rätta eller ångra hela måltidsavdraget. Samma rapport ska inte dras av två gånger vid återförsök. Historik och avdrag ska höra till rätt familj.
-
-Skafferiknapp, lageröverföring och måltidsavdrag ingår inte i denna uppdatering av AI-instruktionen.
+- En knapp med en dörr på glänt öppnar en enkel skafferilista i vald familj. Den omfattar kyl, frys, torrvaror och kryddor.
+- Skafferiet börjar tomt. Användaren inventerar via röst, chatt eller manuell inmatning. Manuella varor kan kategoriseras med pilarna; ingen separat AI-kategorisering görs vid manuell inventering.
+- Varje rad visar bara varunamn och tre symboler: plus för att lägga på inköpslistan, minus för att radera skafferiposten och pilar för kategoribyte. Varorna grupperas per kategori.
+- Mörka varunamn finns hemma. Slut eller för lite kvar visas ljusgrått. Inga mängder eller negativa saldon används.
+- En måltidsrapport gråmarkerar matchande inventerade huvudingredienser direkt, även om en liten rest kan finnas kvar. Oinventerade ingredienser skapas inte. Inköpslistan ändras inte av själva måltidsrapporten.
+- ”Bara lite pasta kvar” gråmarkerar pasta och lägger den samtidigt som aktiv vara på inköpslistan. Redan avbockade inköpsrader aktiveras utan dubbletter.
+- Utcheckning tar bort markerade inköpsrader och fyller på skafferiet i samma sparning. En befintlig grå varutyp återaktiveras. Förpackningsantal och vikt flyttas inte till skafferiet.
+- AI:n får aktuell skafferistatus i röst- och chattdialogen. Den kan inventera, registrera förbrukning, hitta saknade huvudingredienser, lägga dem på inköpslistan på begäran och föreslå måltider med tillgängliga varor.
+- Ångra återställer senaste ändringen av inköpslista och skafferi tillsammans, inom vald familj. Upp till tio ändringar sparas, även efter omstart. Återförsök med samma ändrings-id utför inte ändringen igen.
+- Inköpslista, skafferi och ångrahistorik sparas atomiskt. Samtidiga ändringar versionskontrolleras. Ett AI-svar som utgår från en gammal version får inte skriva över nyare inventering.
+- Den tilläggande databasmigreringen finns i migrations/003_pantry.sql. Tidigare inköpsdata bevaras.
 
 ## Kvittoskanning – planerat
 

@@ -5,9 +5,9 @@ import { mkdtemp, rm, writeFile, readFile } from 'node:fs/promises';
 import { once } from 'node:events';
 import os from 'node:os';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
-test('HTTP: röst och text kan svara om mat utan att spara ändringar, och tydliga köp bockas av', { timeout: 20000 }, async t => {
+test('HTTP: röst och text lämnar oinventerade varor orörda och tydliga köp bockas av', { timeout: 20000 }, async t => {
   const dir = await mkdtemp(path.join(os.tmpdir(), 'homehelper-food-test-'));
   const root = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
   const original = [{ id: 'mince', name: 'köttfärs', checked: false, category: 'meat', quantity: 2 }];
@@ -33,13 +33,13 @@ test('HTTP: röst och text kan svara om mat utan att spara ändringar, och tydli
       const buying = command === 'Jag har köpt köttfärsen';
       const answer = buying
         ? { reply: '', actions: [{ type: 'check', id: 'mince', name: 'köttfärs', quantity: null, category: null }] }
-        : { reply: 'Köttfärssås innehåller ofta köttfärs, lök och tomat. Skafferi är inte tillgängligt ännu, så inget lageravdrag görs.', actions: [] };
+        : { reply: '', actions: [{ type: 'pantry_use', id: null, name: 'köttfärs', quantity: null, category: 'meat' }] };
       return Response.json({ choices: [{ message: { content: JSON.stringify(answer) } }] });
     };
   `);
   const env = { ...process.env, PORT: '0', DATA_DIR: dir, OPENAI_API_KEY: 'fake-test-key', OPENAI_TRANSCRIBE_MODEL: 'gpt-4o-mini-transcribe' };
   delete env.DATABASE_URL; delete env.RENDER;
-  const child = spawn(process.execPath, ['--import', mockFile, 'server.js'], { cwd: root, env, stdio: ['ignore', 'pipe', 'pipe'] });
+  const child = spawn(process.execPath, ['--import', pathToFileURL(mockFile).href, 'server.js'], { cwd: root, env, stdio: ['ignore', 'pipe', 'pipe'] });
   t.after(async () => {
     if (child.exitCode === null) { const done = once(child, 'exit'); child.kill(); await done; }
     await rm(dir, { recursive: true, force: true });
@@ -59,12 +59,12 @@ test('HTTP: röst och text kan svara om mat utan att spara ändringar, och tydli
     return response.json();
   }
   const text = await send('/api/chat', { text: 'Vi lagade köttfärssås idag' });
-  assert.match(text.reply, /inget lageravdrag/);
+  assert.match(text.reply, /inte inventerad/); assert.deepEqual(text.pantry, []);
   assert.deepEqual(text.items, original);
   const voice = await send('/api/voice', new Uint8Array([1, 2, 3]), true);
   assert.equal(voice.transcript, 'Vi lagade köttfärssås idag');
   assert.equal(voice.message, voice.reply);
-  assert.match(voice.reply, /Skafferi/);
+  assert.match(voice.reply, /inte inventerad/); assert.deepEqual(voice.pantry, []);
   assert.equal(await readFile(listFile, 'utf8'), saved, 'Matfrågor får inte skriva om listfilen.');
   const bought = await send('/api/command', { text: 'Jag har köpt köttfärsen' });
   assert.equal(bought.items[0].checked, true);
@@ -72,4 +72,23 @@ test('HTTP: röst och text kan svara om mat utan att spara ändringar, och tydli
   assert.equal(bought.items.length, 1);
   assert.equal(bought.reply, 'Bockade av köttfärs.');
   assert.equal(bought.message, bought.reply);
+  // Inventory, consumption and undo operate on the same saved household state.
+  const inventory = await send('/api/pantry', { actions: [{ type: 'pantry_add', name: 'köttfärs', category: 'meat' }] });
+  assert.equal(inventory.pantry[0].available, true);
+  const meal = await send('/api/chat', { text: 'Vi lagade köttfärssås idag' });
+  assert.equal(meal.pantry[0].available, false); assert.equal(meal.items[0].checked, true);
+  const undone = await send('/api/undo', { undoId: meal.undoId, requestId: 'undo-meal' });
+  assert.equal(undone.pantry[0].available, true);
+  const repeatUndo = await send('/api/undo', { undoId: meal.undoId, requestId: 'undo-meal' });
+  assert.deepEqual(repeatUndo.pantry, undone.pantry);
+  const low = await send('/api/pantry', { actions: [{ type: 'pantry_low', id: undone.pantry[0].id, name: 'köttfärs' }] });
+  assert.equal(low.pantry[0].available, false); assert.equal(low.items.length, 1); assert.equal(low.items[0].checked, false);
+  assert.equal(low.items[0].quantity, 2);
+  const category = await send('/api/pantry', { actions: [{ type: 'pantry_category', id: low.pantry[0].id, name: 'köttfärs', category: 'frozen' }] });
+  assert.equal(category.pantry[0].category, 'frozen');
+  const removed = await send('/api/pantry', { actions: [{ type: 'pantry_remove', id: low.pantry[0].id, name: 'köttfärs' }] });
+  assert.deepEqual(removed.pantry, []); assert.equal(removed.items.length, 1);
+  assert.equal((await fetch(base + '/pantry-view.js')).status, 200);
+  const state = await (await fetch(base + '/api/list')).json();
+  assert.equal('history' in state, false); assert.equal('requests' in state, false);
 });

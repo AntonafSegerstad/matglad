@@ -1,7 +1,8 @@
 CREATE TABLE IF NOT EXISTS shopping_list (
   id integer PRIMARY KEY CHECK (id = 1),
   items jsonb NOT NULL DEFAULT '[]'::jsonb CHECK (jsonb_typeof(items) = 'array'),
-  version bigint NOT NULL DEFAULT 0
+  version bigint NOT NULL DEFAULT 0,
+  pantry_state jsonb NOT NULL DEFAULT '{}'::jsonb CHECK (jsonb_typeof(pantry_state) = 'object')
 );
 INSERT INTO shopping_list (id) VALUES (1) ON CONFLICT (id) DO NOTHING;
 
@@ -16,7 +17,8 @@ CREATE TABLE IF NOT EXISTS families (
 CREATE TABLE IF NOT EXISTS family_lists (
   family_id uuid PRIMARY KEY REFERENCES families(id),
   items jsonb NOT NULL DEFAULT '[]'::jsonb CHECK (jsonb_typeof(items) = 'array'),
-  version bigint NOT NULL DEFAULT 0
+  version bigint NOT NULL DEFAULT 0,
+  pantry_state jsonb NOT NULL DEFAULT '{}'::jsonb CHECK (jsonb_typeof(pantry_state) = 'object')
 );
 INSERT INTO families (id, name, name_key)
 VALUES ('00000000-0000-4000-8000-000000000001', 'Vår familj', 'vår familj')

@@ -82,9 +82,13 @@ test('HTTP: äldre lista, antal, kategoribyte, omstart och borttagning', { timeo
   const checkedOut = await checkout.json();
   assert.equal(checkedOut.checkedOut, 1);
   assert.equal(checkedOut.items.length, 1); assert.equal(checkedOut.items[0].name, 'köttfärs');
+  assert.equal(checkedOut.pantry.length, 1); assert.equal(checkedOut.pantry[0].name, 'lamm');
+  assert.equal(checkedOut.pantry[0].available, true);
   assert.equal((await get('/api/list')).items[0].checked, true);
   await stop(); await start();
   assert.equal((await get(`/api/list?familyId=${family.id}`)).items.length, 1);
   assert.equal((await get('/api/list')).items.length, 1);
+  assert.equal((await get(`/api/list?familyId=${family.id}`)).pantry[0].name, 'lamm');
+  assert.deepEqual((await get('/api/list')).pantry, []);
 
 });

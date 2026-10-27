@@ -49,7 +49,7 @@ test('röstkommandon stöder antal, kategori och uttrycklig borttagning', async 
   await assert.rejects(interpret('mjölk', [], 'test-key', async () => reply({ actions: [{ type: 'add', name: 'mjölk', category: 'unknown' }] })), /kategori/);
 });
 
-test('köksassistenten får samma instruktion i text och kommandon utan åtkomst till framtida lageråtgärder', async () => {
+test('köksassistenten får samma instruktion och validerade skafferiåtgärder', async () => {
   const items = [{ id: 'mince', name: 'köttfärs', category: 'meat', quantity: 2, checked: false }];
   const original = structuredClone(items);
   for (const text of ['Vi lagade köttfärssås idag', 'Hur mycket protein innehåller linser?', 'Hur fungerar Checka ut varor?']) {
@@ -58,7 +58,7 @@ test('köksassistenten får samma instruktion i text och kommandon utan åtkomst
       assert.ok(body.messages[0].content.startsWith(homeHelperInstructions));
       assert.equal(JSON.parse(body.messages[1].content).command, text);
       const actionTypes = body.response_format.json_schema.schema.properties.actions.items.properties.type.enum;
-      assert.deepEqual(actionTypes, ['add', 'check', 'uncheck', 'update', 'remove']);
+      assert.deepEqual(actionTypes, ['add', 'check', 'uncheck', 'update', 'remove', 'pantry_add', 'pantry_use', 'pantry_remove', 'pantry_category', 'pantry_buy', 'pantry_low', 'undo']);
       return reply({ reply: 'Ett matsvar utan någon lager- eller liständring.', actions: [] });
     });
     assert.deepEqual(answer.actions, []);

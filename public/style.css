@@ -131,3 +131,17 @@ footer{text-align:center;font-size:11px;color:#909985;margin-top:20px}
 @media(max-width:360px){.category-tile{padding:7px 6px;gap:3px}.category-tile.long-label .category-tile-label{font-size:9.5px}.category-symbol{flex-basis:20px;height:20px}.category-symbol svg{width:20px;height:20px}}
 
 .checkout-button{display:block;width:100%;margin:18px 0 0;padding:13px 18px;border:0;border-radius:14px;background:#266347;color:white;font-weight:600;font-size:15px}.checkout-button:disabled{background:#dfe6d1;color:#78866a;opacity:1}
+.inventory-nav{display:flex;align-items:center;gap:8px;margin-top:12px}
+.inventory-nav button{display:flex;align-items:center;justify-content:center;gap:6px;min-height:40px;padding:8px 12px;border:1px solid #d8dfca;border-radius:12px;background:#fffef9;color:#3c5436;font-size:14px}
+.inventory-nav button[aria-pressed=true]{background:#266347;color:white;border-color:#266347}.inventory-nav .undo-button{margin-left:auto;font-size:12px}
+.pantry-door{width:21px;height:22px;flex-shrink:0}
+.pantry-card{padding:16px;background:#fffef9;border:1px solid #e0e3d8;border-radius:18px}
+.pantry-intro,#pantry-empty{font-size:12px;line-height:1.5;color:#637452;margin:10px 0 14px}
+#pantry-form{display:flex;gap:4px;padding:3px;border:1px solid #dbe0d2;border-radius:10px;background:white}
+#pantry-form button{min-width:40px;border:0;border-radius:7px;background:#eef1e7;font-size:25px;color:#266347}
+.pantry-group{margin-top:20px}.pantry-group .category-heading{font-size:15px;padding-bottom:6px}
+.pantry-item{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:5px 0;border-bottom:1px solid #eceee5}
+.pantry-item:last-child{border-bottom:0}.pantry-name{min-width:0;font-size:15px;overflow-wrap:anywhere;color:#21392d}.pantry-item.is-empty .pantry-name{color:#a3a7a0}
+.pantry-tools{display:flex;align-items:center;flex-shrink:0;gap:2px}
+.pantry-tool{display:grid;place-items:center;flex:0 0 34px;width:34px;height:36px;padding:0;border:0;border-radius:8px;background:transparent;color:#526b46;font-size:24px}
+.pantry-tool:hover{background:#edf1e5}.pantry-tool svg{display:block;width:20px;height:20px}.pantry-tool.category-change{width:34px;height:36px}
