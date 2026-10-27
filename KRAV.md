@@ -1,4 +1,4 @@
-# HomeHelper – funktionskrav
+# matglad – funktionskrav
 
 ## Familjer och översikt – implementerat
 

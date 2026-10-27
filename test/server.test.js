@@ -9,7 +9,7 @@ import { fileURLToPath } from 'node:url';
 
 const root = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 test('HTTP: äldre lista, antal, kategoribyte, omstart och borttagning', { timeout: 30000 }, async t => {
-  const dir = await mkdtemp(path.join(os.tmpdir(), 'homehelper-test-'));
+  const dir = await mkdtemp(path.join(os.tmpdir(), 'matglad-test-'));
   await writeFile(path.join(dir, 'list.json'), JSON.stringify([{ id: 'legacy', name: 'mjölk', checked: true }]));
   let child, base;
   const env = { ...process.env, PORT: '0', DATA_DIR: dir, OPENAI_API_KEY: '' };

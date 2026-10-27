@@ -1,4 +1,4 @@
-# Matglad – HomeHelper-prototypen
+# Matglad – prototypen
 
 En öppen gemensam inköpslista med en AI som hjälper med mat, recept och näring. Lägg till och bocka av med tryck eller röst via ditt OpenAI API-konto. Alla enheter som väljer samma familj delar den familjens lista; ändringar hämtas var femte sekund. Varje familj har också ett skafferi med varutyper som finns hemma eller är slut. Inga konton, sparade recept eller hushållssysslor ännu.
 
@@ -51,7 +51,7 @@ Appen visar transkript och resultat. Bocka tillbaka manuellt vid feltolkning. Be
 
 Den gemensamma instruktionen i `ai-instructions.js` används för chatt och transkriberat tal. AI:n hjälper med matvaror, ingredienser, recept, tillagning, ersättningar, näring och appens nuvarande funktioner. En rapport om lagad eller uppäten mat gråmarkerar inventerade huvudingredienser i skafferiet och ändrar inte inköpslistan. Röstfrågans fullständiga svar sparas i det separata chattfönstret; huvudskärmens gröna panel behåller sin storlek.
 
-Instruktionen är skriven för HomeHelper med inspiration från communityns [Chef och Personal Chef i Awesome ChatGPT Prompts](https://github.com/amirtds/awesome-chatgpt-prompts#act-as-a-chef) av devisasari respektive giorgiop. Näringsdelen följer principen att ange mängd och skilja rå/tillagad mat samt uppskattningar från verifierade värden; se [Livsmedelsverkets beskrivning av Sök näringsinnehåll](https://www.livsmedelsverket.se/livsmedel-och-innehall/naringsamne/livsmedelsdatabasen/sok-naringsinnehall/). Appen har ingen ansluten näringsdatabas eller webbsökning och AI:n får inte påstå att ett värde har hämtats därifrån.
+Instruktionen är skriven för matglad med inspiration från communityns [Chef och Personal Chef i Awesome ChatGPT Prompts](https://github.com/amirtds/awesome-chatgpt-prompts#act-as-a-chef) av devisasari respektive giorgiop. Näringsdelen följer principen att ange mängd och skilja rå/tillagad mat samt uppskattningar från verifierade värden; se [Livsmedelsverkets beskrivning av Sök näringsinnehåll](https://www.livsmedelsverket.se/livsmedel-och-innehall/naringsamne/livsmedelsdatabasen/sok-naringsinnehall/). Appen har ingen ansluten näringsdatabas eller webbsökning och AI:n får inte påstå att ett värde har hämtats därifrån.
 
 Standardmodell för chatt, listtolkning och kategorisering är `gpt-4.1-mini` (`OPENAI_COMMAND_MODEL`). Tal transkriberas med `gpt-4o-mini-transcribe` (`OPENAI_TRANSCRIBE_MODEL`). Modellerna har inte bytts i denna uppdatering.
 
@@ -81,7 +81,7 @@ Lokalt utan `DATABASE_URL` sparas familjens inköp, skafferi och ångrahistorik 
 
 Render-konfiguration för direkt skapad tjänst:
 
-- Repo: `https://github.com/AntonafSegerstad/Home-Helper`
+- Repo: `https://github.com/AntonafSegerstad/matglad`
 - Branch: `main`
 - Runtime: Node, `NODE_VERSION=24.19.0`
 - Region: Frankfurt
@@ -91,9 +91,9 @@ Render-konfiguration för direkt skapad tjänst:
 - Health check: `/healthz`
 - Hemligheter: `DATABASE_URL`, `OPENAI_API_KEY` (bara servermiljö)
 
-Det nya Neon-projektet HomeHelper är `orange-mode-28651805`, databas `homehelper`. Godnatt och dess databas används inte av appen.
+Det nya Neon-projektet matglad är `orange-mode-28651805`, databas `matglad`. Godnatt och dess databas används inte av appen.
 
-GitHub Actions kör tester och syntaxkontroller vid push. Appen är live på https://homehelper-i7to.onrender.com. Deployment, databas och OpenAI är verifierade. Rösttillägg och avbockning är testade med syntetiska ljudklipp; svenskt tal från mobilmikrofon återstår att verifiera. Render-verktyget saknar stöd för att skapa projektmappar och kopiera befintliga serverhemligheter; dessa moment behöver Render-panelen eller en separat API-anslutning.
+GitHub Actions kör tester och syntaxkontroller vid push. Appen är live på https://matglad-i7to.onrender.com. Deployment, databas och OpenAI är verifierade. Rösttillägg och avbockning är testade med syntetiska ljudklipp; svenskt tal från mobilmikrofon återstår att verifiera. Render-verktyget saknar stöd för att skapa projektmappar och kopiera befintliga serverhemligheter; dessa moment behöver Render-panelen eller en separat API-anslutning.
 
 Appen är avsiktligt öppen: alla som når servern kan läsa och ändra listan samt använda AI-kopplingen. Det finns ett enkelt globalt tak på 60 AI-anrop/timme per process och endast ett samtidigt AI-anrop, inklusive kategorisering. Taket återställs vid omstart; sätt även en budget i OpenAI-projektet. Nyckeln exponeras aldrig till klienten.
 

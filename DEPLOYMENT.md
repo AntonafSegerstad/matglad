@@ -1,21 +1,21 @@
-# Deploymentstatus – HomeHelper
+# Deploymentstatus – matglad
 
 Verifierad 2026-10-26.
 
 ## Publicerat
-- Privat repo: https://github.com/AntonafSegerstad/Home-Helper
-- App: https://homehelper-i7to.onrender.com
+- Privat repo: https://github.com/AntonafSegerstad/matglad
+- App: https://matglad-i7to.onrender.com
 - Render: https://dashboard.render.com/web/srv-dbf4etoae00c73eo92d0
 - Bekräftad workspace My Workspace: tea-dajv1feq1p3s739let4g.
 - Ny tjänst srv-dbf4etoae00c73eo92d0, Free, Node 24.19.0, Frankfurt.
 - Kodcommit d7c3c0489fb68168c9a984a71d8e4bee10aa0a81.
 - Deploy dep-dbfrhsrncjis738kfp90: live.
-- GitHub CI: https://github.com/AntonafSegerstad/Home-Helper/actions/runs/40396611133 (success, 43 tester).
+- GitHub CI: https://github.com/AntonafSegerstad/matglad/actions/runs/40396611133 (success, 43 tester).
 - Auto-deploy är aktiv vid commit. Byggkommandot kör npm ci och npm test före start.
 
 ## Databas
-- Nytt separat Neon-projekt HomeHelper: orange-mode-28651805, Frankfurt.
-- Databas homehelper, roll homehelper_owner, PostgreSQL 17.
+- Nytt separat Neon-projekt matglad: orange-mode-28651805, Frankfurt.
+- Databas matglad, roll matglad_owner, PostgreSQL 17.
 - Schema versionshanteras i schema.sql; shopping_list är initierad.
 - DATABASE_URL har överförts direkt från Neon till endast den nya Render-tjänsten utan att skrivas till repo eller arbetsfiler.
 - /healthz svarar 200 med ok=true, storage=postgres.
@@ -23,8 +23,8 @@ Verifierad 2026-10-26.
 ## Verifierat
 - Startsida och samtliga frontendfiler svarar över HTTPS.
 - Tillägg och avbockning verifierade via publikt API med separat återläsning.
-- En avbockad ”Testvara – HomeHelper” ligger kvar som tydligt märkt testdata.
-- OPENAI_API_KEY är konfigurerad endast i HomeHelpers servermiljö efter användarens uttryckliga instruktion.
+- En avbockad ”Testvara – matglad” ligger kvar som tydligt märkt testdata.
+- OPENAI_API_KEY är konfigurerad endast i matglads servermiljö efter användarens uttryckliga instruktion.
 - Deploy dep-dbf4fr59fdbs738pui70 är live med voiceEnabled=true.
 - Den tidigare testvaran fanns kvar efter redeploy.
 - Svenska riktiga AI-textkommandon återställde och bockade av testvaran.
@@ -109,7 +109,7 @@ Verifierad 2026-10-26.
 ## Kvar
 1. Verifiera riktigt svenskt tal via mobilens mikrofon.
 2. Nyckeln är konfigurerad och AI-kopplingen verifierad; ingen ytterligare nyckelinmatning behövs.
-3. Skapa separat Render-projekt HomeHelper och flytta endast den nya tjänsten dit via Dashboard/API. Render MCP saknar stöd för detta. Tjänsten finns tills vidare fristående i workspacen.
+3. Skapa separat Render-projekt matglad och flytta endast den nya tjänsten dit via Dashboard/API. Render MCP saknar stöd för detta. Tjänsten finns tills vidare fristående i workspacen.
 4. /healthz finns i appen. Render-skapandeverktyget kan inte konfigurera healthCheckPath, så plattformen använder sin normala TCP-kontroll tills HTTP-sökvägen sätts i panelen.
 5. Byt appens typsnitt till Right Grotesk Compact när användaren tillhandahåller fontfilerna. Inga sådana filer finns ännu i projektet; den tidigare typografin används tills dess.
 

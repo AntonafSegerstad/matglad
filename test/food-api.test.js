@@ -8,7 +8,7 @@ import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 test('HTTP: röst och text skapar en röd slutpost utan dubbla besked eller automatiskt inköp', { timeout: 20000 }, async t => {
-  const dir = await mkdtemp(path.join(os.tmpdir(), 'homehelper-food-test-'));
+  const dir = await mkdtemp(path.join(os.tmpdir(), 'matglad-food-test-'));
   const root = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
   const original = [{ id: 'mince', name: 'köttfärs', checked: false, category: 'meat', quantity: 2 }];
   const listFile = path.join(dir, 'list.json');

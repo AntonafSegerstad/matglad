@@ -109,7 +109,7 @@ test('AI receives pantry context and can return an atomic low-stock change', asy
 });
 
 test('spara, ångra, återförsök, samtidighet och familjbyte håller skafferi och inköp ihop', async t => {
-  const dir = await mkdtemp(path.join(os.tmpdir(), 'homehelper-pantry-'));
+  const dir = await mkdtemp(path.join(os.tmpdir(), 'matglad-pantry-'));
   const previous = { DATA_DIR: process.env.DATA_DIR, DATABASE_URL: process.env.DATABASE_URL, RENDER: process.env.RENDER };
   process.env.DATA_DIR = dir; delete process.env.DATABASE_URL; delete process.env.RENDER;
   t.after(async () => { for (const [key, value] of Object.entries(previous)) { if (value === undefined) delete process.env[key]; else process.env[key] = value; } await rm(dir, { recursive: true, force: true }); });

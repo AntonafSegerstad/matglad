@@ -158,7 +158,7 @@ const server = http.createServer(async (req, res) => {
   }
 });
 server.listen(Number(process.env.PORT || 3000), '0.0.0.0', () => {
-  console.log(`HomeHelper körs på port ${server.address().port}`);
+  console.log(`matglad körs på port ${server.address().port}`);
   // Upgrade older lists asynchronously, keeping the app available if AI is down.
   categorizeExisting().catch(() => console.warn('Automatisk kategorisering kunde inte slutföras. Varorna finns kvar och kan kategoriseras manuellt.'));
 });

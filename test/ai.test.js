@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { classifyProducts, categorizeNewActions, interpret, chatWithList } from '../list.js';
-import { homeHelperInstructions } from '../ai-instructions.js';
+import { matgladInstructions } from '../ai-instructions.js';
 const reply = data => ({ ok: true, json: async () => ({ choices: [{ message: { content: JSON.stringify(data) } }] }) });
 
 test('kategorisering kopplas till rätt vara även om AI-svaret är omordnat', async () => {
@@ -55,7 +55,7 @@ test('köksassistenten får samma instruktion och validerade skafferiåtgärder'
   for (const text of ['Vi lagade köttfärssås idag', 'Hur mycket protein innehåller linser?', 'Hur fungerar Checka ut varor?']) {
     const answer = await chatWithList(text, items, 'test-key', [], async (_, options) => {
       const body = JSON.parse(options.body);
-      assert.ok(body.messages[0].content.startsWith(homeHelperInstructions));
+      assert.ok(body.messages[0].content.startsWith(matgladInstructions));
       assert.equal(JSON.parse(body.messages[1].content).command, text);
       const actionTypes = body.response_format.json_schema.schema.properties.actions.items.properties.type.enum;
       assert.deepEqual(actionTypes, ['add', 'check', 'uncheck', 'update', 'remove', 'pantry_add', 'pantry_use', 'pantry_remove', 'pantry_category', 'pantry_buy', 'pantry_low', 'undo']);
@@ -64,7 +64,7 @@ test('köksassistenten får samma instruktion och validerade skafferiåtgärder'
     assert.deepEqual(answer.actions, []);
   }
   await interpret('Vi lagade köttfärssås idag', items, 'test-key', async (_, options) => {
-    assert.ok(JSON.parse(options.body).messages[0].content.startsWith(homeHelperInstructions));
+    assert.ok(JSON.parse(options.body).messages[0].content.startsWith(matgladInstructions));
     return reply({ actions: [] });
   });
   assert.deepEqual(items, original);

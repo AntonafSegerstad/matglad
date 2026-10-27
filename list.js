@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { CATEGORIES, CATEGORY_IDS, isCategory } from './public/categories.js';
-import { homeHelperInstructions } from './ai-instructions.js';
+import { matgladInstructions } from './ai-instructions.js';
 import { PANTRY_ACTIONS, pantryChange, sameProduct } from './pantry.js';
 
 export const normalizeName = value => value.trim().toLocaleLowerCase('sv');
@@ -129,7 +129,7 @@ const pantryInstructions = `SKAFFERIÅTGÄRDER: pantry_add inventerar en vara so
 
 export async function interpret(text, items, apiKey, request = fetch, pantry = []) {
   const result = await structuredResponse(
-    `${homeHelperInstructions}\n\n${commandInstructions}\n${pantryInstructions}\nDet här anropet returnerar enbart actions utan reply. Vid rena frågor, otydligt eller orelaterat tal returnera tom actions om ingen ändring begärs. Måltidsrapporter följer skafferireglerna.`,
+    `${matgladInstructions}\n\n${commandInstructions}\n${pantryInstructions}\nDet här anropet returnerar enbart actions utan reply. Vid rena frågor, otydligt eller orelaterat tal returnera tom actions om ingen ändring begärs. Måltidsrapporter följer skafferireglerna.`,
     { categories: categoryContext, items: normalizeItems(items), pantry, command: text },
     'list_actions', {
       type: 'object', properties: { actions: householdSchema }, required: ['actions'], additionalProperties: false
@@ -171,7 +171,7 @@ export function summarizeList(items) {
 export async function chatWithList(text, items, apiKey, history = [], request = fetch, pantry = []) {
   const input = validateChatInput(text, history);
   const result = await structuredResponse(
-    `${homeHelperInstructions}\n\nLISTÄNDRINGAR\n${commandInstructions}\n\n${pantryInstructions}`,
+    `${matgladInstructions}\n\nLISTÄNDRINGAR\n${commandInstructions}\n\n${pantryInstructions}`,
     { categories: categoryContext, items: normalizeItems(items), pantry, summary: summarizeList(items), history: input.history, command: input.text },
     'list_chat', {
       type: 'object', properties: { reply: { type: 'string' }, actions: householdSchema }, required: ['reply', 'actions'], additionalProperties: false
