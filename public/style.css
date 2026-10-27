@@ -143,6 +143,7 @@ footer{text-align:center;font-size:11px;color:#909985;margin-top:20px}
 .pantry-group{margin-top:20px}.pantry-group .category-heading{font-size:15px;padding-bottom:6px}
 .pantry-item{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:5px 0;border-bottom:1px solid #eceee5}
 .pantry-item:last-child{border-bottom:0}.pantry-name{min-width:0;font-size:15px;overflow-wrap:anywhere;color:#21392d}.pantry-item.is-empty .pantry-name{color:#a3a7a0}
+.pantry-item.is-shopping{background:#fbe9e6;outline:1px solid #e9c1ba;border-radius:8px;padding-right:7px;padding-left:7px}
 .pantry-tools{display:flex;align-items:center;flex-shrink:0;gap:2px}
 .pantry-tool{display:grid;place-items:center;flex:0 0 34px;width:34px;height:36px;padding:0;border:0;border-radius:8px;background:transparent;color:#526b46;font-size:24px}
 .pantry-tool:hover{background:#edf1e5}.pantry-tool svg{display:block;width:20px;height:20px}.pantry-tool.category-change{width:34px;height:36px}

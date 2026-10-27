@@ -55,21 +55,27 @@ test('inventering är idempotent; borttagning och kategoribyte kräver rätt ska
 test('plus visas bara för gråa varor; köpknapp, minus och kategoripilar skickar rätt åtgärder', () => {
   const { document, window } = parseHTML('<html><body><div id="pantry"></div></body></html>');
   const container = document.getElementById('pantry'), actions = [];
-  renderPantry(container, [{ id: 'p', name: 'pasta', category: 'pasta-rice', available: false }], action => actions.push(action));
+  const queued = { shoppingItems: [item('s', 'pasta, 500 g', 'pasta-rice')] };
+  renderPantry(container, [{ id: 'p', name: 'pasta', category: 'pasta-rice', available: false }], action => actions.push(action), false, queued);
   const row = container.querySelector('.pantry-item');
   assert.equal(row.classList.contains('is-empty'), true);
   assert.equal(row.querySelector('.pantry-name').textContent, 'Pasta');
-  assert.equal(row.querySelectorAll('.pantry-tools > *').length, 4);
+  assert.equal(row.classList.contains('is-shopping'), true);
+  assert.equal(row.querySelectorAll('.pantry-tools > *').length, 3);
   assert.equal(row.querySelectorAll('input').length, 0);
   row.querySelector('button').click();
   assert.equal(actions.pop().type, 'pantry_add');
-  row.querySelector('[data-focus-key="p:pantry_low"]').click(); assert.equal(actions.pop().type, 'pantry_low');
+  assert.equal(row.querySelector('[data-focus-key="p:pantry_low"]'), null);
   row.querySelector('[data-focus-key="p:pantry_remove"]').click(); assert.equal(actions.pop().type, 'pantry_remove');
   const select = row.querySelector('select'); select.querySelector('option[value=breakfast]').selected = true;
   select.dispatchEvent(new window.Event('change')); assert.equal(actions.pop().category, 'breakfast');
-  renderPantry(container, [{ id: 'p', name: 'pasta', category: 'pasta-rice', available: true }], action => actions.push(action));
+  renderPantry(container, [{ id: 'p', name: 'pasta', category: 'pasta-rice', available: true }], action => actions.push(action), false, queued);
+  assert.equal(container.querySelector('.pantry-item').classList.contains('is-shopping'), false);
   assert.equal(container.querySelector('[data-focus-key="p:pantry_add"]'), null);
   assert.equal(container.querySelectorAll('.pantry-tools > *').length, 3);
+  container.querySelector('[data-focus-key="p:pantry_low"]').click(); assert.equal(actions.pop().type, 'pantry_low');
+  renderPantry(container, [{ id: 'p', name: 'pasta', category: 'pasta-rice', available: false }], () => {}, false, { shoppingItems: queued.shoppingItems.map(entry => ({ ...entry, checked: true })) });
+  assert.equal(container.querySelector('.pantry-item').classList.contains('is-shopping'), false);
 });
 
 test('AI receives pantry context and can return an atomic low-stock change', async () => {

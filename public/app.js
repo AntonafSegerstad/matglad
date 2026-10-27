@@ -41,7 +41,7 @@ function render() {
   $('count').textContent = `${items.filter(i => !i.checked).length} kvar`;
   $('checkout').disabled = busy || !items.some(item => item.checked);
   $('empty').hidden = items.length > 0;
-  renderPantry($('pantry-items'), pantry, action => mutate('/api/pantry', { actions: [action] }), busy);
+  renderPantry($('pantry-items'), pantry, action => mutate('/api/pantry', { actions: [action] }), busy, { shoppingItems: items });
   $('pantry-empty').hidden = pantry.length > 0;
   $('undo').disabled = busy || !undoId;
 }
