@@ -73,7 +73,8 @@ export function renderCategoryDashboard(container, items, onSelect, { selectedCa
         panel.addEventListener('animationend', () => panel.classList.remove('is-revealing'));
         const header = doc.createElement('div'); header.className = 'category-detail-header';
         const title = doc.createElement('h3'); title.className = 'sr-only'; title.textContent = group.label; title.id = `detail-title-${id}`;
-        const close = doc.createElement('button'); close.type = 'button'; close.className = 'category-close'; close.textContent = '×'; close.setAttribute('aria-label', `Stäng ${group.label}`);
+        const close = doc.createElement('button'); close.type = 'button'; close.className = 'category-close'; close.setAttribute('aria-label', `Stäng ${group.label}`);
+        close.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg>';
         close.addEventListener('click', () => panel.closeCategory(id, slot));
         header.append(title, close);
         const list = doc.createElement('div'); list.className = 'category-detail-items';

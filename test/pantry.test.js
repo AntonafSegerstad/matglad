@@ -38,32 +38,38 @@ test('lite kvar aktiverar en befintlig inköpsrad utan dubblett och behåller va
 });
 
 test('inventering är idempotent; borttagning och kategoribyte kräver rätt skafferi-id', () => {
-  let result = applyHousehold({ items: [], pantry: [] }, [{ type: 'pantry_add', name: 'ris', category: 'pasta-rice' }, { type: 'pantry_add', name: 'Ris', category: 'pasta-rice' }]);
+  let result = applyHousehold({ items: [item('shopping-rice', 'ris, 1 kg', 'pasta-rice')], pantry: [] }, [{ type: 'pantry_add', name: 'ris', category: 'pasta-rice' }, { type: 'pantry_add', name: 'Ris', category: 'pasta-rice' }]);
   assert.equal(result.pantry.length, 1);
   const id = result.pantry[0].id;
   result = applyHousehold(result, [{ type: 'pantry_category', id, name: 'ris', category: 'breakfast' }]);
   assert.equal(result.pantry[0].category, 'breakfast');
   result = applyHousehold(result, [{ type: 'pantry_remove', id: 'foreign', name: 'ris' }]);
   assert.equal(result.pantry.length, 1);
+  assert.equal(result.items.length, 1);
   result = applyHousehold(result, [{ type: 'pantry_remove', id, name: 'ris' }]);
   assert.deepEqual(result.pantry, []);
+  assert.deepEqual(result.items, []);
   assert.throws(() => applyHousehold(result, [{ type: 'pantry_add', name: 'salt', quantity: -1 }]), /mängder/);
 });
 
-test('skafferirader visar namn och exakt tre symboler, och skickar rätt åtgärder', () => {
+test('plus visas bara för gråa varor; köpknapp, minus och kategoripilar skickar rätt åtgärder', () => {
   const { document, window } = parseHTML('<html><body><div id="pantry"></div></body></html>');
   const container = document.getElementById('pantry'), actions = [];
   renderPantry(container, [{ id: 'p', name: 'pasta', category: 'pasta-rice', available: false }], action => actions.push(action));
   const row = container.querySelector('.pantry-item');
   assert.equal(row.classList.contains('is-empty'), true);
   assert.equal(row.querySelector('.pantry-name').textContent, 'Pasta');
-  assert.equal(row.querySelectorAll('.pantry-tools > *').length, 3);
+  assert.equal(row.querySelectorAll('.pantry-tools > *').length, 4);
   assert.equal(row.querySelectorAll('input').length, 0);
   row.querySelector('button').click();
-  assert.equal(actions.pop().type, 'pantry_buy');
-  row.querySelectorAll('button')[1].click(); assert.equal(actions.pop().type, 'pantry_remove');
+  assert.equal(actions.pop().type, 'pantry_add');
+  row.querySelector('[data-focus-key="p:pantry_low"]').click(); assert.equal(actions.pop().type, 'pantry_low');
+  row.querySelector('[data-focus-key="p:pantry_remove"]').click(); assert.equal(actions.pop().type, 'pantry_remove');
   const select = row.querySelector('select'); select.querySelector('option[value=breakfast]').selected = true;
   select.dispatchEvent(new window.Event('change')); assert.equal(actions.pop().category, 'breakfast');
+  renderPantry(container, [{ id: 'p', name: 'pasta', category: 'pasta-rice', available: true }], action => actions.push(action));
+  assert.equal(container.querySelector('[data-focus-key="p:pantry_add"]'), null);
+  assert.equal(container.querySelectorAll('.pantry-tools > *').length, 3);
 });
 
 test('AI receives pantry context and can return an atomic low-stock change', async () => {
@@ -103,4 +109,17 @@ test('spara, ångra, återförsök, samtidighet och familjbyte håller skafferi 
   await assert.rejects(store.commit([{ type: 'pantry_remove', name: 'ris' }, { type: 'add', name: 'test', quantity: -1 }], family.id));
   assert.deepEqual(await store.readState(family.id), before);
   await assert.rejects(store.commit([{ type: 'undo' }], family.id, { undoId: result.undoId }), /ny ändring/);
+  const available = await store.commit([{ type: 'pantry_add', name: 'avokado', category: 'vegetables' }], family.id);
+  const avocado = available.pantry.find(entry => entry.name === 'avokado');
+  const buy = await store.commit([{ type: 'pantry_low', id: avocado.id, name: avocado.name }], family.id);
+  assert.equal(buy.pantry.find(entry => entry.id === avocado.id).available, false);
+  assert.equal(buy.items.some(entry => entry.name === 'avokado' && !entry.checked), true);
+  const restored = await store.commit([{ type: 'pantry_add', id: avocado.id, name: avocado.name }], family.id);
+  assert.equal(restored.pantry.find(entry => entry.id === avocado.id).available, true);
+  assert.deepEqual(restored.items, buy.items);
+  const removed = await store.commit([{ type: 'pantry_remove', id: avocado.id, name: avocado.name }], family.id);
+  assert.equal(removed.items.some(entry => entry.name === 'avokado'), false);
+  assert.equal(removed.pantry.some(entry => entry.id === avocado.id), false);
+  const recovered = await store.commit([{ type: 'undo' }], family.id, { undoId: removed.undoId });
+  assert.deepEqual(recovered.items, restored.items); assert.deepEqual(recovered.pantry, restored.pantry);
 });

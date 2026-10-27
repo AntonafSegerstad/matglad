@@ -15,7 +15,7 @@ export function pantryChange(entries, action) {
   const name = productName(action.name);
   if (!name) throw new Error('Skriv ett varunamn.');
   const entry = pantry.find(item => action.id ? item.id === action.id : sameProduct(item, { ...action, name }));
-  let shopping = null, message;
+  let shopping = null, removed = null, message;
   switch (action.type) {
     case 'pantry_add':
     case 'pantry_low': {
@@ -32,7 +32,7 @@ export function pantryChange(entries, action) {
       else message = `${name} var inte inventerad och lades inte till i skafferiet.`;
       break;
     case 'pantry_remove':
-      if (entry) { pantry.splice(pantry.indexOf(entry), 1); message = `Tog bort ${entry.name} från skafferiet.`; }
+      if (entry) { removed = entry; pantry.splice(pantry.indexOf(entry), 1); message = `Tog bort ${entry.name} från skafferiet och inköpslistan.`; }
       else message = `Hittade inte ${name} i skafferiet.`;
       break;
     case 'pantry_category':
@@ -46,5 +46,5 @@ export function pantryChange(entries, action) {
       message = `${shopping.name} lades på inköpslistan.`;
       break;
   }
-  return { pantry, shopping, message };
+  return { pantry, shopping, removed, message };
 }

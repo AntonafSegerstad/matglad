@@ -1,6 +1,7 @@
 import { CATEGORIES, groupItems } from './categories.js';
 
 const arrows = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h15l-4-4M20 17H5l4 4M19 7l-4 4M5 17l4-4"/></svg>';
+const cart = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3h2l3 12h11l2-8H6M8 15l-1 3h12"/><circle cx="9" cy="21" r="1"/><circle cx="18" cy="21" r="1"/></svg>';
 export function renderPantry(container, entries, onAction, busy = false) {
   const doc = container.ownerDocument;
   const activeKey = container.contains(doc.activeElement) ? doc.activeElement?.dataset.focusKey : null;
@@ -21,8 +22,9 @@ export function renderPantry(container, entries, onAction, busy = false) {
         el.dataset.focusKey = `${entry.id}:${type}`; el.disabled = busy;
         el.addEventListener('click', () => action({ type })); return el;
       }
-      const buy = button('+', 'Lägg på inköpslistan:', 'pantry_buy');
-      const remove = button('−', 'Ta bort från skafferiet:', 'pantry_remove');
+      if (!entry.available) tools.append(button('+', 'Finns hemma igen:', 'pantry_add'));
+      const buy = button('', 'Slut / dags att köpa:', 'pantry_low'); buy.innerHTML = cart;
+      const remove = button('−', 'Ta bort från skafferi och Att handla:', 'pantry_remove');
       const change = doc.createElement('label'); change.className = 'category-change pantry-tool'; change.title = `Byt kategori för ${entry.name}`;
       const icon = doc.createElement('span'); icon.innerHTML = arrows;
       const select = doc.createElement('select'); select.className = 'category-select'; select.disabled = busy;

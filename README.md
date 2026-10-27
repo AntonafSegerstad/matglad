@@ -57,7 +57,7 @@ Standardmodell för chatt, listtolkning och kategorisering är `gpt-4.1-mini` (`
 
 ## Skafferi och Ångra
 
-Dörrikonen öppnar en enkel lista över familjens varutyper hemma, inklusive kyl, frys och kryddor. Börja med att inventera genom att prata, chatta eller skriva i skafferifältet. Mörk text betyder finns hemma; ljusgrå text betyder slut eller för lite kvar. Varje rad har plus för återköp, minus för att radera posten och pilar för kategori. Ingen mängd eller negativ post visas. Manuella inventeringsrader får kategori via pilarna, utan separat AI-kategorisering.
+Dörrikonen öppnar en enkel lista över familjens varutyper hemma, inklusive kyl, frys och kryddor. Börja med att inventera genom att prata, chatta eller skriva i skafferifältet. Mörk text betyder finns hemma; ljusgrå text betyder slut eller för lite kvar. Varje rad har en kundvagn för ”slut / dags att köpa”, minus för att radera varan från både skafferi och inköpslista samt pilar för kategori. Plus visas bara för gråa varor och markerar dem som tillgängliga igen. Ingen mängd eller negativ post visas. Manuella inventeringsrader får kategori via pilarna, utan separat AI-kategorisering.
 
 Utcheckning fyller på skafferiet. ”Vi åt lax och potatis” gråmarkerar motsvarande inventerade varor. Oinventerade ingredienser skapas inte. ”Bara lite pasta kvar” gråmarkerar pasta och aktiverar den på inköpslistan. AI:n kan också svara på vad som saknas till en maträtt och lägga dessa huvudingredienser på inköpslistan när användaren ber om det. Vanliga smaksättningar antas normalt finnas hemma vid receptinköp, men inventeras när användaren uttryckligen nämner dem.
 

@@ -84,10 +84,10 @@ test('HTTP: röst och text lämnar oinventerade varor orörda och tydliga köp b
   const low = await send('/api/pantry', { actions: [{ type: 'pantry_low', id: undone.pantry[0].id, name: 'köttfärs' }] });
   assert.equal(low.pantry[0].available, false); assert.equal(low.items.length, 1); assert.equal(low.items[0].checked, false);
   assert.equal(low.items[0].quantity, 2);
-  const category = await send('/api/pantry', { actions: [{ type: 'pantry_category', id: low.pantry[0].id, name: 'köttfärs', category: 'frozen' }] });
-  assert.equal(category.pantry[0].category, 'frozen');
+  const category = await send('/api/pantry', { actions: [{ type: 'pantry_category', id: low.pantry[0].id, name: 'köttfärs', category: 'poultry' }] });
+  assert.equal(category.pantry[0].category, 'poultry');
   const removed = await send('/api/pantry', { actions: [{ type: 'pantry_remove', id: low.pantry[0].id, name: 'köttfärs' }] });
-  assert.deepEqual(removed.pantry, []); assert.equal(removed.items.length, 1);
+  assert.deepEqual(removed.pantry, []); assert.equal(removed.items.length, 0);
   assert.equal((await fetch(base + '/pantry-view.js')).status, 200);
   const state = await (await fetch(base + '/api/list')).json();
   assert.equal('history' in state, false); assert.equal('requests' in state, false);
