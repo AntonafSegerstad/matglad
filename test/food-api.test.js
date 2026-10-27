@@ -30,6 +30,7 @@ test('HTTP: röst och text skapar en röd slutpost utan dubbla besked eller auto
       assert.equal(body.response_format.json_schema.name, 'list_chat');
       assert.match(body.messages[0].content, /familjens matkunniga köksassistent/);
       const { command } = JSON.parse(body.messages[1].content);
+      if (command === 'Inventera köttfärs') return Response.json({ choices: [{ message: { content: JSON.stringify({ reply: 'Jag har lagt till allt som finns på inköpslistan.', actions: [{ type: 'pantry_add', id: 'mince', name: 'köttfärs', quantity: null, category: 'meat' }] }) } }] });
       const buying = command === 'Jag har köpt köttfärsen';
       const answer = buying
         ? { reply: '', actions: [{ type: 'check', id: 'mince', name: 'köttfärs', quantity: null, category: null }] }
@@ -73,6 +74,11 @@ test('HTTP: röst och text skapar en röd slutpost utan dubbla besked eller auto
   assert.equal(bought.items.length, 1);
   assert.equal(bought.reply, 'Bockade av köttfärs.');
   assert.equal(bought.message, bought.reply);
+  const corrected = await send('/api/chat', { text: 'Inventera köttfärs' });
+  assert.equal(corrected.pantry.length, 1); assert.equal(corrected.pantry[0].available, true);
+  assert.notEqual(corrected.pantry[0].id, 'mince');
+  assert.equal(corrected.reply, corrected.message);
+  assert.equal(corrected.reply.includes('allt som finns på inköpslistan'), false);
   // Inventory, consumption and undo operate on the same saved household state.
   const inventory = await send('/api/pantry', { actions: [{ type: 'pantry_add', name: 'köttfärs', category: 'meat' }] });
   assert.equal(inventory.pantry[0].available, true);
@@ -93,3 +99,4 @@ test('HTTP: röst och text skapar en röd slutpost utan dubbla besked eller auto
   const state = await (await fetch(base + '/api/list')).json();
   assert.equal('history' in state, false); assert.equal('requests' in state, false);
 });
+

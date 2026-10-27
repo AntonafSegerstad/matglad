@@ -12,9 +12,9 @@ test('AI-chatten får aktuell lista och historik och kan svara utan ändringar',
   const history = [{ role: 'user', content: 'Vilka varor finns?' }, { role: 'assistant', content: 'Två mjölk.' }];
   const result = await chatWithList('Är de köpta?', items, 'test-key', history, async (_, options) => {
     const body = JSON.parse(options.body);
-    const input = JSON.parse(body.messages[1].content);
+    const input = JSON.parse(body.messages.at(-1).content);
     assert.deepEqual(input.items, items);
-    assert.deepEqual(input.history, history);
+    assert.deepEqual(body.messages.slice(1, -1), history);
     assert.equal(input.command, 'Är de köpta?');
     assert.equal(input.summary.categoryCountWithProducts, 1);
     assert.equal(input.summary.remainingQuantity, 2);
@@ -157,3 +157,4 @@ test('rösthistorik sparas i chatten utan att öppna något på huvudskärmen', 
   input.value = 'Ändra till tre'; form.dispatchEvent(new window.Event('submit', { cancelable: true })); await settle();
   assert.deepEqual(sent[0].history, [{ role: 'user', content: 'Lägg till två mjölk' }, { role: 'assistant', content: 'Lade till mjölk.' }]);
 });
+

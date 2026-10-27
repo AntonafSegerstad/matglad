@@ -1,8 +1,44 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { classifyProducts, categorizeNewActions, interpret, chatWithList } from '../list.js';
+import { classifyProducts, categorizeNewActions, interpret, chatWithList, applyHousehold } from '../list.js';
 import { matgladInstructions } from '../ai-instructions.js';
 const reply = data => ({ ok: true, json: async () => ({ choices: [{ message: { content: JSON.stringify(data) } }] }) });
+
+test('100 varor i samtalet når modellen som historik och kan inventeras utan att inköpslistan ändras', async () => {
+  const names = ['Escamoles', 'Mopane-maskar', ...Array.from({ length: 98 }, (_, i) => `Ovanlig råvara ${i + 3}`)];
+  const history = [{ role: 'user', content: names.map((name, i) => `${i + 1}. ${name}`).join('\n') }, { role: 'assistant', content: 'Vill du lägga till dessa?' }];
+  const items = [{ id: 'shopping', name: 'kyckling', category: 'poultry', quantity: 1, checked: false }];
+  const pantry = [{ id: 'salt', name: 'salt', category: 'spices', available: true }];
+  const answer = await chatWithList('Lägg alla varor i skafferiet', items, 'test-key', history, async (_, options) => {
+    const body = JSON.parse(options.body);
+    assert.deepEqual(body.messages.slice(1, -1), history);
+    assert.equal(JSON.parse(body.messages.at(-1).content).command, 'Lägg alla varor i skafferiet');
+    return reply({ reply: '', actions: names.map(name => ({ type: 'pantry_add', name, id: null, quantity: null, category: null })) });
+  }, pantry);
+  const result = applyHousehold({ items, pantry }, answer.actions);
+  assert.deepEqual(result.items, items);
+  assert.equal(result.pantry.length, 101);
+  assert.deepEqual(result.pantry.slice(1).map(item => item.name), names);
+  assert.ok(result.pantry.every(item => item.available));
+});
+
+test('inventering med inköps-id matchas till skafferiets egen post eller skapar en ny', async () => {
+  const items = [{ id: 'shopping', name: 'mjölk', category: 'dairy', quantity: 1, checked: false }];
+  const request = async () => reply({ reply: 'Jag har sparat allt.', actions: [{ type: 'pantry_add', id: 'shopping', name: 'mjölk', quantity: null, category: 'dairy' }] });
+  for (const pantry of [[], [{ id: 'pantry', name: 'mjölk', category: 'dairy', available: false }]]) {
+    const answer = await chatWithList('Lägg mjölk i skafferiet', items, 'test-key', [], request, pantry);
+    assert.equal(answer.actions[0].id, pantry.length ? 'pantry' : null);
+    const result = applyHousehold({ items, pantry }, answer.actions);
+    assert.equal(result.pantry.length, 1); assert.equal(result.pantry[0].available, true);
+    assert.notEqual(result.pantry[0].id, 'shopping');
+    assert.deepEqual(result.items, items);
+  }
+  for (const action of [
+    { type: 'pantry_add', id: 'unknown', name: 'mjölk' },
+    { type: 'pantry_add', id: 'shopping', name: 'ris' },
+    { type: 'pantry_remove', id: 'shopping', name: 'mjölk' }
+  ]) await assert.rejects(chatWithList('Inventera', items, 'test-key', [], async () => reply({ reply: '', actions: [action] })), /Ingen ändring sparades/);
+});
 
 test('kategorisering kopplas till rätt vara även om AI-svaret är omordnat', async () => {
   const result = await classifyProducts(['mjölk', 'fryst broccoli'], 'test-key', async (_, options) => {
@@ -70,3 +106,4 @@ test('köksassistenten får samma instruktion och validerade skafferiåtgärder'
   assert.deepEqual(items, original);
   await assert.rejects(chatWithList('Dra av köttfärs', items, 'test-key', [], async () => reply({ reply: 'Klart', actions: [{ type: 'consume', name: 'köttfärs', quantity: 1 }] })), /liständringen/);
 });
+

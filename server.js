@@ -30,9 +30,8 @@ async function answerWithList(text, familyId, key, history = [], requestId) {
   const answer = await chatWithList(text, state.items, key, history, fetch, state.pantry);
   if (!answer.actions.length) return { ...await readPublic(familyId), reply: answer.reply, message: '' };
   const result = await commit(answer.actions, familyId, { requestId, expectedVersion: state.version, undoId: state.history.at(-1)?.id });
-  // Only the backend receipt describes applied changes, including stale/missing items.
-  const mealReceipt = answer.actions.every(action => action.type === 'pantry_use');
-  return { ...result, reply: mealReceipt ? result.message : [answer.reply, result.message].filter(Boolean).join('\n\n') };
+  // AI prose cannot confirm a mutation. Only the receipt of the saved state can.
+  return { ...result, reply: result.message };
 }
 async function body(req, max) {
   const chunks = []; let size = 0;
@@ -164,3 +163,4 @@ server.listen(Number(process.env.PORT || 3000), '0.0.0.0', () => {
 });
 
 process.on('SIGTERM', () => { server.close(() => process.exit(0)); setTimeout(() => process.exit(0), 10000).unref(); });
+
