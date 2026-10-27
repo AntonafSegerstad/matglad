@@ -34,12 +34,10 @@ export function renderPantry(container, entries, onAction, busy = false, { shopp
       const icon = doc.createElement('span'); icon.innerHTML = arrows;
       const select = doc.createElement('select'); select.className = 'category-select'; select.disabled = busy;
       select.dataset.focusKey = `${entry.id}:category`; select.setAttribute('aria-label', `Kategori för ${entry.name}`);
-      if (!entry.category) {
-        const option = doc.createElement('option'); option.value = ''; option.textContent = 'Välj kategori'; option.selected = true; option.disabled = true; select.append(option);
-      }
+      const selectedCategory = CATEGORIES.some(category => category.id === entry.category) ? entry.category : 'other';
       for (const category of CATEGORIES) {
         const option = doc.createElement('option'); option.value = category.id; option.textContent = category.label;
-        option.selected = category.id === entry.category; select.append(option);
+        option.selected = category.id === selectedCategory; select.append(option);
       }
       select.addEventListener('change', () => action({ type: 'pantry_category', category: select.value }));
       change.append(icon, select); tools.append(stock, remove, change); row.append(name, tools); section.append(row);

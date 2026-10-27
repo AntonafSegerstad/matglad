@@ -29,7 +29,8 @@ export const CATEGORIES = [
   { id: 'sweets', label: 'Godis och snacks', examples: 'chips, choklad, godis, popcorn' },
   { id: 'checkout', label: 'Vid och efter kassan', examples: 'batterier, blomjord, cykelljus, grillkol, tuggummi' },
   { id: 'pharmacy', label: 'Apoteket', examples: 'medicin, melatonin, linsvätska, D-vitamin, apoteksprodukter' },
-  { id: 'alcohol', label: 'Systembolaget', examples: 'vin, bubbel, starköl' }
+  { id: 'alcohol', label: 'Systembolaget', examples: 'vin, bubbel, starköl' },
+  { id: 'other', label: 'Övrigt', examples: 'varor utan passande kategori, eller manuellt valda Övrigt' }
 ];
 export const CATEGORY_IDS = CATEGORIES.map(category => category.id);
 export const isCategory = id => CATEGORY_IDS.includes(id);
@@ -37,7 +38,7 @@ export const isCategory = id => CATEGORY_IDS.includes(id);
 export function groupItems(items) {
   const groups = CATEGORIES.map(category => ({ ...category, items: [] }));
   const byId = new Map(groups.map(group => [group.id, group]));
-  const unassigned = { id: null, label: 'Övrigt', items: [] };
-  for (const item of items) (byId.get(item.category) || unassigned).items.push(item);
-  return [...groups, unassigned].filter(group => group.items.length > 0);
+  for (const item of items) (byId.get(item.category) || byId.get('other')).items.push(item);
+  return groups.filter(group => group.items.length > 0);
 }
+

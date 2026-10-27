@@ -100,14 +100,14 @@ test('backend räknar kategorier, varurader och antal separat för AI-svaren', (
     { id: 'c', name: 'gurka', category: 'vegetables', quantity: 1, checked: false },
     { id: 'd', name: 'okänt', category: null, quantity: 4, checked: false }
   ]);
-  assert.equal(summary.categoryCountWithProducts, 2);
-  assert.equal(summary.categoryCountWithRemainingProducts, 2);
+  assert.equal(summary.categoryCountWithProducts, 3);
+  assert.equal(summary.categoryCountWithRemainingProducts, 3);
   assert.equal(summary.productLines, 4);
   assert.equal(summary.quantity, 10);
   assert.equal(summary.remainingQuantity, 7);
   assert.equal(summary.purchasedProductLines, 1);
   assert.equal(summary.uncategorizedProductLines, 1);
-  assert.deepEqual(summary.categories.map(category => category.id), ['vegetables', 'dairy']);
+  assert.deepEqual(summary.categories.map(category => category.id), ['vegetables', 'dairy', 'other']);
   assert.equal(summary.categories.find(category => category.id === 'dairy').quantity, 5);
   const bought = summarizeList([{ name: 'mjölk', category: 'dairy', quantity: 2, checked: true }]);
   assert.equal(bought.categoryCountWithProducts, 1);

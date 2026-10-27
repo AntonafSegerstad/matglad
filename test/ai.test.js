@@ -44,7 +44,7 @@ test('kategorisering kopplas till rätt vara även om AI-svaret är omordnat', a
   const result = await classifyProducts(['mjölk', 'fryst broccoli'], 'test-key', async (_, options) => {
     const body = JSON.parse(options.body);
     const input = JSON.parse(body.messages[1].content);
-    assert.equal(input.categories.length, 30);
+    assert.equal(input.categories.length, 31);
     assert.deepEqual(input.products.map(p => p.name), ['mjölk', 'fryst broccoli']);
     return reply({ products: [{ index: 1, category: 'frozen' }, { index: 0, category: 'dairy' }] });
   });

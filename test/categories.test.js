@@ -10,9 +10,9 @@ test('kategorierna följer den överenskomna butiksordningen', () => {
     'Mjöl, bakning, nötter och torkad frukt', 'Folie, bakplåtspapper och påsar', 'Kaffe, te och dryck',
     'Världens mat', 'Torra kryddor', 'Såser, fond, olja och vinäger', 'Grönsakskonserver',
     'Pasta, Ris och nudlar', 'Städ, tvätt och papper', 'Hygien, tandvård och sårvård',
-    'Fryst', 'Godis och snacks', 'Vid och efter kassan', 'Apoteket', 'Systembolaget'
+    'Fryst', 'Godis och snacks', 'Vid och efter kassan', 'Apoteket', 'Systembolaget', 'Övrigt'
   ]);
-  assert.equal(new Set(CATEGORY_IDS).size, 30);
+  assert.equal(new Set(CATEGORY_IDS).size, 31);
 });
 test('tomma kategorier döljs och bockade varor behåller sin plats', () => {
   assert.deepEqual(groupItems([]), []);
@@ -29,3 +29,4 @@ test('tomma kategorier döljs och bockade varor behåller sin plats', () => {
   assert.deepEqual(groupItems(items)[0].items.map(i => i.id), ['potato', 'onion']);
   assert.equal(groupItems([{ category: null }]).at(-1).label, 'Övrigt');
 });
+

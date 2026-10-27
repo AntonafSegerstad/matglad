@@ -38,13 +38,10 @@ export function renderList(container, items, onAction, busy = false, { headings 
       const category = track(doc.createElement('select'), 'category');
       category.className = 'category-select'; category.disabled = busy;
       category.setAttribute('aria-label', `Kategori för ${item.name}`);
-      if (!item.category) {
-        const placeholder = doc.createElement('option'); placeholder.value = ''; placeholder.textContent = 'Välj kategori'; placeholder.disabled = true; placeholder.selected = true;
-        category.append(placeholder);
-      }
+      const selectedCategory = CATEGORIES.some(category => category.id === item.category) ? item.category : 'other';
       for (const optionCategory of CATEGORIES) {
         const option = doc.createElement('option'); option.value = optionCategory.id; option.textContent = optionCategory.label;
-        option.selected = optionCategory.id === item.category; category.append(option);
+        option.selected = optionCategory.id === selectedCategory; category.append(option);
       }
       category.addEventListener('change', () => action({ type: 'update', category: category.value }));
       if (compact) {
