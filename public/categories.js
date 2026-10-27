@@ -37,7 +37,7 @@ export const isCategory = id => CATEGORY_IDS.includes(id);
 export function groupItems(items) {
   const groups = CATEGORIES.map(category => ({ ...category, items: [] }));
   const byId = new Map(groups.map(group => [group.id, group]));
-  const unassigned = { id: null, label: 'Välj kategori', items: [] };
+  const unassigned = { id: null, label: 'Övrigt', items: [] };
   for (const item of items) (byId.get(item.category) || unassigned).items.push(item);
   return [...groups, unassigned].filter(group => group.items.length > 0);
 }

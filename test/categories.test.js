@@ -27,5 +27,5 @@ test('tomma kategorier döljs och bockade varor behåller sin plats', () => {
   assert.deepEqual(groups[0].items.map(i => i.id), ['potato', 'onion']);
   items[1].checked = false; items[2].checked = true;
   assert.deepEqual(groupItems(items)[0].items.map(i => i.id), ['potato', 'onion']);
-  assert.equal(groupItems([{ category: null }]).at(-1).label, 'Välj kategori');
+  assert.equal(groupItems([{ category: null }]).at(-1).label, 'Övrigt');
 });
