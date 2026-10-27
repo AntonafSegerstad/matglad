@@ -91,9 +91,9 @@ Render-konfiguration för direkt skapad tjänst:
 - Health check: `/healthz`
 - Hemligheter: `DATABASE_URL`, `OPENAI_API_KEY` (bara servermiljö)
 
-Det nya Neon-projektet matglad är `orange-mode-28651805`, databas `matglad`. Godnatt och dess databas används inte av appen.
+Neon-projektet matglad är `orange-mode-28651805`. Databasens interna namn `homehelper` och användaren `homehelper_owner` behålls enligt användarens önskemål. Godnatt och dess databas används inte av appen.
 
-GitHub Actions kör tester och syntaxkontroller vid push. Appen är live på https://matglad-i7to.onrender.com. Deployment, databas och OpenAI är verifierade. Rösttillägg och avbockning är testade med syntetiska ljudklipp; svenskt tal från mobilmikrofon återstår att verifiera. Render-verktyget saknar stöd för att skapa projektmappar och kopiera befintliga serverhemligheter; dessa moment behöver Render-panelen eller en separat API-anslutning.
+GitHub Actions kör tester och syntaxkontroller vid push. Appen är live på https://matglad.onrender.com. Deployment, databas och OpenAI är verifierade. Rösttillägg och avbockning är testade med syntetiska ljudklipp; svenskt tal från mobilmikrofon återstår att verifiera. Render-verktyget saknar stöd för att skapa projektmappar och kopiera befintliga serverhemligheter; dessa moment behöver Render-panelen eller en separat API-anslutning.
 
 Appen är avsiktligt öppen: alla som når servern kan läsa och ändra listan samt använda AI-kopplingen. Det finns ett enkelt globalt tak på 60 AI-anrop/timme per process och endast ett samtidigt AI-anrop, inklusive kategorisering. Taket återställs vid omstart; sätt även en budget i OpenAI-projektet. Nyckeln exponeras aldrig till klienten.
 
