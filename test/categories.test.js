@@ -9,7 +9,7 @@ test('kategorierna följer den överenskomna butiksordningen', () => {
     'Chark och ägg', 'Juice, växtdryck och mellanmål', 'Mejeri', 'Kex, flingor och sylt',
     'Mjöl, bakning, nötter och torkad frukt', 'Folie, bakplåtspapper och påsar', 'Kaffe, te och dryck',
     'Världens mat', 'Torra kryddor', 'Såser, fond, olja och vinäger', 'Grönsakskonserver',
-    'Torkad pasta, ris och nudlar', 'Städ, tvätt och papper', 'Hygien, tandvård och sårvård',
+    'Pasta, Ris och nudlar', 'Städ, tvätt och papper', 'Hygien, tandvård och sårvård',
     'Fryst', 'Godis och snacks', 'Vid och efter kassan', 'Apoteket', 'Systembolaget'
   ]);
   assert.equal(new Set(CATEGORY_IDS).size, 30);
