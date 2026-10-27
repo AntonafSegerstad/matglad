@@ -27,7 +27,7 @@ export function renderList(container, items, onAction, busy = false, { headings 
       const label = doc.createElement('label'); label.className = 'item-check';
       const check = track(doc.createElement('input'), 'check');
       check.type = 'checkbox'; check.checked = Boolean(item.checked); check.disabled = busy;
-      const text = doc.createElement('span'); text.className = 'item-name'; text.textContent = item.name;
+      const text = doc.createElement('span'); text.className = 'item-name'; text.textContent = item.name.charAt(0).toLocaleUpperCase('sv-SE') + item.name.slice(1);
       check.addEventListener('change', () => action({ type: check.checked ? 'check' : 'uncheck' }));
       label.append(check, text);
       if ((item.quantity ?? 1) > 1) {
